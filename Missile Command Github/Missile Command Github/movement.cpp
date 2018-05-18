@@ -35,9 +35,9 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 		}
 
 		else if (ev.type == ALLEGRO_EVENT_MOUSE_AXES || ev.type == ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY) {
-			if (ev.mouse.x >= 4 && ev.mouse.x <= SCREEN_W - crosshair->width - 4)
+			if (ev.mouse.x >= 4 && ev.mouse.x <= SCREEN_W - crosshair->width)
 				crosshair->x = ev.mouse.x;
-			if (ev.mouse.y >= 4 && ev.mouse.y <= SCREEN_H - crosshair->height - 4)
+			if (ev.mouse.y >= 4 && ev.mouse.y <= SCREEN_H - crosshair->height - 150)
 				crosshair->y = ev.mouse.y;
 		}
 
@@ -45,6 +45,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 			if (ev.mouse.button & 1) {
 				crosshair->target_x = ev.mouse.x;   //get coordinate of target 
 				crosshair->target_y = ev.mouse.y;
+				printf("(%d, %d) ", ev.mouse.x, ev.mouse.y);
 				fire(crosshair, abm);
 			}
 		}

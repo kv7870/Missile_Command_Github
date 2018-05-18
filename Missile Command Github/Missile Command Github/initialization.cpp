@@ -102,7 +102,17 @@ void initAbm(struct abmData * abm) {
 		abm[i].dest_y = 0;
 		abm[i].used = false;
 		abm[i].launched = false;
-	}
+		abm[i].dx = 0;
+		abm[i].dy = 0;
+		abm[i].x_inc = 0;
+		abm[i].y_inc = 0;
+		abm[i].x_pos = 0;
+		abm[i].y_pos = 0;
+		abm[i].step = 0;
+		abm[i].speed = 0;
+		abm[i].arrived = false;
+	};
+
 
 	for (i = 0; i < 10; i++) {
 		abm[i].launch_x = 20;

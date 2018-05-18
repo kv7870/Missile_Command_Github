@@ -15,13 +15,27 @@ void fire(struct crosshairData * crosshair, struct abmData * abm) {
 		if (!abm[i].used) {  //only fire unused abm 
 			abm[i].dest_x = crosshair->target_x;
 			abm[i].dest_y = crosshair->target_y;
+			abm[i].launch_x = 100;
+			abm[i].launch_y = 700;
 			abm[i].launched = true;
-			abm[i].used = true;
+			//abm[i].used = false;
 			break;
 		}
 	}
+
+	drawAbm(abm);
 }
 
+
+void drawAbm(struct abmData * abm) {
+	for (int i = 0; i < 30; i++) {
+		if (abm[i].launched && !abm[i].used) {
+			al_draw_filled_circle(abm[i].x_pos, abm[i].y_pos, 10, al_map_rgb(255, 255, 255));
+			abm[i].x_pos = abm[i].launch_x;
+			abm[i].y_pos = abm[i].launch_y;
+		}
+	}
+}
 
 
 void updateAbm(struct abmData * abm) {
@@ -29,7 +43,7 @@ void updateAbm(struct abmData * abm) {
 	al_draw_filled_rectangle(50, 800, 100, 850, al_map_rgb(255, 255, 255));
 
 	for (int i = 0; i < 30; i++) {
-		if (abm[i].launched) {  //only update launched abm's 
+		if (abm[i].launched && !abm[i].arrived) {  //only update launched abm's 
 
 			abm[i].dx = fabs(abm[i].dest_x - abm[i].launch_x);
 			abm[i].dy = fabs(abm[i].dest_y - abm[i].launch_y);
@@ -44,11 +58,16 @@ void updateAbm(struct abmData * abm) {
 			abm[i].x_inc = abm[i].dx / abm[i].step;
 			abm[i].y_inc = abm[i].dy / abm[i].step;
 
-			abm[i].x += abm[i].x_inc;
-			abm[i].y += abm[i].y_inc;
+			abm[i].x_pos += 10 * abm[i].x_inc;
+			abm[i].y_pos -= 10 * abm[i].y_inc;
+
+			if (abm[i].x_pos == abm[i].dest_x && abm[i].y_pos == abm[i].dest_y) {
+				abm[i].arrived = true;
+			}
 
 
-			al_draw_filled_rectangle(abm[i].x, abm[i].y, (abm[i].x) - 500, (abm[i].y) - 500, al_map_rgb(255, 255, 255));
+			al_draw_filled_circle(abm[i].x_pos, abm[i].y_pos + 45, 10, al_map_rgb(255, 255, 255));
+			al_draw_line(abm[i].x_pos, abm[i].y_pos + 45, abm[i].launch_x - 5, abm[i].launch_y + 45, al_map_rgb(255, 255, 255), 3);
 		}
 	}
 }
