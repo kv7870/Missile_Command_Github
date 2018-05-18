@@ -163,6 +163,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="fire.cpp" />
     <ClCompile Include="initialization.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="movement.cpp" />

@@ -101,6 +101,7 @@ void initAbm(struct abmData * abm) {
 		abm[i].dest_x = 0;
 		abm[i].dest_y = 0;
 		abm[i].used = false;
+		abm[i].launched = false;
 	}
 
 	for (i = 0; i < 10; i++) {

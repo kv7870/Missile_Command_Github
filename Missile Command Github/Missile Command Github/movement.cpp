@@ -9,7 +9,7 @@
 #include "header.h"
 
 
-void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, struct crosshairData crosshair, struct abmData * abm) {
+void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, struct crosshairData * crosshair, struct abmData * abm) {
 
 	//ship.x = SCREEN_W / 2.0 - BOUNCER_SIZE / 2.0;
 	//ship.y = SCREEN_H / 2.0 - BOUNCER_SIZE / 2.0;
@@ -35,15 +35,18 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 		}
 
 		else if (ev.type == ALLEGRO_EVENT_MOUSE_AXES || ev.type == ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY) {
-			if (ev.mouse.x >= 4 && ev.mouse.x <= SCREEN_W - crosshair.width - 4)
-				crosshair.x = ev.mouse.x;
-			if (ev.mouse.y >= 4 && ev.mouse.y <= SCREEN_H - crosshair.height - 4)
-				crosshair.y = ev.mouse.y;
+			if (ev.mouse.x >= 4 && ev.mouse.x <= SCREEN_W - crosshair->width - 4)
+				crosshair->x = ev.mouse.x;
+			if (ev.mouse.y >= 4 && ev.mouse.y <= SCREEN_H - crosshair->height - 4)
+				crosshair->y = ev.mouse.y;
 		}
 
 		else if (ev.type = ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
-			if (ev.mouse.button & 1)
-				printf("Fire");
+			if (ev.mouse.button & 1) {
+				crosshair->target_x = ev.mouse.x;   //get coordinate of target 
+				crosshair->target_y = ev.mouse.y;
+				fire(crosshair, abm);
+			}
 		}
 
 		//if key is being pressed 
@@ -52,8 +55,9 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			case ALLEGRO_KEY_SPACE:
 				key[KEY_SPACE] = true;
-				printf("Fire");//fireBullet(bullet, NUM_BULLETS, player, crosshairWidth);
-							   //fire(*crosshair, imageEnemy);
+				crosshair->target_x = ev.mouse.x;
+				crosshair->target_y = ev.mouse.y;
+				//fire(crosshair, abm); 
 				break;
 			}
 		}
@@ -93,8 +97,9 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			al_clear_to_color(al_map_rgb(0, 0, 0));  //clear screen to black to create illusion of animation; draw & clear screen, draw & clear screen... 
 
-			drawCrosshair(imageCrosshair, crosshair);
-			//fire(*crosshair, imageEnemy);
+			drawCrosshair(imageCrosshair, *crosshair);
+
+			updateAbm(abm);
 
 			al_flip_display();
 		}

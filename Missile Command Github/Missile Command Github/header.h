@@ -1,6 +1,7 @@
 #pragma once
 
 //globals 
+
 const float FPS = 60;
 const int SCREEN_W = 900;
 const int SCREEN_H = 900;
@@ -24,6 +25,8 @@ struct crosshairData {
 	float y;
 	float height;
 	float width;
+	float target_x;
+	float target_y;
 };
 
 
@@ -33,8 +36,17 @@ struct abmData {
 	float dest_y;
 	float launch_x;
 	float launch_y;
+	float dx;
+	float dy;
+	float x_inc;
+	float y_inc;
+	float x_pos;
+	float y_pos;
+	float step;
 	int speed;
 	bool used;
+	bool launched;
+	bool arrived;
 };
 
 
@@ -43,6 +55,10 @@ int initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP
 void initCrosshair(struct crosshairData * crosshair, ALLEGRO_BITMAP * imageCrosshair);
 void initAbm(struct abmData * abm);
 
-void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, struct crosshairData crosshair, struct abmData * abm);
+void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, struct crosshairData * crosshair, struct abmData * abm);
 
 void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, struct crosshairData data);
+
+void fire(struct crosshairData * crosshair, struct abmData * abm);
+void updateAbm(struct abmData * abm);
+void drawAbm(struct abmData * abm);
