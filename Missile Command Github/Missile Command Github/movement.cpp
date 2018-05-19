@@ -9,15 +9,14 @@
 #include "header.h"
 
 
-void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair * crosshair, struct abmData * abm) {
+void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_BITMAP **frameExplosion, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair * crosshair, struct abmData * abm) {
 
 	//ship.x = SCREEN_W / 2.0 - BOUNCER_SIZE / 2.0;
 	//ship.y = SCREEN_H / 2.0 - BOUNCER_SIZE / 2.0;
 	bool done = false;
 	bool draw = true;
-	ALLEGRO_MOUSE_STATE state;
 
-	//move key[5] to global variable? 
+
 	bool key[5] = { false, false, false, false, false };  //array with members KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT; each member is true or false 
 
 	al_hide_mouse_cursor(display);
@@ -30,6 +29,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 		if (ev.type == ALLEGRO_EVENT_TIMER) {  //update every 1/60 of a second 
 			draw = true;
 			updateAbm(abm); 
+			abmArrival(abm); 
 		}
 
 		else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
@@ -96,14 +96,6 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 				break;
 			}
 		}
-
-		/*al_get_mouse_state(&state);
-		if (state.buttons & 1) {
-			crosshair->target_x = ev.mouse.x;   //get coordinate of target 
-			crosshair->target_y = ev.mouse.y;
-			printf("(%d, %d) ", ev.mouse.x, ev.mouse.y);
-			fire(abm, *crosshair);
-		}*/
 
 		//must draw everything every tick of timer 
 		if (draw && al_is_event_queue_empty(event_queue)) {

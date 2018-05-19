@@ -49,18 +49,20 @@ struct abmData {
 	bool used;
 	bool launched;
 	bool arrived;
+	int distance; 
 };
 
 
 //prototypes
-int initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP **imageCrosshair, ALLEGRO_EVENT_QUEUE **event_queue);
+int initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP **imageCrosshair, ALLEGRO_BITMAP **frameExplosion, ALLEGRO_EVENT_QUEUE **event_queue);
 void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair);
 void initAbm(struct abmData * abm);
 
-void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair * crosshair, struct abmData * abm);
+void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_BITMAP **frameExplosion, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair * crosshair, struct abmData * abm);
 
 void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, struct crosshairData data);
 
 void fire(struct abmData * abm, Crosshair crosshair);
 void updateAbm(struct abmData * abm);
 void drawAbm(struct abmData * abm);
+void abmArrival(struct abmData * abm);

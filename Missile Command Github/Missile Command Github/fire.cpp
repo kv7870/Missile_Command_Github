@@ -120,12 +120,10 @@ void updateAbm(struct abmData * abm) {
 	for (int i = 0; i < 30; i++) {
 		if (abm[i].launched) {  //only update launched abm's 
 
-			if(abm[i].y_pos <100) {
-			//if (abm[i].x_pos == abm[i].dest_x && abm[i].y_pos == abm[i].dest_y) {
-				printf("arrived");
+			/*if (abm[i].x_pos == abm[i].dest_x+10 && abm[i].y_pos == abm[i].dest_y+10) {
 				abm[i].launched = false;
 				abm[i].used = true;
-			}
+			}*/
 
 			abm[i].dx = fabs(abm[i].dest_x - abm[i].launch_x);
 			abm[i].dy = fabs(abm[i].dest_y - abm[i].launch_y);
