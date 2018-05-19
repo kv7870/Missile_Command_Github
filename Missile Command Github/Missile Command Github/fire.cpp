@@ -28,29 +28,26 @@
 
 
 void fire(struct abmData * abm, Crosshair crosshair) {
-	int i; 
-	bool closestLaunchSuccess = false; 
+	int i;
+	bool closestLaunchSuccess = false;
 	bool launchSuccess = false; //if any 1 abm is fired upon mouseclick, only for diagnosis 
-	
-	//try to fire from first battery
-	if (crosshair.target_x < 300) { 
+
+	if(crosshair.target_x <= 300) {
 		for (i = 0; i < 10; i++) {
 			if (!abm[i].launched && !abm[i].used) {
 				abm[i].x_pos = abm[i].launch_x;
 				abm[i].y_pos = abm[i].launch_y;
 				abm[i].dest_x = crosshair.target_x;
 				abm[i].dest_y = crosshair.target_y;
-				abm[i].launched = true; //this abm will now be updated henceforth
-				al_draw_filled_circle(abm[i].x_pos, abm[i].y_pos, 10, al_map_rgb(255, 255, 255));
-				closestLaunchSuccess = true; 
-				launchSuccess = true; 
+				abm[i].launched = true; 
+				closestLaunchSuccess = true;
+				launchSuccess = true;
 				break;
 			}
 		}
 	}
 
-	//try to fire from second battery
-	else if (crosshair.target_y > 300 && crosshair.x < 600) { 
+	else if(crosshair.target_y > 300 && crosshair.x <= 600) {
 		for (i = 10; i < 20; i++) {
 			if (!abm[i].launched && !abm[i].used) {
 				abm[i].x_pos = abm[i].launch_x;
@@ -58,7 +55,6 @@ void fire(struct abmData * abm, Crosshair crosshair) {
 				abm[i].dest_x = crosshair.target_x;
 				abm[i].dest_y = crosshair.target_y;
 				abm[i].launched = true;
-				//al_draw_filled_circle(abm[i].x_pos, abm[i].y_pos, 10, al_map_rgb(255, 255, 255));
 				closestLaunchSuccess = true;
 				launchSuccess = true;
 				break;
@@ -66,22 +62,21 @@ void fire(struct abmData * abm, Crosshair crosshair) {
 		}
 	}
 
-	//try to fire from third battery
-	else if (crosshair.x > 600) {
+	else if (crosshair.target_x > 600) {
 		for (i = 20; i < 30; i++) {
 			if (!abm[i].launched && !abm[i].used) {
 				abm[i].x_pos = abm[i].launch_x;
 				abm[i].y_pos = abm[i].launch_y;
 				abm[i].dest_x = crosshair.target_x;
-				abm[i].dest_y = crosshair.target_y;
+				abm[i].dest_y = crosshair.target_y; 
 				abm[i].launched = true;
-				//al_draw_filled_circle(abm[i].x_pos, abm[i].y_pos, 10, al_map_rgb(255, 255, 255));
 				closestLaunchSuccess = true;
 				launchSuccess = true;
 				break;
 			}
 		}
 	}
+
 
 	//if cannot fire from nearest battery
 	if (!closestLaunchSuccess) {
@@ -91,8 +86,8 @@ void fire(struct abmData * abm, Crosshair crosshair) {
 				abm[i].y_pos = abm[i].launch_y;
 				abm[i].dest_x = crosshair.target_x;
 				abm[i].dest_y = crosshair.target_y;
-				//al_draw_filled_circle(abm[i].x_pos, abm[i].y_pos, 10, al_map_rgb(255, 255, 255));
-				launchSuccess = true; 
+				abm[i].launched = true;
+				launchSuccess = true;
 				break;
 			}
 		}
@@ -102,9 +97,6 @@ void fire(struct abmData * abm, Crosshair crosshair) {
 		printf("Out of ABMs!"); 
 	}
 
-	//reset 
-	closestLaunchSuccess = false; 
-	launchSuccess = false; 
 }
 
 
@@ -114,7 +106,7 @@ void drawAbm(struct abmData * abm) {
 	al_draw_filled_rectangle(800, 830, 890, 900, al_map_rgb(255, 255, 255));  //(845, 830)
 
 	for (int i = 0; i < 30; i++) {
-		if (abm[i].launched && !abm[i].used) {
+		if (abm[i].launched) {
 			al_draw_filled_circle(abm[i].x_pos, abm[i].y_pos, 10, al_map_rgb(255, 255, 255));
 			al_draw_line(abm[i].x_pos, abm[i].y_pos, abm[i].launch_x, abm[i].launch_y, al_map_rgb(255, 255, 255), 3);
 		}
@@ -128,7 +120,8 @@ void updateAbm(struct abmData * abm) {
 	for (int i = 0; i < 30; i++) {
 		if (abm[i].launched) {  //only update launched abm's 
 
-			if (abm[i].x_pos == abm[i].dest_x && abm[i].y_pos == abm[i].dest_y) {
+			if(abm[i].y_pos <100) {
+			//if (abm[i].x_pos == abm[i].dest_x && abm[i].y_pos == abm[i].dest_y) {
 				printf("arrived");
 				abm[i].launched = false;
 				abm[i].used = true;
