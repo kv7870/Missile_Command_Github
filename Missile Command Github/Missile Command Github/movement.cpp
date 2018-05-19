@@ -9,7 +9,7 @@
 #include "header.h"
 
 
-void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, struct crosshairData * crosshair, struct abmData * abm) {
+void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair * crosshair, struct abmData * abm) {
 
 	//ship.x = SCREEN_W / 2.0 - BOUNCER_SIZE / 2.0;
 	//ship.y = SCREEN_H / 2.0 - BOUNCER_SIZE / 2.0;
@@ -28,6 +28,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 		if (ev.type == ALLEGRO_EVENT_TIMER) {  //update every 1/60 of a second 
 			draw = true;
+			updateAbm(abm); 
 		}
 
 		else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
@@ -37,7 +38,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 		else if (ev.type == ALLEGRO_EVENT_MOUSE_AXES || ev.type == ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY) {
 			if (ev.mouse.x >= 4 && ev.mouse.x <= SCREEN_W - crosshair->width)
 				crosshair->x = ev.mouse.x;
-			if (ev.mouse.y >= 4 && ev.mouse.y <= SCREEN_H - crosshair->height - 150)
+			if (ev.mouse.y >= 4 && ev.mouse.y <= SCREEN_H - crosshair->height/*-150*/)
 				crosshair->y = ev.mouse.y;
 		}
 
@@ -46,7 +47,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 				crosshair->target_x = ev.mouse.x;   //get coordinate of target 
 				crosshair->target_y = ev.mouse.y;
 				printf("(%d, %d) ", ev.mouse.x, ev.mouse.y);
-				fire(crosshair, abm);
+				fire(abm, *crosshair);
 			}
 		}
 
@@ -100,7 +101,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			drawCrosshair(imageCrosshair, *crosshair);
 
-			updateAbm(abm);
+			drawAbm(abm); 
 
 			al_flip_display();
 		}
@@ -112,5 +113,5 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 }
 
 void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, struct crosshairData crosshair) {
-	al_draw_bitmap(imageCrosshair, crosshair.x, crosshair.y, 0);
+	al_draw_bitmap(imageCrosshair, crosshair.x-27, crosshair.y-23, 0);
 }

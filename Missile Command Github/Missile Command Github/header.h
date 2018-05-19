@@ -20,22 +20,22 @@ enum ID { PLAYER, BULLET, ENEMY };
 enum BATTERY { LEFT, CENTER, RIGHT };
 
 //crosshair 
-struct crosshairData {
+typedef struct crosshairData {
 	float x;
 	float y;
 	float height;
 	float width;
 	float target_x;
 	float target_y;
-};
+} Crosshair;
 
 
 //each individual ABM has these properties 
 struct abmData {
-	float dest_x;
-	float dest_y;
-	float launch_x;
-	float launch_y;
+	int dest_x;
+	int dest_y;
+	int launch_x;
+	int launch_y;
 	float dx;
 	float dy;
 	float x_inc;
@@ -52,13 +52,13 @@ struct abmData {
 
 //prototypes
 int initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP **imageCrosshair, ALLEGRO_EVENT_QUEUE **event_queue);
-void initCrosshair(struct crosshairData * crosshair, ALLEGRO_BITMAP * imageCrosshair);
+void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair);
 void initAbm(struct abmData * abm);
 
-void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, struct crosshairData * crosshair, struct abmData * abm);
+void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair * crosshair, struct abmData * abm);
 
 void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, struct crosshairData data);
 
-void fire(struct crosshairData * crosshair, struct abmData * abm);
+void fire(struct abmData * abm, Crosshair crosshair);
 void updateAbm(struct abmData * abm);
 void drawAbm(struct abmData * abm);

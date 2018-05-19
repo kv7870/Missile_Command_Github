@@ -86,7 +86,7 @@ int initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP
 }
 
 //spawn crosshair at center of screen y
-void initCrosshair(struct crosshairData * crosshair, ALLEGRO_BITMAP * imageCrosshair) {
+void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair) {
 	crosshair->x = 450;
 	crosshair->y = 450;
 	crosshair->height = al_get_bitmap_height(imageCrosshair);
@@ -113,21 +113,24 @@ void initAbm(struct abmData * abm) {
 		abm[i].arrived = false;
 	};
 
-
+	//1st battery (left)
 	for (i = 0; i < 10; i++) {
-		abm[i].launch_x = 20;
-		abm[i].launch_y = 50;
+		abm[i].launch_x = 55;
+		abm[i].launch_y = 830;
 		abm[i].speed = 5;
 	}
 
+	//2nd battery (center)
 	for (i = 10; i < 20; i++) {
-		abm[i].launch_x = 250;
-		abm[i].launch_y = 50;
+		abm[i].launch_x = 445;
+		abm[i].launch_y = 830;
 		abm[i].speed = 10;
 	}
+
+	//3rd battery (right)
 	for (i = 20; i < 30; i++) {
-		abm[i].launch_x = 850;
-		abm[i].launch_y = 50;
+		abm[i].launch_x = 845;
+		abm[i].launch_y = 830;
 		abm[i].speed = 5;
 	}
 }

@@ -9,41 +9,130 @@
 #include <allegro5/allegro_primitives.h>
 #include "header.h"
 
-void fire(struct crosshairData * crosshair, struct abmData * abm) {
+/*void fire(Crosshair crosshair, struct abmData * abm) {
 
 	for (int i = 0; i < 30; i++) {
 		if (!abm[i].used) {  //only fire unused abm 
-			abm[i].dest_x = crosshair->target_x;
-			abm[i].dest_y = crosshair->target_y;
+			abm[i].dest_x = crosshair.target_x;
+			abm[i].dest_y = crosshair.target_y;
 			abm[i].launch_x = 100;
 			abm[i].launch_y = 700;
 			abm[i].launched = true;
-			//abm[i].used = false;
+			abm[i].used = false;
 			break;
 		}
 	}
 
-	drawAbm(abm);
+	drawAbm(abm, crosshair);
+}*/
+
+
+void fire(struct abmData * abm, Crosshair crosshair) {
+	int i; 
+	bool closestLaunchSuccess = false; 
+	bool launchSuccess = false; //if any 1 abm is fired upon mouseclick, only for diagnosis 
+	
+	//try to fire from first battery
+	if (crosshair.target_x < 300) { 
+		for (i = 0; i < 10; i++) {
+			if (!abm[i].launched && !abm[i].used) {
+				abm[i].x_pos = abm[i].launch_x;
+				abm[i].y_pos = abm[i].launch_y;
+				abm[i].dest_x = crosshair.target_x;
+				abm[i].dest_y = crosshair.target_y;
+				abm[i].launched = true; //this abm will now be updated henceforth
+				al_draw_filled_circle(abm[i].x_pos, abm[i].y_pos, 10, al_map_rgb(255, 255, 255));
+				closestLaunchSuccess = true; 
+				launchSuccess = true; 
+				break;
+			}
+		}
+	}
+
+	//try to fire from second battery
+	else if (crosshair.target_y > 300 && crosshair.x < 600) { 
+		for (i = 10; i < 20; i++) {
+			if (!abm[i].launched && !abm[i].used) {
+				abm[i].x_pos = abm[i].launch_x;
+				abm[i].y_pos = abm[i].launch_y;
+				abm[i].dest_x = crosshair.target_x;
+				abm[i].dest_y = crosshair.target_y;
+				abm[i].launched = true;
+				//al_draw_filled_circle(abm[i].x_pos, abm[i].y_pos, 10, al_map_rgb(255, 255, 255));
+				closestLaunchSuccess = true;
+				launchSuccess = true;
+				break;
+			}
+		}
+	}
+
+	//try to fire from third battery
+	else if (crosshair.x > 600) {
+		for (i = 20; i < 30; i++) {
+			if (!abm[i].launched && !abm[i].used) {
+				abm[i].x_pos = abm[i].launch_x;
+				abm[i].y_pos = abm[i].launch_y;
+				abm[i].dest_x = crosshair.target_x;
+				abm[i].dest_y = crosshair.target_y;
+				abm[i].launched = true;
+				//al_draw_filled_circle(abm[i].x_pos, abm[i].y_pos, 10, al_map_rgb(255, 255, 255));
+				closestLaunchSuccess = true;
+				launchSuccess = true;
+				break;
+			}
+		}
+	}
+
+	//if cannot fire from nearest battery
+	if (!closestLaunchSuccess) {
+		for (i = 0; i < 30; i++) {
+			if (!abm[i].launched && !abm[i].used) {
+				abm[i].x_pos = abm[i].launch_x;
+				abm[i].y_pos = abm[i].launch_y;
+				abm[i].dest_x = crosshair.target_x;
+				abm[i].dest_y = crosshair.target_y;
+				//al_draw_filled_circle(abm[i].x_pos, abm[i].y_pos, 10, al_map_rgb(255, 255, 255));
+				launchSuccess = true; 
+				break;
+			}
+		}
+	}
+
+	if (!launchSuccess) {
+		printf("Out of ABMs!"); 
+	}
+
+	//reset 
+	closestLaunchSuccess = false; 
+	launchSuccess = false; 
 }
 
 
 void drawAbm(struct abmData * abm) {
+	al_draw_filled_rectangle(10, 830, 100, 900, al_map_rgb(255, 255, 255));   //(55, 830)
+	al_draw_filled_rectangle(400, 830, 490, 900, al_map_rgb(255, 255, 255));  //(445, 830)
+	al_draw_filled_rectangle(800, 830, 890, 900, al_map_rgb(255, 255, 255));  //(845, 830)
+
 	for (int i = 0; i < 30; i++) {
 		if (abm[i].launched && !abm[i].used) {
 			al_draw_filled_circle(abm[i].x_pos, abm[i].y_pos, 10, al_map_rgb(255, 255, 255));
-			abm[i].x_pos = abm[i].launch_x;
-			abm[i].y_pos = abm[i].launch_y;
+			al_draw_line(abm[i].x_pos, abm[i].y_pos, abm[i].launch_x, abm[i].launch_y, al_map_rgb(255, 255, 255), 3);
 		}
 	}
 }
 
 
+//update in buffer 
 void updateAbm(struct abmData * abm) {
 
-	al_draw_filled_rectangle(50, 800, 100, 850, al_map_rgb(255, 255, 255));
-
 	for (int i = 0; i < 30; i++) {
-		if (abm[i].launched && !abm[i].arrived) {  //only update launched abm's 
+		if (abm[i].launched) {  //only update launched abm's 
+
+			if (abm[i].x_pos == abm[i].dest_x && abm[i].y_pos == abm[i].dest_y) {
+				printf("arrived");
+				abm[i].launched = false;
+				abm[i].used = true;
+			}
 
 			abm[i].dx = fabs(abm[i].dest_x - abm[i].launch_x);
 			abm[i].dy = fabs(abm[i].dest_y - abm[i].launch_y);
@@ -58,16 +147,15 @@ void updateAbm(struct abmData * abm) {
 			abm[i].x_inc = abm[i].dx / abm[i].step;
 			abm[i].y_inc = abm[i].dy / abm[i].step;
 
-			abm[i].x_pos += 10 * abm[i].x_inc;
-			abm[i].y_pos -= 10 * abm[i].y_inc;
+			abm[i].y_pos -= 5 * abm[i].y_inc;
 
-			if (abm[i].x_pos == abm[i].dest_x && abm[i].y_pos == abm[i].dest_y) {
-				abm[i].arrived = true;
+			if (abm[i].dest_x > abm[i].launch_x) {
+				abm[i].x_pos += 5 * abm[i].x_inc; 
 			}
-
-
-			al_draw_filled_circle(abm[i].x_pos, abm[i].y_pos + 45, 10, al_map_rgb(255, 255, 255));
-			al_draw_line(abm[i].x_pos, abm[i].y_pos + 45, abm[i].launch_x - 5, abm[i].launch_y + 45, al_map_rgb(255, 255, 255), 3);
+			else if (abm[i].dest_x < abm[i].launch_x) {
+				abm[i].x_pos -= 5 * abm[i].x_inc;
+			}
 		}
 	}
 }
+
