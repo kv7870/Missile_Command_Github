@@ -19,6 +19,8 @@ enum ID { PLAYER, BULLET, ENEMY };
 
 enum BATTERY { LEFT, CENTER, RIGHT };
 
+enum MOUSE {LMB_UP, LMB_DOWN };
+
 //crosshair 
 typedef struct crosshairData {
 	float x;
