@@ -38,6 +38,8 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			spawnMirv(enemy, mirv); 
 			updateMirv(mirv);
+
+			hitDetection(abm, enemy); 
 		}
 
 		else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {

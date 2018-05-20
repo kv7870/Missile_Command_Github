@@ -166,6 +166,7 @@
     <ClCompile Include="abmArrival.cpp" />
     <ClCompile Include="enemies.cpp" />
     <ClCompile Include="fire.cpp" />
+    <ClCompile Include="hit_detection.cpp" />
     <ClCompile Include="initialization.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="movement.cpp" />

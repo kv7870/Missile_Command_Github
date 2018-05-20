@@ -108,8 +108,8 @@ void drawAbm(struct abmData * abm) {
 
 	for (int i = 0; i < 30; i++) {
 		if (abm[i].launched) {
-			al_draw_filled_circle(abm[i].x_pos, abm[i].y_pos, 10, al_map_rgb(255, 255, 255));
-			al_draw_line(abm[i].x_pos, abm[i].y_pos, abm[i].launch_x, abm[i].launch_y, al_map_rgb(255, 255, 255), 3);
+			al_draw_filled_rectangle(abm[i].x_pos-3, abm[i].y_pos-3, abm[i].x_pos+3, abm[i].y_pos+3, al_map_rgb(255, 255, 255));
+			al_draw_line(abm[i].x_pos, abm[i].y_pos+3, abm[i].launch_x, abm[i].launch_y, al_map_rgb(0, 0, 255), 4);
 		}
 	}
 }
@@ -119,7 +119,7 @@ void drawAbm(struct abmData * abm) {
 void updateAbm(struct abmData * abm) {
 
 	for (int i = 0; i < 30; i++) {
-		if (abm[i].launched) {  //only update launched abm's 
+		if (abm[i].launched) {  //only update launched & alive abm's 
 
 			abm[i].dx = fabs(abm[i].dest_x - abm[i].launch_x);
 			abm[i].dy = fabs(abm[i].dest_y - abm[i].launch_y);
@@ -134,13 +134,13 @@ void updateAbm(struct abmData * abm) {
 			abm[i].x_inc = abm[i].dx / abm[i].step;
 			abm[i].y_inc = abm[i].dy / abm[i].step;
 
-			abm[i].y_pos -= 5 * abm[i].y_inc;
+			abm[i].y_pos -= 10 * abm[i].y_inc;
 
 			if (abm[i].dest_x > abm[i].launch_x) {
-				abm[i].x_pos += 5 * abm[i].x_inc; 
+				abm[i].x_pos += 10 * abm[i].x_inc; 
 			}
 			else if (abm[i].dest_x < abm[i].launch_x) {
-				abm[i].x_pos -= 5 * abm[i].x_inc;
+				abm[i].x_pos -= 10 * abm[i].x_inc;
 			}
 		}
 	}

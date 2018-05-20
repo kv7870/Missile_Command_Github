@@ -9,10 +9,11 @@ const int BOUNCER_SIZE = 32;
 const int NUM_BULLETS = 100;
 const int ROWS = 5;   //rows of enemies
 const int COLS = 3;  //columns of enemies 
-const int NUM_ENEMIES_TOTAL = 8;
 const int frameCount = 33; 
 const int MAX_ENEMY = 5; //max enemies on screen at one time
 const int ENEMY_COUNT = 20; //20 enemies 
+const int SIZE = 1.5;  //3x3 square
+const int ABM_COUNT = 30; 
 
 enum KEYS {
 	KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_SPACE  //by default member 1 = 0, member 2 = 1, member 3 = 2, member 4 = 3... 
@@ -22,7 +23,10 @@ enum ID { PLAYER, BULLET, ENEMY };
 
 enum BATTERY { LEFT, CENTER, RIGHT };
 
-enum MOUSE {LMB_UP, LMB_DOWN };
+typedef struct vectorData {
+	int x; 
+	int y; 
+} Vector; 
 
 //crosshair 
 typedef struct crosshairData {
@@ -53,9 +57,12 @@ struct abmData {
 	bool arrived;
 	int distance; 
 	bool exploded; 
-	int curr; 
 	float explosionRadius; 
 	bool increaseRadius; 
+	Vector topRight; 
+	Vector topLeft;
+	Vector bottomRight;
+	Vector bottomLeft;
 };
 
 typedef struct enemyData {
@@ -75,17 +82,25 @@ typedef struct enemyData {
 	bool arrived;
 	int distance;
 	bool exploded;
-	float explosionRadius;
-	bool increaseRadius;
 	bool split; 
-	int splitNum; 
-}Enemy;
+	Vector topRight;
+	Vector topLeft;
+	Vector bottomRight;
+	Vector bottomLeft;
+	int relativeX;
+	int relativeY;
+	int distX;
+	int distY; 
+	int distTotal; 
+	bool hit; 
+	//bounds
+} Enemy;
 
 
 //multiple independently targetable reentry vehicle
 typedef struct mirvData { 
 	Enemy branch[3]; 
-}Mirv; 
+} Mirv; 
 
 
 
@@ -114,3 +129,5 @@ void enemyArrival(Enemy * enemy, int * curr_num_enemy);
 void spawnMirv(Enemy * enemy, Mirv * mirv);
 void updateMirv(Mirv * mirv);
 void drawMirv(Mirv * mirv);
+
+void hitDetection(struct abmData * abm, Enemy * enemy); 

@@ -151,7 +151,6 @@ void initAbm(struct abmData * abm) {
 		abm[i].speed = 0;
 		abm[i].arrived = false;
 		abm[i].exploded = false; 
-		abm[i].curr = 0; 
 		abm[i].explosionRadius = 0; 
 		abm[i].increaseRadius = true; 
 	};
@@ -195,13 +194,15 @@ void initEnemy(Enemy * enemy, Mirv * mirv) {
 		enemy[i].speed = 0;
 		enemy[i].arrived = false;
 		enemy[i].exploded = false;
-		enemy[i].explosionRadius = 0;
-		enemy[i].increaseRadius = true;
 		enemy[i].launch_y = 0;
 		enemy[i].dest_y = 850; 
 		enemy[i].split = false; 
-		enemy[i].splitNum = 0; 
-
+		enemy[i].relativeX = 0;
+		enemy[i].relativeY = 0; 
+		enemy[i].distX = 0;
+		enemy[i].distY = 0;
+		enemy[i].distTotal = 0;
+		enemy[i].hit = false;
 
 		//init mirv 
 		for (int j = 0; j < 3; j++) {
@@ -218,8 +219,6 @@ void initEnemy(Enemy * enemy, Mirv * mirv) {
 			mirv[i].branch[j].speed = 0;
 			mirv[i].branch[j].arrived = false;
 			mirv[i].branch[j].exploded = false;
-			mirv[i].branch[j].explosionRadius = 0;
-			mirv[i].branch[j].increaseRadius = true;
 			mirv[i].branch[j].launch_y = 0;
 			mirv[i].branch[j].dest_y = 850;
 		}

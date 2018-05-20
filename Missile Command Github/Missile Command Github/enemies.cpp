@@ -34,16 +34,6 @@ void spawnEnemy(Enemy * enemy, int * curr_enemy_num, int * num_spawned) {
 }
 
 
-void drawEnemy(Enemy * enemy) {
-	for (int i = 0; i < ENEMY_COUNT; i++) {
-		if (enemy[i].launched) {
-			al_draw_filled_circle(enemy[i].x_pos, enemy[i].y_pos, 10, al_map_rgb(255, 255, 255));
-			al_draw_line(enemy[i].x_pos, enemy[i].y_pos, enemy[i].launch_x, enemy[i].launch_y, al_map_rgb(255, 255, 255), 3);
-		}
-	}
-}
-
-
 void updateEnemy(Enemy * enemy) {
 	for (int i = 0; i < ENEMY_COUNT; i++) {
 		if (enemy[i].launched) {
@@ -70,8 +60,25 @@ void updateEnemy(Enemy * enemy) {
 				enemy[i].x_pos -= 2 * enemy[i].x_inc;
 			}
 
-			enemy[i].splitNum = rand() % 100 + 1; 
+			enemy[i].topLeft.x = enemy[i].x_pos - SIZE;
+			enemy[i].topLeft.y = enemy[i].y_pos - SIZE;
+			enemy[i].topRight.x = enemy[i].x_pos + SIZE;
+			enemy[i].topRight.y = enemy[i].y_pos - SIZE;
 
+			enemy[i].bottomLeft.x = enemy[i].x_pos - SIZE;
+			enemy[i].bottomLeft.y = enemy[i].y_pos + SIZE;
+			enemy[i].bottomRight.x = enemy[i].x_pos + SIZE;
+			enemy[i].bottomRight.y = enemy[i].y_pos + SIZE; 
+		}
+	}
+}
+
+
+void drawEnemy(Enemy * enemy) {
+	for (int i = 0; i < ENEMY_COUNT; i++) {
+		if (enemy[i].launched) {
+			al_draw_filled_rectangle(enemy[i].x_pos - 3, enemy[i].y_pos - 3, enemy[i].x_pos + 3, enemy[i].y_pos + 3, al_map_rgb(255, 255, 255));
+			al_draw_line(enemy[i].x_pos, enemy[i].y_pos - 3, enemy[i].launch_x, enemy[i].launch_y, al_map_rgb(255, 0, 0), 4);
 		}
 	}
 }
@@ -149,8 +156,8 @@ void drawMirv(Mirv * mirv) {
 	for (int i = 0; i < ENEMY_COUNT; i++) {
 		for (int j = 0; j < 3; j++) {
 			if (mirv[i].branch[j].launched) {
-				al_draw_filled_circle(mirv[i].branch[j].x_pos, mirv[i].branch[j].y_pos, 10, al_map_rgb(255, 255, 255));
-				al_draw_line(mirv[i].branch[j].x_pos, mirv[i].branch[j].y_pos, mirv[i].branch[j].launch_x, mirv[i].branch[j].launch_y, al_map_rgb(255, 255, 255), 3);
+				al_draw_filled_rectangle(mirv[i].branch[j].x_pos-3, mirv[i].branch[j].y_pos - 3, mirv[i].branch[j].x_pos + 3, mirv[i].branch[j].y_pos + 3, al_map_rgb(255, 255, 255));
+				al_draw_line(mirv[i].branch[j].x_pos-3, mirv[i].branch[j].y_pos, mirv[i].branch[j].launch_x, mirv[i].branch[j].launch_y, al_map_rgb(255,0, 0), 4);
 			}
 		}
 	}
