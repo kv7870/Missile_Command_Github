@@ -10,6 +10,7 @@ const int NUM_BULLETS = 100;
 const int ROWS = 5;   //rows of enemies
 const int COLS = 3;  //columns of enemies 
 const int NUM_ENEMIES_TOTAL = 8;
+const int frameCount = 33; 
 
 enum KEYS {
 	KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_SPACE  //by default member 1 = 0, member 2 = 1, member 3 = 2, member 4 = 3... 
@@ -46,10 +47,13 @@ struct abmData {
 	float y_pos;
 	float step;
 	int speed;
-	bool used;
 	bool launched;
 	bool arrived;
 	int distance; 
+	bool exploded; 
+	int curr; 
+	float explosionRadius; 
+	bool increaseRadius; 
 };
 
 
@@ -65,4 +69,5 @@ void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, struct crosshairData data);
 void fire(struct abmData * abm, Crosshair crosshair);
 void updateAbm(struct abmData * abm);
 void drawAbm(struct abmData * abm);
-void abmArrival(struct abmData * abm);
+void abmArrival(struct abmData * abm);  //check if abm arrived
+void drawExplosion(struct abmData * abm); 

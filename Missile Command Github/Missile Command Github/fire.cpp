@@ -8,6 +8,8 @@
 #include <allegro5/allegro_native_dialog.h>
 #include <allegro5/allegro_primitives.h>
 #include "header.h"
+#include <time.h>
+#include <stdlib.h>
 
 /*void fire(Crosshair crosshair, struct abmData * abm) {
 
@@ -34,7 +36,7 @@ void fire(struct abmData * abm, Crosshair crosshair) {
 
 	if(crosshair.target_x <= 300) {
 		for (i = 0; i < 10; i++) {
-			if (!abm[i].launched && !abm[i].used) {
+			if (!abm[i].launched && !abm[i].arrived) {
 				abm[i].x_pos = abm[i].launch_x;
 				abm[i].y_pos = abm[i].launch_y;
 				abm[i].dest_x = crosshair.target_x;
@@ -49,7 +51,7 @@ void fire(struct abmData * abm, Crosshair crosshair) {
 
 	else if(crosshair.target_y > 300 && crosshair.x <= 600) {
 		for (i = 10; i < 20; i++) {
-			if (!abm[i].launched && !abm[i].used) {
+			if (!abm[i].launched && !abm[i].arrived) {
 				abm[i].x_pos = abm[i].launch_x;
 				abm[i].y_pos = abm[i].launch_y;
 				abm[i].dest_x = crosshair.target_x;
@@ -64,7 +66,7 @@ void fire(struct abmData * abm, Crosshair crosshair) {
 
 	else if (crosshair.target_x > 600) {
 		for (i = 20; i < 30; i++) {
-			if (!abm[i].launched && !abm[i].used) {
+			if (!abm[i].launched && !abm[i].arrived) {
 				abm[i].x_pos = abm[i].launch_x;
 				abm[i].y_pos = abm[i].launch_y;
 				abm[i].dest_x = crosshair.target_x;
@@ -81,7 +83,7 @@ void fire(struct abmData * abm, Crosshair crosshair) {
 	//if cannot fire from nearest battery
 	if (!closestLaunchSuccess) {
 		for (i = 0; i < 30; i++) {
-			if (!abm[i].launched && !abm[i].used) {
+			if (!abm[i].launched && !abm[i].arrived) {
 				abm[i].x_pos = abm[i].launch_x;
 				abm[i].y_pos = abm[i].launch_y;
 				abm[i].dest_x = crosshair.target_x;
@@ -96,7 +98,6 @@ void fire(struct abmData * abm, Crosshair crosshair) {
 	if (!launchSuccess) {
 		printf("Out of ABMs!"); 
 	}
-
 }
 
 
@@ -119,11 +120,6 @@ void updateAbm(struct abmData * abm) {
 
 	for (int i = 0; i < 30; i++) {
 		if (abm[i].launched) {  //only update launched abm's 
-
-			/*if (abm[i].x_pos == abm[i].dest_x+10 && abm[i].y_pos == abm[i].dest_y+10) {
-				abm[i].launched = false;
-				abm[i].used = true;
-			}*/
 
 			abm[i].dx = fabs(abm[i].dest_x - abm[i].launch_x);
 			abm[i].dy = fabs(abm[i].dest_y - abm[i].launch_y);

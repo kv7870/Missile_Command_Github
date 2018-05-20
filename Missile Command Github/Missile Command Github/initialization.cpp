@@ -6,7 +6,9 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_native_dialog.h>
 #include <allegro5/allegro_primitives.h>
-#include "header.h"																					
+#include "header.h"					
+#include <time.h>
+#include <stdlib.h>
 																												   //or *frameExplosion[]
 int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITMAP ** imageCrosshair, ALLEGRO_BITMAP ** frameExplosion, ALLEGRO_EVENT_QUEUE ** event_queue) {
 
@@ -138,7 +140,6 @@ void initAbm(struct abmData * abm) {
 	for (i = 0; i < 30; i++) {
 		abm[i].dest_x = 0;
 		abm[i].dest_y = 0;
-		abm[i].used = false;
 		abm[i].launched = false;
 		abm[i].dx = 0;
 		abm[i].dy = 0;
@@ -149,6 +150,10 @@ void initAbm(struct abmData * abm) {
 		abm[i].step = 0;
 		abm[i].speed = 0;
 		abm[i].arrived = false;
+		abm[i].exploded = false; 
+		abm[i].curr = 0; 
+		abm[i].explosionRadius = 0; 
+		abm[i].increaseRadius = true; 
 	};
 
 	//1st battery (left)

@@ -7,6 +7,8 @@
 #include <allegro5/allegro_native_dialog.h>
 #include <allegro5/allegro_primitives.h>
 #include "header.h"
+#include <time.h>
+#include <stdlib.h>
 
 
 void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_BITMAP **frameExplosion, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair * crosshair, struct abmData * abm) {
@@ -106,6 +108,8 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 			drawCrosshair(imageCrosshair, *crosshair);
 
 			drawAbm(abm); 
+
+			drawExplosion(abm); 
 
 			al_flip_display();
 		}
