@@ -178,8 +178,10 @@ void initAbm(struct abmData * abm) {
 	}
 }
 
-void initEnemy(Enemy * enemy) {
+void initEnemy(Enemy * enemy, Mirv * mirv) {
 	for (int i = 0; i < ENEMY_COUNT; i++) {
+
+		//init main enemy missile 
 		enemy[i].dest_x = 0;
 		enemy[i].dest_y = 0;
 		enemy[i].launched = false;
@@ -197,5 +199,30 @@ void initEnemy(Enemy * enemy) {
 		enemy[i].increaseRadius = true;
 		enemy[i].launch_y = 0;
 		enemy[i].dest_y = 850; 
-	};
+		enemy[i].split = false; 
+		enemy[i].splitNum = 0; 
+
+
+		//init mirv 
+		for (int j = 0; j < 3; j++) {
+			mirv[i].branch[j].dest_x = 0;
+			mirv[i].branch[j].dest_y = 0;
+			mirv[i].branch[j].launched = false;
+			mirv[i].branch[j].dx = 0;
+			mirv[i].branch[j].dy = 0;
+			mirv[i].branch[j].x_inc = 0;
+			mirv[i].branch[j].y_inc = 0;
+			mirv[i].branch[j].x_pos = 0;
+			mirv[i].branch[j].y_pos = 0;
+			mirv[i].branch[j].step = 0;
+			mirv[i].branch[j].speed = 0;
+			mirv[i].branch[j].arrived = false;
+			mirv[i].branch[j].exploded = false;
+			mirv[i].branch[j].explosionRadius = 0;
+			mirv[i].branch[j].increaseRadius = true;
+			mirv[i].branch[j].launch_y = 0;
+			mirv[i].branch[j].dest_y = 850;
+		}
+
+	}
 }

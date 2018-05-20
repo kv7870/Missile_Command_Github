@@ -77,17 +77,25 @@ typedef struct enemyData {
 	bool exploded;
 	float explosionRadius;
 	bool increaseRadius;
-	int branch; 
+	bool split; 
+	int splitNum; 
 }Enemy;
+
+
+//multiple independently targetable reentry vehicle
+typedef struct mirvData { 
+	Enemy branch[3]; 
+}Mirv; 
+
 
 
 //prototypes
 int initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP **imageCrosshair, ALLEGRO_BITMAP **frameExplosion, ALLEGRO_EVENT_QUEUE **event_queue);
 void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair);
 void initAbm(struct abmData * abm);
-void initEnemy(Enemy * enemy); 
 
-void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_BITMAP **frameExplosion, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair * crosshair, struct abmData * abm, Enemy * enemy, int * curr_enemy_num, int * num_spawned);
+
+void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_BITMAP **frameExplosion, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair * crosshair, struct abmData * abm, Enemy * enemy, int * curr_enemy_num, int * num_spawned, Mirv * mirv);
 
 void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, struct crosshairData data);
 
@@ -97,7 +105,12 @@ void drawAbm(struct abmData * abm);
 void abmArrival(struct abmData * abm);  //check if abm arrived
 void drawExplosion(struct abmData * abm); 
 
+void initEnemy(Enemy * enemy, Mirv * mirv);
 void spawnEnemy(Enemy * enemy, int * curr_enemy_count, int * num_spawned);
-void drawEnemy(Enemy * enemy); 
-void updateEnemy(Enemy * enemy); 
-void enemyArrival(Enemy * enemy, int * curr_num_enemy); 
+void drawEnemy(Enemy * enemy);
+void updateEnemy(Enemy * enemy);
+void enemyArrival(Enemy * enemy, int * curr_num_enemy);
+
+void spawnMirv(Enemy * enemy, Mirv * mirv);
+void updateMirv(Mirv * mirv);
+void drawMirv(Mirv * mirv);

@@ -13,9 +13,9 @@
 
 void spawnEnemy(Enemy * enemy, int * curr_enemy_num, int * num_spawned) {
 	int i;
-	int spawnTiming = rand() % 10 + 1;
+	int spawnTiming = rand() % 100 + 1;
 
-	if (spawnTiming == 5) {
+	if (spawnTiming == 50) {
 		if (*curr_enemy_num <= MAX_ENEMY && *num_spawned < ENEMY_COUNT) {
 			for (i = 0; i < ENEMY_COUNT; i++) {
 				if (!enemy[i].launched && !enemy[i].arrived) {
@@ -26,7 +26,7 @@ void spawnEnemy(Enemy * enemy, int * curr_enemy_num, int * num_spawned) {
 					enemy[i].launched = true;
 					(*curr_enemy_num)++;
 					(*num_spawned)++;
-					break; 
+					break;  //break prevents spawning all enemies at once 
 				}
 			}
 		}
@@ -35,7 +35,6 @@ void spawnEnemy(Enemy * enemy, int * curr_enemy_num, int * num_spawned) {
 
 
 void drawEnemy(Enemy * enemy) {
-
 	for (int i = 0; i < ENEMY_COUNT; i++) {
 		if (enemy[i].launched) {
 			al_draw_filled_circle(enemy[i].x_pos, enemy[i].y_pos, 10, al_map_rgb(255, 255, 255));
@@ -46,7 +45,6 @@ void drawEnemy(Enemy * enemy) {
 
 
 void updateEnemy(Enemy * enemy) {
-
 	for (int i = 0; i < ENEMY_COUNT; i++) {
 		if (enemy[i].launched) {
 
@@ -72,13 +70,14 @@ void updateEnemy(Enemy * enemy) {
 				enemy[i].x_pos -= 2 * enemy[i].x_inc;
 			}
 
+			enemy[i].splitNum = rand() % 100 + 1; 
+
 		}
 	}
 }
 
 
 void enemyArrival(Enemy * enemy, int * curr_num_enemy) {
-
 	for (int i = 0; i < 30; i++) {
 		if (enemy[i].launched) {
 			enemy[i].distance = sqrt(pow((enemy[i].dest_x - enemy[i].x_pos), 2) + pow((enemy[i].dest_y - enemy[i].y_pos), 2));
@@ -86,6 +85,68 @@ void enemyArrival(Enemy * enemy, int * curr_num_enemy) {
 				enemy[i].launched = false;
 				enemy[i].arrived = true;
 				(*curr_num_enemy)--;
+			}
+		}
+	}
+}
+
+
+void spawnMirv(Enemy * enemy, Mirv * mirv) {
+	int dest_dx; 
+
+	for (int i = 0; i < ENEMY_COUNT; i++) {
+		if (enemy[i].launched && !enemy[i].split && enemy[i].splitNum == 5) {
+			for (int j = 0, dest_dx = 10; j < 3; j++, dest_dx += 10) {
+				mirv[i].branch[j].launched = true;
+				mirv[i].branch[j].launch_x = enemy[i].x_pos;
+				mirv[i].branch[j].launch_y = enemy[i].y_pos;
+				mirv[i].branch[j].x_pos = mirv[i].branch[j].launch_x;  //split from location of main missile 
+				mirv[i].branch[j].y_pos = mirv[i].branch[j].launch_y;  
+				mirv[i].branch[j].dest_x = enemy[i].dest_x + dest_dx; 
+				enemy[i].split = true; 
+				break; //prevents all missiles from splitting at same time 
+			}
+		}
+	}
+}
+
+void updateMirv(Mirv * mirv) {
+	for (int i = 0; i < ENEMY_COUNT; i++) {
+		for (int j = 0; j < 3; j++) {
+			if (mirv[i].branch[j].launched) {
+
+				mirv[i].branch[j].dx = fabs(mirv[i].branch[j].dest_x - mirv[i].branch[j].launch_y);
+				mirv[i].branch[j].dy = fabs(mirv[i].branch[j].dest_y - mirv[i].branch[j].launch_y);
+
+				if (mirv[i].branch[j].dx >= mirv[i].branch[j].dy) {
+					mirv[i].branch[j].step = mirv[i].branch[j].dx;
+				}
+				else {
+					mirv[i].branch[j].step = mirv[i].branch[j].dy;
+				}
+
+				mirv[i].branch[j].x_inc = mirv[i].branch[j].dx / mirv[i].branch[j].step;
+				mirv[i].branch[j].y_inc = mirv[i].branch[j].dy / mirv[i].branch[j].step;
+
+				mirv[i].branch[j].y_pos += 2 * mirv[i].branch[j].y_inc;
+
+				if (mirv[i].branch[j].dest_x > mirv[i].branch[j].launch_x) {
+					mirv[i].branch[j].x_pos += 2 * mirv[i].branch[j].x_inc;
+				}
+				else if (mirv[i].branch[j].dest_x < mirv[i].branch[j].launch_x) {
+					mirv[i].branch[j].x_pos -= 2 * mirv[i].branch[j].x_inc;
+				}
+			}
+		}
+	}
+}
+
+void drawMirv(Mirv * mirv) {
+	for (int i = 0; i < ENEMY_COUNT; i++) {
+		for (int j = 0; j < 3; j++) {
+			if (mirv[i].branch[j].launched) {
+				al_draw_filled_circle(mirv[i].branch[j].x_pos, mirv[i].branch[j].y_pos, 10, al_map_rgb(255, 255, 255));
+				al_draw_line(mirv[i].branch[j].x_pos, mirv[i].branch[j].y_pos, mirv[i].branch[j].launch_x, mirv[i].branch[j].launch_y, al_map_rgb(255, 255, 255), 3);
 			}
 		}
 	}
