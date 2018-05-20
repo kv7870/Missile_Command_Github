@@ -41,7 +41,10 @@
     <ClCompile Include="fire.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="arrival.cpp">
+    <ClCompile Include="abmArrival.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="enemies.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

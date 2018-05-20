@@ -163,7 +163,8 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="arrival.cpp" />
+    <ClCompile Include="abmArrival.cpp" />
+    <ClCompile Include="enemies.cpp" />
     <ClCompile Include="fire.cpp" />
     <ClCompile Include="initialization.cpp" />
     <ClCompile Include="main.cpp" />

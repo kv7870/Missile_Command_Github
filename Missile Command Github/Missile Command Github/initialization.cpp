@@ -177,3 +177,25 @@ void initAbm(struct abmData * abm) {
 		abm[i].speed = 5;
 	}
 }
+
+void initEnemy(Enemy * enemy) {
+	for (int i = 0; i < ENEMY_COUNT; i++) {
+		enemy[i].dest_x = 0;
+		enemy[i].dest_y = 0;
+		enemy[i].launched = false;
+		enemy[i].dx = 0;
+		enemy[i].dy = 0;
+		enemy[i].x_inc = 0;
+		enemy[i].y_inc = 0;
+		enemy[i].x_pos = 0;
+		enemy[i].y_pos = 0;
+		enemy[i].step = 0;
+		enemy[i].speed = 0;
+		enemy[i].arrived = false;
+		enemy[i].exploded = false;
+		enemy[i].explosionRadius = 0;
+		enemy[i].increaseRadius = true;
+		enemy[i].launch_y = 0;
+		enemy[i].dest_y = 850; 
+	};
+}

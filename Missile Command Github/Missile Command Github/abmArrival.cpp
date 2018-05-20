@@ -30,9 +30,9 @@ void drawExplosion(struct abmData * abm) {
 	
 	int r, g, b;
 
-		r = rand() % 255 + 1;
-		g = rand() % 255 + 1;
-		b = rand() % 255 + 1;
+	r = rand() % 255 + 1;
+	g = rand() % 255 + 1;
+	b = rand() % 255 + 1;
 
 	for (int i = 0; i < 30; i++) {
 		if (abm[i].arrived && !abm[i].exploded) {

@@ -11,7 +11,7 @@
 #include <stdlib.h>
 
 
-void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_BITMAP **frameExplosion, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair * crosshair, struct abmData * abm) {
+void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_BITMAP **frameExplosion, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair * crosshair, struct abmData * abm, Enemy * enemy, int  * curr_num_enemy, int * num_spawned) {
 
 	//ship.x = SCREEN_W / 2.0 - BOUNCER_SIZE / 2.0;
 	//ship.y = SCREEN_H / 2.0 - BOUNCER_SIZE / 2.0;
@@ -32,6 +32,9 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 			draw = true;
 			updateAbm(abm); 
 			abmArrival(abm); 
+			spawnEnemy(enemy, curr_num_enemy, num_spawned); 
+			updateEnemy(enemy);
+			enemyArrival(enemy, curr_num_enemy);
 		}
 
 		else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
@@ -110,6 +113,8 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 			drawAbm(abm); 
 
 			drawExplosion(abm); 
+
+			drawEnemy(enemy); 
 
 			al_flip_display();
 		}
