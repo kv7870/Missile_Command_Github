@@ -92,11 +92,14 @@ void enemyArrival(Enemy * enemy, int * curr_num_enemy) {
 
 
 void spawnMirv(Enemy * enemy, Mirv * mirv) {
+	int j;
 	int dest_dx; 
+	int splitNum; 
 
 	for (int i = 0; i < ENEMY_COUNT; i++) {
-		if (enemy[i].launched && !enemy[i].split && enemy[i].splitNum == 5) {
-			for (int j = 0, dest_dx = 10; j < 3; j++, dest_dx += 10) {
+		splitNum = rand() % 1000 + 1; 
+		if (enemy[i].launched && !enemy[i].split && splitNum == 50) {
+			for (j = 0, dest_dx = 50; j < 3; j++, dest_dx += 50) {
 				mirv[i].branch[j].launched = true;
 				mirv[i].branch[j].launch_x = enemy[i].x_pos;
 				mirv[i].branch[j].launch_y = enemy[i].y_pos;
@@ -104,9 +107,10 @@ void spawnMirv(Enemy * enemy, Mirv * mirv) {
 				mirv[i].branch[j].y_pos = mirv[i].branch[j].launch_y;  
 				mirv[i].branch[j].dest_x = enemy[i].dest_x + dest_dx; 
 				enemy[i].split = true; 
-				break; //prevents all missiles from splitting at same time 
 			}
+			//break; //prevents all missiles from splitting at same time 
 		}
+		//break; //prevents all missiles from splitting at same time 
 	}
 }
 
@@ -115,7 +119,7 @@ void updateMirv(Mirv * mirv) {
 		for (int j = 0; j < 3; j++) {
 			if (mirv[i].branch[j].launched) {
 
-				mirv[i].branch[j].dx = fabs(mirv[i].branch[j].dest_x - mirv[i].branch[j].launch_y);
+				mirv[i].branch[j].dx = fabs(mirv[i].branch[j].dest_x - mirv[i].branch[j].launch_x);
 				mirv[i].branch[j].dy = fabs(mirv[i].branch[j].dest_y - mirv[i].branch[j].launch_y);
 
 				if (mirv[i].branch[j].dx >= mirv[i].branch[j].dy) {
