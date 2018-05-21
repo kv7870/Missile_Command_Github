@@ -44,6 +44,8 @@ void fire(struct abmData * abm, Crosshair crosshair) {
 				abm[i].launched = true; 
 				closestLaunchSuccess = true;
 				launchSuccess = true;
+				calcIncrement(abm, i);
+				printf("Dest: (%d, %d) ", abm[i].dest_x, abm[i].dest_y); 
 				break;
 			}
 		}
@@ -59,6 +61,8 @@ void fire(struct abmData * abm, Crosshair crosshair) {
 				abm[i].launched = true;
 				closestLaunchSuccess = true;
 				launchSuccess = true;
+				calcIncrement(abm, i);
+				printf("Dest: (%d, %d) ", abm[i].dest_x, abm[i].dest_y);
 				break;
 			}
 		}
@@ -74,6 +78,8 @@ void fire(struct abmData * abm, Crosshair crosshair) {
 				abm[i].launched = true;
 				closestLaunchSuccess = true;
 				launchSuccess = true;
+				calcIncrement(abm, i);
+				printf("Dest: (%d, %d) ", abm[i].dest_x, abm[i].dest_y);
 				break;
 			}
 		}
@@ -90,6 +96,8 @@ void fire(struct abmData * abm, Crosshair crosshair) {
 				abm[i].dest_y = crosshair.target_y;
 				abm[i].launched = true;
 				launchSuccess = true;
+				calcIncrement(abm, i);
+				printf("Dest: (%d, %d) ", abm[i].dest_x, abm[i].dest_y);
 				break;
 			}
 		}
@@ -101,12 +109,27 @@ void fire(struct abmData * abm, Crosshair crosshair) {
 }
 
 
+void calcIncrement(Abm * abm, int i) {
+		abm[i].dx = fabs(abm[i].dest_x - abm[i].launch_x);
+		abm[i].dy = fabs(abm[i].dest_y - abm[i].launch_y);
+
+		if (abm[i].dx >= abm[i].dy) {
+			abm[i].step = abm[i].dx;
+		}
+		else {
+			abm[i].step = abm[i].dy;
+		}
+
+		abm[i].x_inc = abm[i].dx / abm[i].step;
+		abm[i].y_inc = abm[i].dy / abm[i].step;	
+}
+
 void drawAbm(struct abmData * abm) {
 	al_draw_filled_rectangle(10, 830, 100, 900, al_map_rgb(255, 255, 255));   //(55, 830)
 	al_draw_filled_rectangle(400, 830, 490, 900, al_map_rgb(255, 255, 255));  //(445, 830)
 	al_draw_filled_rectangle(800, 830, 890, 900, al_map_rgb(255, 255, 255));  //(845, 830)
 
-	for (int i = 0; i < 30; i++) {
+	for (int i = 0; i < ABM_COUNT; i++) {
 		if (abm[i].launched) {
 			al_draw_filled_rectangle(abm[i].x_pos-3, abm[i].y_pos-3, abm[i].x_pos+3, abm[i].y_pos+3, al_map_rgb(255, 255, 255));
 			al_draw_line(abm[i].x_pos, abm[i].y_pos+3, abm[i].launch_x, abm[i].launch_y, al_map_rgb(0, 0, 255), 4);
@@ -118,10 +141,10 @@ void drawAbm(struct abmData * abm) {
 //update in buffer 
 void updateAbm(struct abmData * abm) {
 
-	for (int i = 0; i < 30; i++) {
+	for (int i = 0; i < ABM_COUNT; i++) {
 		if (abm[i].launched) {  //only update launched & alive abm's 
 
-			abm[i].dx = fabs(abm[i].dest_x - abm[i].launch_x);
+			/*abm[i].dx = fabs(abm[i].dest_x - abm[i].launch_x);
 			abm[i].dy = fabs(abm[i].dest_y - abm[i].launch_y);
 
 			if (abm[i].dx >= abm[i].dy) {
@@ -132,7 +155,7 @@ void updateAbm(struct abmData * abm) {
 			}
 
 			abm[i].x_inc = abm[i].dx / abm[i].step;
-			abm[i].y_inc = abm[i].dy / abm[i].step;
+			abm[i].y_inc = abm[i].dy / abm[i].step;*/
 
 			abm[i].y_pos -= 10 * abm[i].y_inc;
 

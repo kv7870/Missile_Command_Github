@@ -14,7 +14,7 @@
 /*void hitDetection(struct abmData * abm, Enemy * enemy) {
 
 	//check collision between abm and main enemy missile (not mirv's)
-	for (int i = 0; i < 20; i++) {
+	for (int i = 0; i < ABM_COUNT; i++) {
 		if (abm[i].arrived && !abm[i].exploded) {
 			for (int j = 0; j < ENEMY_COUNT; j++) {
 				if (enemy[j].launched) {
@@ -34,7 +34,6 @@
 
 void hitDetection(struct abmData * abm, Enemy * enemy) {
 	for (int i = 0; i < ABM_COUNT; i++) {
-		printf("%d", i); 
 		if (abm[i].arrived && !abm[i].exploded) {
 			for (int j = 0; j < ENEMY_COUNT; j++) {
 				if (enemy[j].launched) {

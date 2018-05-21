@@ -40,7 +40,7 @@ typedef struct crosshairData {
 
 
 //each individual ABM has these properties 
-struct abmData {
+typedef struct abmData {
 	int dest_x;
 	int dest_y;
 	int launch_x;
@@ -55,7 +55,7 @@ struct abmData {
 	int speed;
 	bool launched;
 	bool arrived;
-	int distance; 
+	float distance; 
 	bool exploded; 
 	float explosionRadius; 
 	bool increaseRadius; 
@@ -63,7 +63,7 @@ struct abmData {
 	Vector topLeft;
 	Vector bottomRight;
 	Vector bottomLeft;
-};
+}Abm;
 
 typedef struct enemyData {
 	int dest_x;
@@ -80,7 +80,7 @@ typedef struct enemyData {
 	int speed;
 	bool launched;
 	bool arrived;
-	int distance;
+	float distance;
 	bool exploded;
 	bool split; 
 	Vector topRight;
@@ -93,6 +93,7 @@ typedef struct enemyData {
 	int distY; 
 	int distTotal; 
 	bool hit; 
+	int dist_to_dest; 
 	//bounds
 } Enemy;
 
@@ -109,16 +110,16 @@ int initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP
 void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair);
 void initAbm(struct abmData * abm);
 
-
 void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_BITMAP **frameExplosion, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair * crosshair, struct abmData * abm, Enemy * enemy, int * curr_enemy_num, int * num_spawned, Mirv * mirv);
 
 void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, struct crosshairData data);
 
 void fire(struct abmData * abm, Crosshair crosshair);
+void calcIncrement(Abm * abm, int i); 
 void updateAbm(struct abmData * abm);
 void drawAbm(struct abmData * abm);
-void abmArrival(struct abmData * abm);  //check if abm arrived
-void drawExplosion(struct abmData * abm); 
+void abmArrival(Abm * abm);  //check if abm arrived
+void drawExplosion(Abm * abm); 
 
 void initEnemy(Enemy * enemy, Mirv * mirv);
 void spawnEnemy(Enemy * enemy, int * curr_enemy_count, int * num_spawned);
@@ -129,5 +130,6 @@ void enemyArrival(Enemy * enemy, int * curr_num_enemy);
 void spawnMirv(Enemy * enemy, Mirv * mirv);
 void updateMirv(Mirv * mirv);
 void drawMirv(Mirv * mirv);
+void mirvArrival(Mirv * mirv, Enemy * enemy); 
 
 void hitDetection(struct abmData * abm, Enemy * enemy); 

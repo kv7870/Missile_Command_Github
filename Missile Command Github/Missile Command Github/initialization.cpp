@@ -137,7 +137,7 @@ void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair) {
 void initAbm(struct abmData * abm) {
 	int i;
 
-	for (i = 0; i < 30; i++) {
+	for (i = 0; i < ABM_COUNT; i++) {
 		abm[i].dest_x = 0;
 		abm[i].dest_y = 0;
 		abm[i].launched = false;
@@ -203,6 +203,7 @@ void initEnemy(Enemy * enemy, Mirv * mirv) {
 		enemy[i].distY = 0;
 		enemy[i].distTotal = 0;
 		enemy[i].hit = false;
+		enemy[i].dist_to_dest = 0; 
 
 		//init mirv 
 		for (int j = 0; j < 3; j++) {
@@ -221,6 +222,7 @@ void initEnemy(Enemy * enemy, Mirv * mirv) {
 			mirv[i].branch[j].exploded = false;
 			mirv[i].branch[j].launch_y = 0;
 			mirv[i].branch[j].dest_y = 850;
+			mirv[i].branch[j].dist_to_dest = 0; 
 		}
 
 	}

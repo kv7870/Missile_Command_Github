@@ -11,12 +11,10 @@
 #include <time.h>
 #include <stdlib.h>
 
-void abmArrival(struct abmData * abm) {
-	int i; 
-
-	for (i = 0; i < 30; i++) {
+void abmArrival(Abm * abm) {
+	for (int i = 0; i < ABM_COUNT; i++) {
 		if (abm[i].launched) {
-			abm[i].distance = sqrt(pow((abm[i].dest_x - abm[i].x_pos), 2) + pow((abm[i].dest_y - abm[i].y_pos), 2)); 
+			abm[i].distance = sqrt(pow(abm[i].dest_x - abm[i].x_pos, 2) + pow(abm[i].dest_y - abm[i].y_pos, 2)); 
 			if (abm[i].distance <= 5) {
 				abm[i].launched = false; 
 				abm[i].arrived = true; 
@@ -26,15 +24,14 @@ void abmArrival(struct abmData * abm) {
 }
 
 
-void drawExplosion(struct abmData * abm) {
-	
+void drawExplosion(Abm * abm) {
 	int r, g, b;
 
 	r = rand() % 255 + 1;
 	g = rand() % 255 + 1;
 	b = rand() % 255 + 1;
 
-	for (int i = 0; i < 30; i++) {
+	for (int i = 0; i < ABM_COUNT; i++) {
 		if (abm[i].arrived && !abm[i].exploded) {
 
 			if (abm[i].explosionRadius == 40) {
@@ -72,7 +69,7 @@ void drawExplosion(struct abmData * abm) {
 
 /*void drawExplosion(struct abmData * abm, ALLEGRO_BITMAP ** frameExplosion) {
 
-	for (int i = 0; i < 30; i++) {
+	for (int i = 0; i < ABM_COUNT; i++) {
 		if (abm[i].arrived && !abm[i].exploded) {
 			al_draw_bitmap(frameExplosion[(abm[i].curr)], abm[i].dest_x, abm[i].dest_y, 0);
 			abm[i].curr++;

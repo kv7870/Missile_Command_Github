@@ -162,3 +162,20 @@ void drawMirv(Mirv * mirv) {
 		}
 	}
 }
+
+void mirvArrival(Mirv * mirv, Enemy * enemy) {
+	for (int i = 0; i < ABM_COUNT; i++) {
+		if (enemy[i].split) {
+			for (int j = 0; j < 3; j++) {
+				mirv[i].branch[j].dist_to_dest = sqrt(pow(mirv[i].branch[j].dest_x - mirv[i].branch[j].x_pos, 2) + pow(mirv[i].branch[j].dest_y - mirv[i].branch[j].y_pos, 2));
+				if (mirv[i].branch[j].dist_to_dest <= 10) {
+					mirv[i].branch[j].launched = false;
+					mirv[i].branch[j].arrived = true;
+				}
+			}
+		}
+	}
+}
+
+
+
