@@ -11,12 +11,13 @@
 #include <stdlib.h>
 
 
-void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_BITMAP **frameExplosion, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair * crosshair, struct abmData * abm, Enemy * enemy, int  * curr_num_enemy, int * num_spawned, Mirv * mirv) {
+void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair, struct abmData * abm, Enemy * enemy, int  * curr_num_enemy, int * num_spawned, Mirv * mirv) {
 
 	//ship.x = SCREEN_W / 2.0 - BOUNCER_SIZE / 2.0;
 	//ship.y = SCREEN_H / 2.0 - BOUNCER_SIZE / 2.0;
 	bool done = false;
 	bool draw = true;
+	int count = 0;
 
 
 	bool key[5] = { false, false, false, false, false };  //array with members KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT; each member is true or false 
@@ -30,6 +31,9 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 		if (ev.type == ALLEGRO_EVENT_TIMER) {  //update every 1/60 of a second 
 			draw = true;
+			
+			print_arrive(abm, &count);
+
 			updateAbm(abm); 
 			abmArrival(abm); 
 			spawnEnemy(enemy, curr_num_enemy, num_spawned); 
@@ -41,6 +45,8 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 			mirvArrival(mirv, enemy); 
 
 			hitDetection(abm, enemy); 
+
+		
 		}
 
 		else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
@@ -49,38 +55,39 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 		}
 
 		else if (ev.type == ALLEGRO_EVENT_MOUSE_AXES || ev.type == ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY) {
-			if (ev.mouse.x >= 4 && ev.mouse.x <= SCREEN_W - crosshair->width)
-				crosshair->x = ev.mouse.x;
-			if (ev.mouse.y >= 4 && ev.mouse.y <= SCREEN_H - crosshair->height/*-150*/)
-				crosshair->y = ev.mouse.y;
+			if (ev.mouse.x >= 4 && ev.mouse.x <= SCREEN_W - crosshair.width)
+				crosshair.x = ev.mouse.x;
+			if (ev.mouse.y >= 4 && ev.mouse.y <= SCREEN_H - crosshair.height/*-150*/)
+				crosshair.y = ev.mouse.y;
 		}
 
 		else if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
 			if (ev.mouse.button & 1) {
-				crosshair->target_x = ev.mouse.x;   //get coordinate of target 
-				crosshair->target_y = ev.mouse.y;
+				crosshair.target_x = ev.mouse.x;   //get coordinate of target 
+				crosshair.target_y = ev.mouse.y;
 				printf("(%d, %d) ", ev.mouse.x, ev.mouse.y);
-				fire(abm, *crosshair);
+				printf("fired"); 
+				fire(abm, crosshair);
 			}
 		}
 
 
-		else if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+		/*else if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
 			switch (ev.keyboard.keycode) {
 
 			case ALLEGRO_KEY_SPACE:
 				key[KEY_SPACE] = true;
-				crosshair->target_x = ev.mouse.x;
-				crosshair->target_y = ev.mouse.y;
+				crosshair.target_x = ev.mouse.x;
+				crosshair.target_y = ev.mouse.y;
 				printf("(%d, %d) ", ev.mouse.x, ev.mouse.y);
-				fire(abm, *crosshair); 
+				//fire(abm, crosshair); 
 				break;
 			}
-		}
+		}*/
 
 
 		//if key is released 
-		else if (ev.type == ALLEGRO_EVENT_KEY_UP) {
+		/*else if (ev.type == ALLEGRO_EVENT_KEY_UP) {
 			switch (ev.keyboard.keycode) {
 			case ALLEGRO_KEY_UP:
 				key[KEY_UP] = false;
@@ -106,15 +113,15 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 				done = true;
 				break;
 			}
-		}
+		}*/
 
 		//must draw everything every tick of timer 
 		if (draw && al_is_event_queue_empty(event_queue)) {
-			draw = false;
+			draw = false; 
 
 			al_clear_to_color(al_map_rgb(0, 0, 0));  //clear screen to black to create illusion of animation; draw & clear screen, draw & clear screen... 
 
-			drawCrosshair(imageCrosshair, *crosshair);
+			drawCrosshair(imageCrosshair, crosshair);
 
 			drawAbm(abm); 
 

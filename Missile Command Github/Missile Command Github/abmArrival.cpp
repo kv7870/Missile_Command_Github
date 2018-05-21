@@ -14,10 +14,10 @@
 void abmArrival(Abm * abm) {
 	for (int i = 0; i < ABM_COUNT; i++) {
 		if (abm[i].launched) {
-			abm[i].distance = sqrt(pow(abm[i].dest_x - abm[i].x_pos, 2) + pow(abm[i].dest_y - abm[i].y_pos, 2)); 
-			if (abm[i].distance <= 5) {
-				abm[i].launched = false; 
-				abm[i].arrived = true; 
+			if (abm[i].num_increment > abm[i].step) {
+				abm[i].launched = false;
+				abm[i].arrived = true;
+				//abm[i].num_increment = 1; 
 			}
 		}
 	}
@@ -34,7 +34,9 @@ void drawExplosion(Abm * abm) {
 	for (int i = 0; i < ABM_COUNT; i++) {
 		if (abm[i].arrived && !abm[i].exploded) {
 
-			if (abm[i].explosionRadius == 40) {
+			printf("radius: %f\n", abm[i].explosionRadius); 
+			//printf("Destination: (%d, %d): arrive: %d\n", abm[i].dest_x, abm[i].dest_y, abm[i].arrived); 
+			if (abm[i].explosionRadius >= 40) {
 				abm[i].increaseRadius = false; 
 			}
 
@@ -49,7 +51,7 @@ void drawExplosion(Abm * abm) {
 			al_draw_filled_circle(abm[i].dest_x, abm[i].dest_y, abm[i].explosionRadius, al_map_rgb(r, g, b));
 
 			//calculate bounds of explosion 
-			abm[i].topLeft.x = abm[i].dest_x - abm[i].explosionRadius;
+			/*abm[i].topLeft.x = abm[i].dest_x - abm[i].explosionRadius;
 			abm[i].topLeft.y = abm[i].dest_y - abm[i].explosionRadius;
 			abm[i].topRight.x = abm[i].dest_x + abm[i].explosionRadius;
 			abm[i].topRight.y = abm[i].dest_y - abm[i].explosionRadius;
@@ -57,7 +59,7 @@ void drawExplosion(Abm * abm) {
 			abm[i].bottomLeft.x = abm[i].dest_x - abm[i].explosionRadius;
 			abm[i].bottomLeft.y = abm[i].dest_y + abm[i].explosionRadius;
 			abm[i].bottomRight.x = abm[i].dest_x + abm[i].explosionRadius;
-			abm[i].bottomRight.y = abm[i].dest_y + abm[i].explosionRadius;
+			abm[i].bottomRight.y = abm[i].dest_y + abm[i].explosionRadius;*/
 
 			if (abm[i].explosionRadius < 0) {
 				abm[i].exploded = true;

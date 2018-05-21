@@ -29,7 +29,7 @@
 }*/
 
 
-void fire(struct abmData * abm, Crosshair crosshair) {
+void fire(Abm * abm, Crosshair crosshair) {
 	int i;
 	bool closestLaunchSuccess = false;
 	bool launchSuccess = false; //if any 1 abm is fired upon mouseclick, only for diagnosis 
@@ -40,11 +40,11 @@ void fire(struct abmData * abm, Crosshair crosshair) {
 				abm[i].x_pos = abm[i].launch_x;
 				abm[i].y_pos = abm[i].launch_y;
 				abm[i].dest_x = crosshair.target_x;
-				abm[i].dest_y = crosshair.target_y;
+				abm[i].dest_y = crosshair.target_y; 
 				abm[i].launched = true; 
 				closestLaunchSuccess = true;
 				launchSuccess = true;
-				calcIncrement(abm, i);
+				calcIncrement(&(abm[i]));
 				printf("Dest: (%d, %d) ", abm[i].dest_x, abm[i].dest_y); 
 				break;
 			}
@@ -61,7 +61,7 @@ void fire(struct abmData * abm, Crosshair crosshair) {
 				abm[i].launched = true;
 				closestLaunchSuccess = true;
 				launchSuccess = true;
-				calcIncrement(abm, i);
+				calcIncrement(&(abm[i]));
 				printf("Dest: (%d, %d) ", abm[i].dest_x, abm[i].dest_y);
 				break;
 			}
@@ -74,11 +74,11 @@ void fire(struct abmData * abm, Crosshair crosshair) {
 				abm[i].x_pos = abm[i].launch_x;
 				abm[i].y_pos = abm[i].launch_y;
 				abm[i].dest_x = crosshair.target_x;
-				abm[i].dest_y = crosshair.target_y; 
+				abm[i].dest_y = crosshair.target_y;
 				abm[i].launched = true;
 				closestLaunchSuccess = true;
 				launchSuccess = true;
-				calcIncrement(abm, i);
+				calcIncrement(&(abm[i]));
 				printf("Dest: (%d, %d) ", abm[i].dest_x, abm[i].dest_y);
 				break;
 			}
@@ -88,7 +88,7 @@ void fire(struct abmData * abm, Crosshair crosshair) {
 
 	//if cannot fire from nearest battery
 	if (!closestLaunchSuccess) {
-		for (i = 0; i < 30; i++) {
+		for (i = 0; i < ABM_COUNT; i++) {
 			if (!abm[i].launched && !abm[i].arrived) {
 				abm[i].x_pos = abm[i].launch_x;
 				abm[i].y_pos = abm[i].launch_y;
@@ -96,7 +96,7 @@ void fire(struct abmData * abm, Crosshair crosshair) {
 				abm[i].dest_y = crosshair.target_y;
 				abm[i].launched = true;
 				launchSuccess = true;
-				calcIncrement(abm, i);
+				calcIncrement(&(abm[i]));
 				printf("Dest: (%d, %d) ", abm[i].dest_x, abm[i].dest_y);
 				break;
 			}
@@ -109,19 +109,19 @@ void fire(struct abmData * abm, Crosshair crosshair) {
 }
 
 
-void calcIncrement(Abm * abm, int i) {
-		abm[i].dx = fabs(abm[i].dest_x - abm[i].launch_x);
-		abm[i].dy = fabs(abm[i].dest_y - abm[i].launch_y);
+void calcIncrement(Abm * abm) {
+		abm->dx = fabs(abm->dest_x - abm->launch_x);
+		abm->dy = fabs(abm->dest_y - abm->launch_y);
 
-		if (abm[i].dx >= abm[i].dy) {
-			abm[i].step = abm[i].dx;
+		if (abm->dx >= abm->dy) {
+			abm->step = abm->dx;
 		}
 		else {
-			abm[i].step = abm[i].dy;
+			abm->step = abm->dy;
 		}
 
-		abm[i].x_inc = abm[i].dx / abm[i].step;
-		abm[i].y_inc = abm[i].dy / abm[i].step;	
+		abm->x_inc = abm->dx / abm->step;
+		abm->y_inc = abm->dy / abm->step;
 }
 
 void drawAbm(struct abmData * abm) {
@@ -140,32 +140,34 @@ void drawAbm(struct abmData * abm) {
 
 //update in buffer 
 void updateAbm(struct abmData * abm) {
+	int i;
 
-	for (int i = 0; i < ABM_COUNT; i++) {
+	for (i = 0; i < ABM_COUNT; i++) {
+
 		if (abm[i].launched) {  //only update launched & alive abm's 
-
-			/*abm[i].dx = fabs(abm[i].dest_x - abm[i].launch_x);
-			abm[i].dy = fabs(abm[i].dest_y - abm[i].launch_y);
-
-			if (abm[i].dx >= abm[i].dy) {
-				abm[i].step = abm[i].dx;
-			}
-			else {
-				abm[i].step = abm[i].dy;
-			}
-
-			abm[i].x_inc = abm[i].dx / abm[i].step;
-			abm[i].y_inc = abm[i].dy / abm[i].step;*/
-
-			abm[i].y_pos -= 10 * abm[i].y_inc;
+		
+			abm[i].y_pos -= 5 * abm[i].y_inc;
 
 			if (abm[i].dest_x > abm[i].launch_x) {
-				abm[i].x_pos += 10 * abm[i].x_inc; 
+				abm[i].x_pos += 5 *abm[i].x_inc; 
+				abm[i].num_increment += 5; 
 			}
 			else if (abm[i].dest_x < abm[i].launch_x) {
-				abm[i].x_pos -= 10 * abm[i].x_inc;
+				abm[i].x_pos -= 5 * abm[i].x_inc;
+				abm[i].num_increment += 5; 
 			}
 		}
 	}
 }
 
+
+void print_arrive(Abm * abm, int *count) {
+	for (int i = 0; i < ABM_COUNT; i++) {
+		if (abm[i].arrived) {
+			printf("i: %d, Count: %d, step %f, incr %d, launch %d\n", i, *count, abm[i].step, abm[i].num_increment, abm[i].launched);
+		}
+
+	}
+
+	(*count)++;
+}

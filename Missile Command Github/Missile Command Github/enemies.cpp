@@ -59,16 +59,6 @@ void updateEnemy(Enemy * enemy) {
 			else if (enemy[i].dest_x < enemy[i].launch_x) {
 				enemy[i].x_pos -= 2 * enemy[i].x_inc;
 			}
-
-			enemy[i].topLeft.x = enemy[i].x_pos - SIZE;
-			enemy[i].topLeft.y = enemy[i].y_pos - SIZE;
-			enemy[i].topRight.x = enemy[i].x_pos + SIZE;
-			enemy[i].topRight.y = enemy[i].y_pos - SIZE;
-
-			enemy[i].bottomLeft.x = enemy[i].x_pos - SIZE;
-			enemy[i].bottomLeft.y = enemy[i].y_pos + SIZE;
-			enemy[i].bottomRight.x = enemy[i].x_pos + SIZE;
-			enemy[i].bottomRight.y = enemy[i].y_pos + SIZE; 
 		}
 	}
 }
@@ -87,8 +77,7 @@ void drawEnemy(Enemy * enemy) {
 void enemyArrival(Enemy * enemy, int * curr_num_enemy) {
 	for (int i = 0; i < 30; i++) {
 		if (enemy[i].launched) {
-			enemy[i].distance = sqrt(pow((enemy[i].dest_x - enemy[i].x_pos), 2) + pow((enemy[i].dest_y - enemy[i].y_pos), 2));
-			if (enemy[i].distance <= 10) {
+			if (enemy[i].y_pos >= 880) {
 				enemy[i].launched = false;
 				enemy[i].arrived = true;
 				(*curr_num_enemy)--;
@@ -167,8 +156,7 @@ void mirvArrival(Mirv * mirv, Enemy * enemy) {
 	for (int i = 0; i < ABM_COUNT; i++) {
 		if (enemy[i].split) {
 			for (int j = 0; j < 3; j++) {
-				mirv[i].branch[j].dist_to_dest = sqrt(pow(mirv[i].branch[j].dest_x - mirv[i].branch[j].x_pos, 2) + pow(mirv[i].branch[j].dest_y - mirv[i].branch[j].y_pos, 2));
-				if (mirv[i].branch[j].dist_to_dest <= 10) {
+				if (mirv[i].branch[j].y_pos >= 880) {
 					mirv[i].branch[j].launched = false;
 					mirv[i].branch[j].arrived = true;
 				}

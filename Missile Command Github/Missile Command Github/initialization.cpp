@@ -9,8 +9,8 @@
 #include "header.h"					
 #include <time.h>
 #include <stdlib.h>
-																												   //or *frameExplosion[]
-int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITMAP ** imageCrosshair, ALLEGRO_BITMAP ** frameExplosion, ALLEGRO_EVENT_QUEUE ** event_queue) {
+																											
+int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITMAP ** imageCrosshair, ALLEGRO_EVENT_QUEUE ** event_queue) {
 
 	if (!al_init()) {
 		fprintf(stderr, "failed to initialize allegro!\n");
@@ -76,40 +76,6 @@ int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITM
 		return 0;
 	}
 
-	frameExplosion[0] = al_load_bitmap("slice_0_0.png");
-	frameExplosion[1] = al_load_bitmap("slice_0_1.png");
-	frameExplosion[2] = al_load_bitmap("slice_0_2.png");
-	frameExplosion[3] = al_load_bitmap("slice_0_3.png");
-	frameExplosion[4] = al_load_bitmap("slice_0_4.png");
-	frameExplosion[5] = al_load_bitmap("slice_0_5.png");
-	frameExplosion[6] = al_load_bitmap("slice_1_0.png");
-	frameExplosion[7] = al_load_bitmap("slice_1_1.png");
-	frameExplosion[8] = al_load_bitmap("slice_1_2.png");
-	frameExplosion[9] = al_load_bitmap("slice_1_3.png");
-	frameExplosion[10] = al_load_bitmap("slice_1_4.png");
-	frameExplosion[11] = al_load_bitmap("slice_1_5.png");
-	frameExplosion[12] = al_load_bitmap("slice_2_0.png");
-	frameExplosion[13] = al_load_bitmap("slice_2_1.png");
-	frameExplosion[14] = al_load_bitmap("slice_2_2.png");
-	frameExplosion[15] = al_load_bitmap("slice_2_3.png");
-	frameExplosion[16] = al_load_bitmap("slice_2_4.png");
-	frameExplosion[17] = al_load_bitmap("slice_2_5.png");
-	frameExplosion[18] = al_load_bitmap("slice_3_0.png");
-	frameExplosion[19] = al_load_bitmap("slice_3_1.png");
-	frameExplosion[20] = al_load_bitmap("slice_3_2.png");
-	frameExplosion[21] = al_load_bitmap("slice_3_3.png");
-	frameExplosion[22] = al_load_bitmap("slice_3_4.png");
-	frameExplosion[23] = al_load_bitmap("slice_3_5.png");
-	frameExplosion[24] = al_load_bitmap("slice_4_0.png");
-	frameExplosion[25] = al_load_bitmap("slice_4_1.png");
-	frameExplosion[26] = al_load_bitmap("slice_4_2.png");
-	frameExplosion[27] = al_load_bitmap("slice_4_3.png");
-	frameExplosion[28] = al_load_bitmap("slice_4_4.png");
-	frameExplosion[29] = al_load_bitmap("slice_4_5.png");
-	frameExplosion[30] = al_load_bitmap("slice_5_0.png");
-	frameExplosion[31] = al_load_bitmap("slice_5_1.png");
-	frameExplosion[32] = al_load_bitmap("slice_5_2.png");
-
 	//register 
 	al_register_event_source(*event_queue, al_get_display_event_source(*display));
 	al_register_event_source(*event_queue, al_get_timer_event_source(*timer));
@@ -148,11 +114,11 @@ void initAbm(struct abmData * abm) {
 		abm[i].x_pos = 0;
 		abm[i].y_pos = 0;
 		abm[i].step = 0;
-		abm[i].speed = 0;
 		abm[i].arrived = false;
 		abm[i].exploded = false; 
 		abm[i].explosionRadius = 0; 
 		abm[i].increaseRadius = true; 
+		abm[i].num_increment = 1; 
 	};
 
 	//1st battery (left)
@@ -203,7 +169,6 @@ void initEnemy(Enemy * enemy, Mirv * mirv) {
 		enemy[i].distY = 0;
 		enemy[i].distTotal = 0;
 		enemy[i].hit = false;
-		enemy[i].dist_to_dest = 0; 
 
 		//init mirv 
 		for (int j = 0; j < 3; j++) {
@@ -222,7 +187,6 @@ void initEnemy(Enemy * enemy, Mirv * mirv) {
 			mirv[i].branch[j].exploded = false;
 			mirv[i].branch[j].launch_y = 0;
 			mirv[i].branch[j].dest_y = 850;
-			mirv[i].branch[j].dist_to_dest = 0; 
 		}
 
 	}

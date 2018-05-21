@@ -23,10 +23,6 @@ enum ID { PLAYER, BULLET, ENEMY };
 
 enum BATTERY { LEFT, CENTER, RIGHT };
 
-typedef struct vectorData {
-	int x; 
-	int y; 
-} Vector; 
 
 //crosshair 
 typedef struct crosshairData {
@@ -54,15 +50,11 @@ typedef struct abmData {
 	float step;
 	int speed;
 	bool launched;
-	bool arrived;
-	float distance; 
+	bool arrived; 
 	bool exploded; 
 	float explosionRadius; 
 	bool increaseRadius; 
-	Vector topRight; 
-	Vector topLeft;
-	Vector bottomRight;
-	Vector bottomLeft;
+	int num_increment;
 }Abm;
 
 typedef struct enemyData {
@@ -80,20 +72,15 @@ typedef struct enemyData {
 	int speed;
 	bool launched;
 	bool arrived;
-	float distance;
 	bool exploded;
 	bool split; 
-	Vector topRight;
-	Vector topLeft;
-	Vector bottomRight;
-	Vector bottomLeft;
 	int relativeX;
 	int relativeY;
 	int distX;
 	int distY; 
 	int distTotal; 
 	bool hit; 
-	int dist_to_dest; 
+
 	//bounds
 } Enemy;
 
@@ -106,16 +93,16 @@ typedef struct mirvData {
 
 
 //prototypes
-int initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP **imageCrosshair, ALLEGRO_BITMAP **frameExplosion, ALLEGRO_EVENT_QUEUE **event_queue);
+int initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP **imageCrosshair, ALLEGRO_EVENT_QUEUE **event_queue);
 void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair);
 void initAbm(struct abmData * abm);
 
-void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_BITMAP **frameExplosion, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair * crosshair, struct abmData * abm, Enemy * enemy, int * curr_enemy_num, int * num_spawned, Mirv * mirv);
+void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair, struct abmData * abm, Enemy * enemy, int * curr_enemy_num, int * num_spawned, Mirv * mirv);
 
 void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, struct crosshairData data);
 
-void fire(struct abmData * abm, Crosshair crosshair);
-void calcIncrement(Abm * abm, int i); 
+void fire(Abm * abm, Crosshair crosshair);
+void calcIncrement(Abm * abm); 
 void updateAbm(struct abmData * abm);
 void drawAbm(struct abmData * abm);
 void abmArrival(Abm * abm);  //check if abm arrived
@@ -133,3 +120,5 @@ void drawMirv(Mirv * mirv);
 void mirvArrival(Mirv * mirv, Enemy * enemy); 
 
 void hitDetection(struct abmData * abm, Enemy * enemy); 
+
+void print_arrive(Abm * abm, int *count);
