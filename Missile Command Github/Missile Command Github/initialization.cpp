@@ -119,6 +119,12 @@ void initAbm(struct abmData * abm) {
 		abm[i].explosionRadius = 0; 
 		abm[i].increaseRadius = true; 
 		abm[i].num_increment = 1; 
+		abm[i].topRight.x = 0;
+		abm[i].topRight.y = 0;
+		abm[i].topLeft.x = 0;
+		abm[i].topLeft.y = 0;
+		abm[i].bottomLeft.x = 0;
+		abm[i].bottomLeft.y = 0;
 	};
 
 	//1st battery (left)
@@ -168,7 +174,12 @@ void initEnemy(Enemy * enemy, Mirv * mirv) {
 		enemy[i].distX = 0;
 		enemy[i].distY = 0;
 		enemy[i].distTotal = 0;
-		enemy[i].hit = false;
+		enemy[i].topRight.x = 0;
+		enemy[i].topRight.y = 0;
+		enemy[i].topLeft.x = 0;
+		enemy[i].topLeft.y = 0;
+		enemy[i].bottomLeft.x = 0;
+		enemy[i].bottomLeft.y = 0;
 
 		//init mirv 
 		for (int j = 0; j < 3; j++) {
@@ -187,6 +198,12 @@ void initEnemy(Enemy * enemy, Mirv * mirv) {
 			mirv[i].branch[j].exploded = false;
 			mirv[i].branch[j].launch_y = 0;
 			mirv[i].branch[j].dest_y = 850;
+			mirv[i].branch[j].topRight.x = 0;
+			mirv[i].branch[j].topRight.y = 0;
+			mirv[i].branch[j].topLeft.x = 0;
+			mirv[i].branch[j].topLeft.y = 0;
+			mirv[i].branch[j].bottomLeft.x = 0;
+			mirv[i].branch[j].bottomLeft.y = 0;
 		}
 
 	}

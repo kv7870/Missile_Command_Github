@@ -11,7 +11,7 @@ const int ROWS = 5;   //rows of enemies
 const int COLS = 3;  //columns of enemies 
 const int frameCount = 33; 
 const int MAX_ENEMY = 5; //max enemies on screen at one time
-const int ENEMY_COUNT = 20; //20 enemies 
+const int ENEMY_COUNT = 30; //20 enemies 
 const int SIZE = 1.5;  //3x3 square
 const int ABM_COUNT = 30; 
 
@@ -34,6 +34,10 @@ typedef struct crosshairData {
 	float target_y;
 } Crosshair;
 
+typedef struct coordinates {
+	int x;
+	int y;
+} Vector;
 
 //each individual ABM has these properties 
 typedef struct abmData {
@@ -55,6 +59,9 @@ typedef struct abmData {
 	float explosionRadius; 
 	bool increaseRadius; 
 	int num_increment;
+	Vector topRight;
+	Vector topLeft;
+	Vector bottomLeft;
 }Abm;
 
 typedef struct enemyData {
@@ -79,8 +86,9 @@ typedef struct enemyData {
 	int distX;
 	int distY; 
 	int distTotal; 
-	bool hit; 
-
+	Vector topRight;
+	Vector topLeft;
+	Vector bottomLeft;
 	//bounds
 } Enemy;
 
@@ -115,10 +123,10 @@ void updateEnemy(Enemy * enemy);
 void enemyArrival(Enemy * enemy, int * curr_num_enemy);
 
 void spawnMirv(Enemy * enemy, Mirv * mirv);
-void updateMirv(Mirv * mirv);
+void updateMirv(Mirv * mirv, Enemy * enemy);
 void drawMirv(Mirv * mirv);
 void mirvArrival(Mirv * mirv, Enemy * enemy); 
 
-void hitDetection(struct abmData * abm, Enemy * enemy); 
+void hitDetection(struct abmData * abm, Enemy * enemy, Mirv * mirv); 
 
 void print_arrive(Abm * abm, int *count);

@@ -51,15 +51,12 @@ void drawExplosion(Abm * abm) {
 			al_draw_filled_circle(abm[i].dest_x, abm[i].dest_y, abm[i].explosionRadius, al_map_rgb(r, g, b));
 
 			//calculate bounds of explosion 
-			/*abm[i].topLeft.x = abm[i].dest_x - abm[i].explosionRadius;
+			abm[i].topLeft.x = abm[i].dest_x - abm[i].explosionRadius;
 			abm[i].topLeft.y = abm[i].dest_y - abm[i].explosionRadius;
 			abm[i].topRight.x = abm[i].dest_x + abm[i].explosionRadius;
 			abm[i].topRight.y = abm[i].dest_y - abm[i].explosionRadius;
-		
 			abm[i].bottomLeft.x = abm[i].dest_x - abm[i].explosionRadius;
 			abm[i].bottomLeft.y = abm[i].dest_y + abm[i].explosionRadius;
-			abm[i].bottomRight.x = abm[i].dest_x + abm[i].explosionRadius;
-			abm[i].bottomRight.y = abm[i].dest_y + abm[i].explosionRadius;*/
 
 			if (abm[i].explosionRadius < 0) {
 				abm[i].exploded = true;
@@ -67,19 +64,3 @@ void drawExplosion(Abm * abm) {
 		}
 	}
 }
-
-
-/*void drawExplosion(struct abmData * abm, ALLEGRO_BITMAP ** frameExplosion) {
-
-	for (int i = 0; i < ABM_COUNT; i++) {
-		if (abm[i].arrived && !abm[i].exploded) {
-			al_draw_bitmap(frameExplosion[(abm[i].curr)], abm[i].dest_x, abm[i].dest_y, 0);
-			abm[i].curr++;
-			abm[i].curr %= 3;
-		}
-
-		if (abm[i].curr == 33) {
-			abm[i].exploded = true;
-		}
-	}
-}*/

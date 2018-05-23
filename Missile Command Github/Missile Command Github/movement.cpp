@@ -41,10 +41,10 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 			enemyArrival(enemy, curr_num_enemy);
 
 			spawnMirv(enemy, mirv); 
-			updateMirv(mirv);
+			updateMirv(mirv, enemy);
 			mirvArrival(mirv, enemy); 
 
-			hitDetection(abm, enemy); 
+			hitDetection(abm, enemy, mirv); 
 
 		
 		}
