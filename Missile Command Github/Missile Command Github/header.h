@@ -11,7 +11,9 @@ const int ROWS = 5;   //rows of enemies
 const int COLS = 3;  //columns of enemies 
 const int frameCount = 33; 
 const int MAX_ENEMY = 5; //max enemies on screen at one time
-const int ENEMY_COUNT = 30; //20 enemies 
+const int MAX_SPLIT = 10; 
+const int ENEMY_COUNT = 50; 
+const int SPLIT_COUNT = 4; 
 const int SIZE = 1.5;  //3x3 square
 const int ABM_COUNT = 30; 
 
@@ -55,7 +57,7 @@ typedef struct abmData {
 	int speed;
 	bool launched;
 	bool arrived; 
-	bool exploded; 
+	bool doneExploding; 
 	float explosionRadius; 
 	bool increaseRadius; 
 	int num_increment;
@@ -79,8 +81,6 @@ typedef struct enemyData {
 	int speed;
 	bool launched;
 	bool arrived;
-	bool exploded;
-	bool split; 
 	int relativeX;
 	int relativeY;
 	int distX;
@@ -89,7 +89,6 @@ typedef struct enemyData {
 	Vector topRight;
 	Vector topLeft;
 	Vector bottomLeft;
-	//bounds
 } Enemy;
 
 
@@ -105,28 +104,22 @@ int initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP
 void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair);
 void initAbm(struct abmData * abm);
 
-void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair, struct abmData * abm, Enemy * enemy, int * curr_enemy_num, int * num_spawned, Mirv * mirv);
+void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair, struct abmData * abm, Enemy enemy[ENEMY_COUNT][SPLIT_COUNT], int * curr_enemy_count, int * num_spawned);
 
 void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, struct crosshairData data);
 
 void fire(Abm * abm, Crosshair crosshair);
-void calcIncrement(Abm * abm); 
+void calcAbmInc(Abm * abm); 
 void updateAbm(struct abmData * abm);
 void drawAbm(struct abmData * abm);
 void abmArrival(Abm * abm);  //check if abm arrived
 void drawExplosion(Abm * abm); 
 
-void initEnemy(Enemy * enemy, Mirv * mirv);
-void spawnEnemy(Enemy * enemy, int * curr_enemy_count, int * num_spawned);
-void drawEnemy(Enemy * enemy);
-void updateEnemy(Enemy * enemy);
-void enemyArrival(Enemy * enemy, int * curr_num_enemy);
+void initEnemy(Enemy enemy[ENEMY_COUNT][SPLIT_COUNT]);
+void spawnEnemy(Enemy enemy[ENEMY_COUNT][SPLIT_COUNT], int * curr_enemy_count, int * num_spawned);
+void calcEnemyInc(Enemy * enemy); 
+void drawEnemy(Enemy enemy[ENEMY_COUNT][SPLIT_COUNT]); 
+void updateEnemy(Enemy enemy[ENEMY_COUNT][SPLIT_COUNT]);
+void enemyArrival(Enemy enemy[ENEMY_COUNT][SPLIT_COUNT], int *curr_enemy_count);
 
-void spawnMirv(Enemy * enemy, Mirv * mirv);
-void updateMirv(Mirv * mirv, Enemy * enemy);
-void drawMirv(Mirv * mirv);
-void mirvArrival(Mirv * mirv, Enemy * enemy); 
-
-void hitDetection(struct abmData * abm, Enemy * enemy, Mirv * mirv); 
-
-void print_arrive(Abm * abm, int *count);
+void hitDetection(struct abmData * abm, Enemy enemy[ENEMY_COUNT][SPLIT_COUNT], int *curr_enemy_count);

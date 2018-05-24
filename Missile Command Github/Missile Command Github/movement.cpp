@@ -11,7 +11,7 @@
 #include <stdlib.h>
 
 
-void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair, struct abmData * abm, Enemy * enemy, int  * curr_num_enemy, int * num_spawned, Mirv * mirv) {
+void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair, struct abmData * abm, Enemy enemy[ENEMY_COUNT][SPLIT_COUNT], int  * curr_enemy_count, int * num_spawned) {
 
 	//ship.x = SCREEN_W / 2.0 - BOUNCER_SIZE / 2.0;
 	//ship.y = SCREEN_H / 2.0 - BOUNCER_SIZE / 2.0;
@@ -31,22 +31,13 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 		if (ev.type == ALLEGRO_EVENT_TIMER) {  //update every 1/60 of a second 
 			draw = true;
-			
-			print_arrive(abm, &count);
 
 			updateAbm(abm); 
 			abmArrival(abm); 
-			spawnEnemy(enemy, curr_num_enemy, num_spawned); 
+			hitDetection(abm, enemy, curr_enemy_count);
+			spawnEnemy(enemy, curr_enemy_count, num_spawned); 
 			updateEnemy(enemy);
-			enemyArrival(enemy, curr_num_enemy);
-
-			spawnMirv(enemy, mirv); 
-			updateMirv(mirv, enemy);
-			mirvArrival(mirv, enemy); 
-
-			hitDetection(abm, enemy, mirv); 
-
-		
+			enemyArrival(enemy, curr_enemy_count);
 		}
 
 		else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
@@ -129,7 +120,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			drawEnemy(enemy); 
 
-			drawMirv(mirv); 
+			printf("Current: %d\n", *curr_enemy_count); 
 
 			al_flip_display();
 		}

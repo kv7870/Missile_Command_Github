@@ -115,7 +115,7 @@ void initAbm(struct abmData * abm) {
 		abm[i].y_pos = 0;
 		abm[i].step = 0;
 		abm[i].arrived = false;
-		abm[i].exploded = false; 
+		abm[i].doneExploding = false;
 		abm[i].explosionRadius = 0; 
 		abm[i].increaseRadius = true; 
 		abm[i].num_increment = 1; 
@@ -149,61 +149,37 @@ void initAbm(struct abmData * abm) {
 	}
 }
 
-void initEnemy(Enemy * enemy, Mirv * mirv) {
+void initEnemy(Enemy enemy[ENEMY_COUNT][SPLIT_COUNT]) {
 	for (int i = 0; i < ENEMY_COUNT; i++) {
+		for (int j = 0; j < SPLIT_COUNT; j++) {
 
-		//init main enemy missile 
-		enemy[i].dest_x = 0;
-		enemy[i].dest_y = 0;
-		enemy[i].launched = false;
-		enemy[i].dx = 0;
-		enemy[i].dy = 0;
-		enemy[i].x_inc = 0;
-		enemy[i].y_inc = 0;
-		enemy[i].x_pos = 0;
-		enemy[i].y_pos = 0;
-		enemy[i].step = 0;
-		enemy[i].speed = 0;
-		enemy[i].arrived = false;
-		enemy[i].exploded = false;
-		enemy[i].launch_y = 0;
-		enemy[i].dest_y = 850; 
-		enemy[i].split = false; 
-		enemy[i].relativeX = 0;
-		enemy[i].relativeY = 0; 
-		enemy[i].distX = 0;
-		enemy[i].distY = 0;
-		enemy[i].distTotal = 0;
-		enemy[i].topRight.x = 0;
-		enemy[i].topRight.y = 0;
-		enemy[i].topLeft.x = 0;
-		enemy[i].topLeft.y = 0;
-		enemy[i].bottomLeft.x = 0;
-		enemy[i].bottomLeft.y = 0;
+			//init main enemy missile 
+			enemy[i][j].dest_x = 0;
+			enemy[i][j].dest_y = 0;
+			enemy[i][j].launched = false;
+			enemy[i][j].dx = 0;
+			enemy[i][j].dy = 0;
+			enemy[i][j].x_inc = 0;
+			enemy[i][j].y_inc = 0;
+			enemy[i][j].x_pos = 0;
+			enemy[i][j].y_pos = 0;
+			enemy[i][j].step = 0;
+			enemy[i][j].speed = 0;
+			enemy[i][j].arrived = false;
+			enemy[i][j].launch_y = 0;
+			enemy[i][j].dest_y = 880;
+			enemy[i][j].relativeX = 0;
+			enemy[i][j].relativeY = 0;
+			enemy[i][j].distX = 0;
+			enemy[i][j].distY = 0;
+			enemy[i][j].distTotal = 0;
+			enemy[i][j].topRight.x = 0;
+			enemy[i][j].topRight.y = 0;
+			enemy[i][j].topLeft.x = 0;
+			enemy[i][j].topLeft.y = 0;
+			enemy[i][j].bottomLeft.x = 0;
+			enemy[i][j].bottomLeft.y = 0;
 
-		//init mirv 
-		for (int j = 0; j < 3; j++) {
-			mirv[i].branch[j].dest_x = 0;
-			mirv[i].branch[j].dest_y = 0;
-			mirv[i].branch[j].launched = false;
-			mirv[i].branch[j].dx = 0;
-			mirv[i].branch[j].dy = 0;
-			mirv[i].branch[j].x_inc = 0;
-			mirv[i].branch[j].y_inc = 0;
-			mirv[i].branch[j].x_pos = 0;
-			mirv[i].branch[j].y_pos = 0;
-			mirv[i].branch[j].step = 0;
-			mirv[i].branch[j].speed = 0;
-			mirv[i].branch[j].arrived = false;
-			mirv[i].branch[j].exploded = false;
-			mirv[i].branch[j].launch_y = 0;
-			mirv[i].branch[j].dest_y = 850;
-			mirv[i].branch[j].topRight.x = 0;
-			mirv[i].branch[j].topRight.y = 0;
-			mirv[i].branch[j].topLeft.x = 0;
-			mirv[i].branch[j].topLeft.y = 0;
-			mirv[i].branch[j].bottomLeft.x = 0;
-			mirv[i].branch[j].bottomLeft.y = 0;
 		}
 
 	}

@@ -38,16 +38,13 @@
     <ClCompile Include="initialization.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="fire.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="abmArrival.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="enemies.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="hit_detection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="abm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

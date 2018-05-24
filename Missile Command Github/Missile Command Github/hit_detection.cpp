@@ -12,81 +12,50 @@
 #include <stdlib.h>
 
 
-void hitDetection(struct abmData * abm, Enemy * enemy, Mirv * mirv) {
+void hitDetection(struct abmData * abm, Enemy enemy[ENEMY_COUNT][SPLIT_COUNT], int * curr_enemy_count) {
 	for (int i = 0; i < ABM_COUNT; i++) {
-		if (abm[i].arrived && !abm[i].exploded) {
+		if (abm[i].arrived && !abm[i].doneExploding) {
 
-			//hit detection for main enemy missiles 
 			for (int j = 0; j < ENEMY_COUNT; j++) {
-				if (enemy[j].launched) {
-					//check bounds
-					if (abm[i].topRight.x >= enemy[j].topLeft.x &&
-						abm[i].topLeft.x <= enemy[j].topRight.x &&
-						abm[i].bottomLeft.y >= enemy[j].topLeft.y &&
-						abm[i].topLeft.y <= enemy[j].bottomLeft.y) {
+				for (int k = 0; k < SPLIT_COUNT; k++) {
+					if (enemy[j][k].launched) {
 
-						//left edge
-						if (abm[i].dest_x < enemy[j].x_pos - SIZE) {
-							enemy[j].relativeX = enemy[j].x_pos - SIZE;
-						}
-						//right edge 
-						else if (abm[i].dest_x > enemy[j].x_pos + SIZE) {
-							enemy[j].relativeX = enemy[j].x_pos + SIZE;
-						}
+						//check bounds
+						if (abm[i].topRight.x >= enemy[j][k].topLeft.x &&
+							abm[i].topLeft.x <= enemy[j][k].topRight.x &&
+							abm[i].bottomLeft.y >= enemy[j][k].topLeft.y &&
+							abm[i].topLeft.y <= enemy[j][k].bottomLeft.y) {
 
-						//top edge
-						if (abm[i].dest_y < enemy[j].y_pos - SIZE) {
-							enemy[j].relativeY = enemy[j].y_pos - SIZE;
-						}
-						//bottom edge 
-						else if (abm[i].dest_y > enemy[j].y_pos + SIZE) {
-							enemy[j].relativeY = enemy[j].y_pos + SIZE;
-						}
+							//left edge
+							if (abm[i].dest_x < enemy[j][k].x_pos - SIZE) {
+								enemy[j][k].relativeX = enemy[j][k].x_pos - SIZE;
+							}
 
-						enemy[j].distX = abm[i].dest_x - enemy[j].relativeX;
-						enemy[j].distY = abm[i].dest_y - enemy[j].relativeY;
+							//right edge 
+							else if (abm[i].dest_x > enemy[j][k].x_pos + SIZE) {
+								enemy[j][k].relativeX = enemy[j][k].x_pos + SIZE;
+							}
 
-						enemy[j].distTotal = sqrt((pow(enemy[j].distX, 2) + pow(enemy[j].distY, 2)));
+							//top edge
+							if (abm[i].dest_y < enemy[j][k].y_pos - SIZE) {
+								enemy[j][k].relativeY = enemy[j][k].y_pos - SIZE;
+							}
 
-						if (enemy[j].distTotal <= abm[i].explosionRadius) {
-							enemy[j].launched = false;
-						}
-					}
+							//bottom edge 
+							else if (abm[i].dest_y > enemy[j][k].y_pos + SIZE) {
+								enemy[j][k].relativeY = enemy[j][k].y_pos + SIZE;
+							}
 
-					//hit detection for mirvs
-					if(enemy[j].split) {
-						for (int k = 0; k < 3; k++) {
-							//check bounds
-							if (abm[i].topRight.x >= mirv[j].branch[k].topLeft.x &&
-								abm[i].topLeft.x <= mirv[j].branch[k].topRight.x &&
-								abm[i].bottomLeft.y >= mirv[j].branch[k].topLeft.y &&
-								abm[i].topLeft.y <= mirv[j].branch[k].bottomLeft.y) {
+							enemy[j][k].distX = abm[i].dest_x - enemy[j][k].relativeX;
+							enemy[j][k].distY = abm[i].dest_y - enemy[j][k].relativeY;
 
-								//left edge
-								if (abm[i].dest_x < mirv[j].branch[k].x_pos - SIZE) {
-									mirv[j].branch[k].relativeX = mirv[j].branch[k].x_pos - SIZE;
-								}
-								//right edge
-								else if (abm[i].dest_x > mirv[j].branch[k].x_pos + SIZE) {
-									mirv[j].branch[k].relativeX = mirv[j].branch[k].x_pos + SIZE;
-								}
-								//top edge 
-								else if (abm[i].dest_y < mirv[j].branch[k].y_pos - SIZE) {
-									mirv[j].branch[k].relativeY = mirv[j].branch[k].y_pos - SIZE;
-								}
-								//bottom edge
-								else if (abm[i].dest_y > mirv[j].branch[k].y_pos + SIZE) {
-									mirv[j].branch[k].relativeY = mirv[j].branch[k].y_pos + SIZE;
-								}
+							enemy[j][k].distTotal = sqrt((pow(enemy[j][k].distX, 2) + pow(enemy[j][k].distY, 2)));
 
-								mirv[j].branch[k].distX = abm[i].dest_x - mirv[j].branch[k].relativeX;
-								mirv[j].branch[k].distY = abm[i].dest_y - mirv[j].branch[k].relativeY;
+							if (enemy[j][k].distTotal <= abm[i].explosionRadius) {
+								enemy[j][k].launched = false;
 
-								mirv[j].branch[k].distTotal = sqrt((pow(mirv[j].branch[k].distX, 2) + pow(mirv[j].branch[k].distY, 2)));
-
-								if (mirv[j].branch[k].distTotal <= abm[i].explosionRadius) {
-									mirv[j].branch[k].launched = false;
-								}
+								if (j == 0)
+									(*curr_enemy_count)--;
 							}
 						}
 					}
