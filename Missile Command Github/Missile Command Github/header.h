@@ -1,7 +1,6 @@
-#pragma once
+//#pragma once
 
 //globals 
-
 const float FPS = 60;
 const int SCREEN_W = 900;
 const int SCREEN_H = 900;
@@ -21,9 +20,6 @@ enum KEYS {
 	KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_SPACE  //by default member 1 = 0, member 2 = 1, member 3 = 2, member 4 = 3... 
 };
 
-enum ID { PLAYER, BULLET, ENEMY };
-
-enum BATTERY { LEFT, CENTER, RIGHT };
 
 
 //crosshair 
@@ -91,14 +87,6 @@ typedef struct enemyData {
 	Vector bottomLeft;
 } Enemy;
 
-
-//multiple independently targetable reentry vehicle
-typedef struct mirvData { 
-	Enemy branch[3]; 
-} Mirv; 
-
-
-
 //prototypes
 int initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP **imageCrosshair, ALLEGRO_EVENT_QUEUE **event_queue);
 void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair);
@@ -106,7 +94,7 @@ void initAbm(struct abmData * abm);
 
 void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair, struct abmData * abm, Enemy enemy[ENEMY_COUNT][SPLIT_COUNT], int * curr_enemy_count, int * num_spawned);
 
-void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, struct crosshairData data);
+void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, Crosshair * crosshair);
 
 void fire(Abm * abm, Crosshair crosshair);
 void calcAbmInc(Abm * abm); 

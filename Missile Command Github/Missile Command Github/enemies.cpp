@@ -14,7 +14,7 @@
 void spawnEnemy(Enemy enemy[ENEMY_COUNT][SPLIT_COUNT], int * curr_enemy_count, int * num_spawned) {
 	int spawnTiming = 0;
 
-	if (*curr_enemy_count <= MAX_ENEMY && *num_spawned < ENEMY_COUNT*SPLIT_COUNT) {
+	if (*curr_enemy_count <= MAX_ENEMY && *num_spawned < (ENEMY_COUNT * SPLIT_COUNT)) {
 		for (int i = 0; i < ENEMY_COUNT; i++) {
 			if (!enemy[i][0].launched && !enemy[i][0].arrived) {  //main missile
 				spawnTiming = rand() % 100 + 1;

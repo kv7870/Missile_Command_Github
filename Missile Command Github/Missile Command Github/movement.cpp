@@ -112,7 +112,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			al_clear_to_color(al_map_rgb(0, 0, 0));  //clear screen to black to create illusion of animation; draw & clear screen, draw & clear screen... 
 
-			drawCrosshair(imageCrosshair, crosshair);
+			drawCrosshair(imageCrosshair, &crosshair);
 
 			drawAbm(abm); 
 
@@ -120,7 +120,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			drawEnemy(enemy); 
 
-			printf("Current: %d\n", *curr_enemy_count); 
+			printf("Spawned: %d\n", *num_spawned); 
 
 			al_flip_display();
 		}
@@ -131,6 +131,6 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 	al_destroy_event_queue(event_queue);
 }
 
-void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, struct crosshairData crosshair) {
-	al_draw_bitmap(imageCrosshair, crosshair.x-27, crosshair.y-23, 0);
+void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, Crosshair * crosshair) {
+	al_draw_bitmap(imageCrosshair, crosshair->x-27, crosshair->y-23, 0);
 }
