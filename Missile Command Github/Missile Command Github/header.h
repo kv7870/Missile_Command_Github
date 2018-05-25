@@ -11,7 +11,6 @@ const int COLS = 3;  //columns of enemies
 const int frameCount = 33; 
 const int MAX_ENEMY = 5; //max enemies on screen at one time
 const int MAX_SPLIT = 10; 
-const int ENEMY_COUNT = 50; 
 const int SPLIT_COUNT = 4; 
 const int SIZE = 1.5;  //3x3 square
 const int ABM_COUNT = 30; 
@@ -92,7 +91,7 @@ int initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP
 void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair);
 void initAbm(struct abmData * abm);
 
-void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair, struct abmData * abm, Enemy enemy[ENEMY_COUNT][SPLIT_COUNT], int * curr_enemy_count, int * num_spawned);
+void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair, struct abmData * abm, Enemy ** enemy, int  * curr_enemy_count, int * num_spawned, int * lvl_spawn_limit, int * level);
 
 void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, Crosshair * crosshair);
 
@@ -103,11 +102,11 @@ void drawAbm(struct abmData * abm);
 void abmArrival(Abm * abm);  //check if abm arrived
 void drawExplosion(Abm * abm); 
 
-void initEnemy(Enemy enemy[ENEMY_COUNT][SPLIT_COUNT]);
-void spawnEnemy(Enemy enemy[ENEMY_COUNT][SPLIT_COUNT], int * curr_enemy_count, int * num_spawned);
+void initEnemy(Enemy ** enemy, int * lvl_spawn_limit);
+void spawnEnemy(Enemy ** enemy, int * curr_enemy_count, int * num_spawned, int * lvl_spawn_limit);
 void calcEnemyInc(Enemy * enemy); 
-void drawEnemy(Enemy enemy[ENEMY_COUNT][SPLIT_COUNT]); 
-void updateEnemy(Enemy enemy[ENEMY_COUNT][SPLIT_COUNT]);
-void enemyArrival(Enemy enemy[ENEMY_COUNT][SPLIT_COUNT], int *curr_enemy_count);
+void drawEnemy(Enemy ** enemy, int * lvl_spawn_limit);
+void updateEnemy(Enemy ** enemy, int * lvl_spawn_limit);
+void enemyArrival(Enemy ** enemy, int *curr_enemy_count, int * lvl_spawn_limit);
 
-void hitDetection(struct abmData * abm, Enemy enemy[ENEMY_COUNT][SPLIT_COUNT], int *curr_enemy_count);
+void hitDetection(struct abmData * abm, Enemy ** enemy, int *curr_enemy_count, int * lvl_spawn_limit);

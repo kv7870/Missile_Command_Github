@@ -11,13 +11,15 @@
 #include <stdlib.h>
 
 
-void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair, struct abmData * abm, Enemy enemy[ENEMY_COUNT][SPLIT_COUNT], int  * curr_enemy_count, int * num_spawned) {
+void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair, struct abmData * abm, Enemy ** enemy, int  * curr_enemy_count, int * num_spawned, int * lvl_spawn_limit, int * level) {
 
 	//ship.x = SCREEN_W / 2.0 - BOUNCER_SIZE / 2.0;
 	//ship.y = SCREEN_H / 2.0 - BOUNCER_SIZE / 2.0;
 	bool done = false;
 	bool draw = true;
 	int count = 0;
+	int i; 
+	int round = 1; 
 
 
 	bool key[5] = { false, false, false, false, false };  //array with members KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT; each member is true or false 
@@ -34,10 +36,10 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			updateAbm(abm); 
 			abmArrival(abm); 
-			hitDetection(abm, enemy, curr_enemy_count);
-			spawnEnemy(enemy, curr_enemy_count, num_spawned); 
-			updateEnemy(enemy);
-			enemyArrival(enemy, curr_enemy_count);
+			hitDetection(abm, enemy, curr_enemy_count, lvl_spawn_limit);
+			spawnEnemy(enemy, curr_enemy_count, num_spawned, lvl_spawn_limit); 
+			updateEnemy(enemy, lvl_spawn_limit);
+			enemyArrival(enemy, curr_enemy_count, lvl_spawn_limit);
 		}
 
 		else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
@@ -109,6 +111,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 		//must draw everything every tick of timer 
 		if (draw && al_is_event_queue_empty(event_queue)) {
 			draw = false; 
+			round++; 
 
 			al_clear_to_color(al_map_rgb(0, 0, 0));  //clear screen to black to create illusion of animation; draw & clear screen, draw & clear screen... 
 
@@ -118,11 +121,32 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			drawExplosion(abm); 
 
-			drawEnemy(enemy); 
+			drawEnemy(enemy, lvl_spawn_limit); 
 
-			printf("Spawned: %d\n", *num_spawned); 
+			printf("Round: %d Level: %d Spawned: %d\n", round, *level, *num_spawned); 
 
 			al_flip_display();
+
+			if (*num_spawned == *lvl_spawn_limit) {
+				for (i = 0; i < *lvl_spawn_limit; i++) {
+					free(enemy[i]); 
+				}
+				free(enemy);
+
+				(*lvl_spawn_limit) += 10;
+				(*level)++; 
+				(*num_spawned) = 0;
+				(*curr_enemy_count) = 0; 
+		
+				Enemy ** enemy = (Enemy **)malloc((*lvl_spawn_limit) * sizeof(Enemy *));
+				for (i = 0; i < *lvl_spawn_limit; i++) {
+					enemy[i] = (Enemy *)malloc(SPLIT_COUNT * sizeof(Enemy));
+				}
+			
+				initEnemy(enemy, lvl_spawn_limit); 
+
+				system("pause");
+			}
 		}
 	}
 	al_destroy_bitmap(imageCrosshair);

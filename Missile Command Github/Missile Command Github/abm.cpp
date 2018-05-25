@@ -147,7 +147,6 @@ void abmArrival(Abm * abm) {
 			if (abm[i].num_increment > abm[i].step) {
 				abm[i].launched = false;
 				abm[i].arrived = true;
-				//abm[i].num_increment = 1; 
 			}
 		}
 	}

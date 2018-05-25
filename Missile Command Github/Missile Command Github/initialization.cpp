@@ -85,7 +85,7 @@ int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITM
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 	al_flip_display();
 	al_start_timer(*timer);
-}
+ }
 
 
 
@@ -148,9 +148,9 @@ void initAbm(struct abmData * abm) {
 		abm[i].speed = 5;
 	}
 }
-
-void initEnemy(Enemy enemy[ENEMY_COUNT][SPLIT_COUNT]) {
-	for (int i = 0; i < ENEMY_COUNT; i++) {
+					
+void initEnemy(Enemy ** enemy, int * lvl_spawn_limit) {
+	for (int i = 0; i < *lvl_spawn_limit; i++) {
 		for (int j = 0; j < SPLIT_COUNT; j++) {
 
 			//init main enemy missile 
@@ -179,7 +179,6 @@ void initEnemy(Enemy enemy[ENEMY_COUNT][SPLIT_COUNT]) {
 			enemy[i][j].topLeft.y = 0;
 			enemy[i][j].bottomLeft.x = 0;
 			enemy[i][j].bottomLeft.y = 0;
-
 		}
 
 	}
