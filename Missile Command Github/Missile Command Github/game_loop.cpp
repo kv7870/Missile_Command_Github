@@ -13,7 +13,7 @@
 void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair,
 	struct abmData * abm, Enemy ** enemy, int  * curr_enemy_count, int * num_spawned, int * lvl_spawn_limit, int * level, float * enemySpeed,
 	int * spawnRate, int * splitRate, ALLEGRO_FONT * font, int * lives, int * abmLeft, int * score, Base * base, int * batteryAbmLeft,
-	Explosion * explosion) {
+	Explosion * explosion, Theme * theme) {
 
 	//ship.x = SCREEN_W / 2.0 - BOUNCER_SIZE / 2.0;
 	//ship.y = SCREEN_H / 2.0 - BOUNCER_SIZE / 2.0;
@@ -122,13 +122,13 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			drawCrosshair(imageCrosshair, &crosshair);
 
-			drawAbm(abm);
+			drawAbm(abm, theme);
 
 			drawExplosion(abm, explosion);
 
-			drawEnemy(enemy, lvl_spawn_limit);
+			drawEnemy(enemy, lvl_spawn_limit, theme);
 
-			drawObjects(base, 6);
+			drawObjects(base, 6, theme);
 
 			drawInfo(font, abm, lives, level, abmLeft, score, batteryAbmLeft);
 
@@ -166,13 +166,17 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 					}
 					free(enemy);
 
-					(*lvl_spawn_limit) += 10;
+					(*lvl_spawn_limit) += 5;
 					(*level)++;
 					(*spawnRate) -= 100;
 					(*splitRate) -= 100;
 					*num_spawned = 0;
 					*curr_enemy_count = 0;
 					(*enemySpeed) += 0.5;
+
+					//change theme & color
+					//*useTheme = rand() % THEME_COUNT + 1; 
+					//*useColor = rand() % COLOR_COUNT + 1; 
 
 
 					enemy = (Enemy **)malloc((*lvl_spawn_limit) * sizeof(Enemy *));
@@ -182,6 +186,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 					initEnemy(enemy, lvl_spawn_limit);
 					initAbm(abm, abmLeft, batteryAbmLeft, explosion);
+					initColor(theme);
 
 					transition(font, timer, abm, lives, level, score);
 				}
@@ -250,22 +255,23 @@ void transition(ALLEGRO_FONT * font, ALLEGRO_TIMER * timer, Abm * abm, int * liv
 }
 
 
-void drawObjects(Base * base, int baseCount) {
+void drawObjects(Base * base, int baseCount, Theme * theme) {
 
 	//launchpads 
-	al_draw_filled_rectangle(10, 850, 80, 900, al_map_rgb(255, 255, 0));
-	al_draw_filled_rectangle(390, 850, 460, 900, al_map_rgb(255, 255, 0));
-	al_draw_filled_rectangle(820, 850, 890, 900, al_map_rgb(255, 255, 0));
+	al_draw_filled_rectangle(10, 850, 80, 900, al_map_rgb(theme->color[2].r, theme->color[2].g, theme->color[2].b));
+	al_draw_filled_rectangle(390, 850, 460, 900, al_map_rgb(theme->color[2].r, theme->color[2].g, theme->color[2].b));
+	al_draw_filled_rectangle(820, 850, 890, 900, al_map_rgb(theme->color[2].r, theme->color[2].g, theme->color[2].b));
 
 	//bases
-	al_draw_filled_rectangle(120, 870, 170, 900, al_map_rgb(base[0].color.r, base[0].color.g, base[0].color.b));
-	al_draw_filled_rectangle(210, 870, 260, 900, al_map_rgb(base[1].color.r, base[1].color.g, base[1].color.b));
-	al_draw_filled_rectangle(300, 870, 350, 900, al_map_rgb(base[2].color.r, base[2].color.g, base[2].color.b));
+	for (int i = 0; i < 6; i++) {
+		
+		al_draw_filled_rectangle(120, 870, 170, 900, al_map_rgb(theme->color[3].r, theme->color[3].g, theme->color[3].b));
+		al_draw_filled_rectangle(210, 870, 260, 900, al_map_rgb(theme->color[3].r, theme->color[3].g, theme->color[3].b));
+		al_draw_filled_rectangle(300, 870, 350, 900, al_map_rgb(theme->color[3].r, theme->color[3].g, theme->color[3].b));
 
-	//bases
-	al_draw_filled_rectangle(505, 870, 555, 900, al_map_rgb(base[3].color.r, base[3].color.g, base[3].color.b));
-	al_draw_filled_rectangle(605, 870, 655, 900, al_map_rgb(base[4].color.r, base[4].color.g, base[4].color.b));
-	al_draw_filled_rectangle(705, 870, 755, 900, al_map_rgb(base[5].color.r, base[5].color.g, base[5].color.b));
-
+		al_draw_filled_rectangle(505, 870, 555, 900, al_map_rgb(theme->color[3].r, theme->color[3].g, theme->color[3].b));
+		al_draw_filled_rectangle(605, 870, 655, 900, al_map_rgb(theme->color[3].r, theme->color[3].g, theme->color[3].b));
+		al_draw_filled_rectangle(705, 870, 755, 900, al_map_rgb(theme->color[3].r, theme->color[3].g, theme->color[3].b));
+	}
 
 }

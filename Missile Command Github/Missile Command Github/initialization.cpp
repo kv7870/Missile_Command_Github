@@ -229,3 +229,18 @@ void initBase(Base * base, int baseCount) {
 		base[i].color.b = 255;
 	}
 }
+
+
+void initColor(Theme * theme) {
+	int i, j; 
+
+	for (i = 0; i < COLOR_COUNT-1; i++) {
+			theme->color[i].r = rand() % 255 + 1;
+			theme->color[i].g = rand() % 255 + 1;
+			theme->color[i].b = rand() % 255 + 1;
+	}
+}
+		
+
+
+

@@ -111,7 +111,7 @@ void calcAbmInc(Abm * abm) {
 	abm->y_inc = abm->dy / abm->step;
 }
 
-void drawAbm(struct abmData * abm) {
+void drawAbm(struct abmData * abm, Theme * theme) {
 	int r, g, b;
 	r = rand() % 255 + 1;
 	g = rand() % 255 + 1;
@@ -119,8 +119,9 @@ void drawAbm(struct abmData * abm) {
 
 	for (int i = 0; i < ABM_COUNT; i++) {
 		if (abm[i].launched) {
-			al_draw_filled_rectangle(abm[i].x_pos - 3, abm[i].y_pos - 3, abm[i].x_pos + 3, abm[i].y_pos + 3, al_map_rgb(255, 255, 255));
-			al_draw_line(abm[i].x_pos, abm[i].y_pos + 3, abm[i].launch_x, abm[i].launch_y, al_map_rgb(0, 0, 255), 4);
+
+			al_draw_filled_rectangle(abm[i].x_pos - 3, abm[i].y_pos - 3, abm[i].x_pos + 3, abm[i].y_pos + 3, al_map_rgb(theme->color[0].r, theme->color[0].g, theme->color[0].b));
+			al_draw_line(abm[i].x_pos, abm[i].y_pos + 3, abm[i].launch_x, abm[i].launch_y, al_map_rgb(theme->color[0].r, theme->color[0].g, theme->color[0].b), 4);
 
 			//hitmarkers
 			al_draw_line(abm[i].dest_x - 7, abm[i].dest_y + 7, abm[i].dest_x + 7, abm[i].dest_y - 7, al_map_rgb(r, g, b), 3);

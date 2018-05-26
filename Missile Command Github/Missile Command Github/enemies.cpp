@@ -96,12 +96,12 @@ void updateEnemy(Enemy ** enemy, int * lvl_spawn_limit, float * enemySpeed) {
 }
 
 
-void drawEnemy(Enemy ** enemy, int * lvl_spawn_limit) {
+void drawEnemy(Enemy ** enemy, int * lvl_spawn_limit, Theme * theme) {
 	for (int i = 0; i < *lvl_spawn_limit; i++) {
 		for (int j = 0; j < SPLIT_COUNT; j++) {
 			if (enemy[i][j].launched) {
-				al_draw_filled_rectangle(enemy[i][j].x_pos - 3, enemy[i][j].y_pos - 3, enemy[i][j].x_pos + 3, enemy[i][j].y_pos + 3, al_map_rgb(255, 255, 255));
-				al_draw_line(enemy[i][j].x_pos, enemy[i][j].y_pos - 3, enemy[i][j].launch_x, enemy[i][j].launch_y, al_map_rgb(255, 0, 0), 4);
+				al_draw_filled_rectangle(enemy[i][j].x_pos - 3, enemy[i][j].y_pos - 3, enemy[i][j].x_pos + 3, enemy[i][j].y_pos + 3, al_map_rgb(theme->color[1].r, theme->color[1].g, theme->color[1].b));
+				al_draw_line(enemy[i][j].x_pos, enemy[i][j].y_pos - 3, enemy[i][j].launch_x, enemy[i][j].launch_y, al_map_rgb(theme->color[1].r, theme->color[1].g, theme->color[1].b), 4);
 			}
 		}
 	}

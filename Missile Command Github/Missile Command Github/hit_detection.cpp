@@ -84,10 +84,6 @@ void baseCollision(Base * base, Enemy ** enemy, int * lvl_spawn_limit, int baseC
 
 							base[k].destroyed = true;
 							(*lives)--;
-
-							base[k].color.r = 255;
-							base[k].color.g = 0;
-							base[k].color.b = 0;
 						}
 					}
 				}
@@ -95,3 +91,4 @@ void baseCollision(Base * base, Enemy ** enemy, int * lvl_spawn_limit, int baseC
 		}
 	}
 }
+	
