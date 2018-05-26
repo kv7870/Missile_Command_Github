@@ -12,7 +12,7 @@
 #include <stdlib.h>
 
 
-void hitDetection(struct abmData * abm, Enemy ** enemy, int * curr_enemy_count, int * lvl_spawn_limit) {
+void hitDetection(struct abmData * abm, Enemy ** enemy, int * curr_enemy_count, int * lvl_spawn_limit, int * score) {
 	for (int i = 0; i < ABM_COUNT; i++) {
 		if (abm[i].arrived && !abm[i].doneExploding) {
 
@@ -54,8 +54,8 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, int * curr_enemy_count, 
 							if (enemy[j][k].distTotal <= abm[i].explosionRadius) {
 								enemy[j][k].launched = false;
 
-								if(j ==0)
-									(*curr_enemy_count)--;
+								(*score) += 25; 
+								(*curr_enemy_count)--;
 							}
 						}
 					}
@@ -64,4 +64,3 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, int * curr_enemy_count, 
 		}
 	}
 }
-

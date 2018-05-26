@@ -9,13 +9,16 @@
 #include "header.h"					
 #include <time.h>
 #include <stdlib.h>
-																											
-int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITMAP ** imageCrosshair, ALLEGRO_EVENT_QUEUE ** event_queue) {
+
+int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITMAP ** imageCrosshair, ALLEGRO_EVENT_QUEUE ** event_queue, ALLEGRO_FONT ** font) {
 
 	if (!al_init()) {
 		fprintf(stderr, "failed to initialize allegro!\n");
 		return -1;
 	}
+
+	al_init_font_addon();
+	al_init_ttf_addon();
 
 	//create display
 	*display = al_create_display(SCREEN_W, SCREEN_H);
@@ -29,6 +32,13 @@ int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITM
 	*timer = al_create_timer(1.0 / FPS);   //1/60 seconds per frame, i.e. 60 fps
 	if (!(*timer)) {
 		fprintf(stderr, "failed to create timer!\n");
+		return -1;
+	}
+
+	*font = al_load_ttf_font("Roboto-Regular.ttf", 24, 0);
+	//load font
+	if (!font) {
+		fprintf(stderr, "Could not load 'Roboto-Regular.ttf'.\n");
 		return -1;
 	}
 
@@ -85,7 +95,7 @@ int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITM
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 	al_flip_display();
 	al_start_timer(*timer);
- }
+}
 
 
 
@@ -100,8 +110,10 @@ void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair) {
 
 
 //initialize abm 
-void initAbm(struct abmData * abm) {
+void initAbm(struct abmData * abm, int * abmLeft) {
 	int i;
+
+	*abmLeft = 30; 
 
 	for (i = 0; i < ABM_COUNT; i++) {
 		abm[i].dest_x = 0;
@@ -116,9 +128,9 @@ void initAbm(struct abmData * abm) {
 		abm[i].step = 0;
 		abm[i].arrived = false;
 		abm[i].doneExploding = false;
-		abm[i].explosionRadius = 0; 
-		abm[i].increaseRadius = true; 
-		abm[i].num_increment = 1; 
+		abm[i].explosionRadius = 0;
+		abm[i].increaseRadius = true;
+		abm[i].num_increment = 1;
 		abm[i].topRight.x = 0;
 		abm[i].topRight.y = 0;
 		abm[i].topLeft.x = 0;
@@ -148,7 +160,7 @@ void initAbm(struct abmData * abm) {
 		abm[i].speed = 5;
 	}
 }
-					
+
 void initEnemy(Enemy ** enemy, int * lvl_spawn_limit) {
 	for (int i = 0; i < *lvl_spawn_limit; i++) {
 		for (int j = 0; j < SPLIT_COUNT; j++) {
@@ -166,7 +178,7 @@ void initEnemy(Enemy ** enemy, int * lvl_spawn_limit) {
 			enemy[i][j].step = 0;
 			enemy[i][j].speed = 0;
 			enemy[i][j].arrived = false;
-			enemy[i][j].launch_y = 0;
+			enemy[i][j].launch_y = 50;
 			enemy[i][j].dest_y = 880;
 			enemy[i][j].relativeX = 0;
 			enemy[i][j].relativeY = 0;
@@ -183,3 +195,5 @@ void initEnemy(Enemy ** enemy, int * lvl_spawn_limit) {
 
 	}
 }
+
+
