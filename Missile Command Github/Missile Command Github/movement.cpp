@@ -22,6 +22,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 	int i;
 	int round = 1;
 	bool doneUpdate = true;
+	int r, g, b; 
 
 
 	bool key[5] = { false, false, false, false, false };  //array with members KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT; each member is true or false 
@@ -134,6 +135,11 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			al_flip_display();
 
+			//game over 
+			if (*lives == 0) {
+				done = true;
+			}
+
 			if (*num_spawned >= *lvl_spawn_limit) {
 
 				doneUpdate = true;
@@ -165,7 +171,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 					(*splitRate) -= 100; 
 					*num_spawned = 0;
 					*curr_enemy_count = 0;
-					(*enemySpeed) += 0.5; 
+					(*enemySpeed) += 2; 
 					
 
 					enemy = (Enemy **)malloc((*lvl_spawn_limit) * sizeof(Enemy *));
@@ -174,13 +180,32 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 					}
 
 					initEnemy(enemy, lvl_spawn_limit);
-					initAbm(abm, abmLeft);
+					initAbm(abm, abmLeft, batteryAbmLeft);
 
 					transition(font, timer, abm, lives, level, score); 
 				}
 			}
 		}
 	}
+
+
+	al_clear_to_color(al_map_rgb(0, 0, 0));
+	al_draw_text(font, al_map_rgb(255, 0, 0), 400, 450, 0, "THE END");
+	al_flip_display(); 
+	al_rest(5);
+
+	//al_get_time
+	//al_current_time
+	//al_init_timeout
+	
+	/*while (1) {
+		r = rand() % 100 + 1;
+		g = rand() % 100 + 1;
+		b = rand() % 100 + 1;
+		al_clear_to_color(al_map_rgb(0, 0, 0));
+		al_draw_text(font, al_map_rgb(r, g, b), 400, 450, 0, "THE END");
+		al_flip_display();
+	}*/
 
 	al_destroy_bitmap(imageCrosshair);
 	al_destroy_timer(timer);

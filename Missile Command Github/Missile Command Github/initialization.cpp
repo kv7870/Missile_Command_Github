@@ -110,7 +110,7 @@ void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair) {
 
 
 //initialize abm 
-void initAbm(struct abmData * abm, int * abmLeft) {
+void initAbm(struct abmData * abm, int * abmLeft, int * batteryAbmLeft) {
 	int i;
 
 	*abmLeft = 30; 
@@ -157,6 +157,9 @@ void initAbm(struct abmData * abm, int * abmLeft) {
 		abm[i].launch_x = 855;
 		abm[i].speed = 7;
 	}
+
+	for(i=0; i<3; i++ )
+		batteryAbmLeft[i] = 10;
 }
 
 void initEnemy(Enemy ** enemy, int * lvl_spawn_limit) {
