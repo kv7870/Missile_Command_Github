@@ -110,10 +110,10 @@ void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair) {
 
 
 //initialize abm 
-void initAbm(struct abmData * abm, int * abmLeft, int * batteryAbmLeft) {
+void initAbm(struct abmData * abm, int * abmLeft, int * batteryAbmLeft, Explosion * explosion) {
 	int i;
 
-	*abmLeft = 30; 
+	*abmLeft = 30;
 
 	for (i = 0; i < ABM_COUNT; i++) {
 		abm[i].dest_x = 0;
@@ -128,16 +128,20 @@ void initAbm(struct abmData * abm, int * abmLeft, int * batteryAbmLeft) {
 		abm[i].y_pos = 0;
 		abm[i].step = 0;
 		abm[i].arrived = false;
-		abm[i].doneExploding = false;
-		abm[i].explosionRadius = 0;
-		abm[i].increaseRadius = true;
-		abm[i].num_increment = 1;
-		abm[i].topRight.x = 0;
-		abm[i].topRight.y = 0;
-		abm[i].topLeft.x = 0;
-		abm[i].topLeft.y = 0;
-		abm[i].bottomLeft.x = 0;
-		abm[i].bottomLeft.y = 0;
+		abm[i].num_increment = 1; 
+
+		explosion[i].ongoing = false;
+		explosion[i].radius = 0;
+		explosion[i].increaseRadius = true;
+		explosion[i].expandedRadius = false; 
+		explosion[i].topRight.x = 0;
+		explosion[i].topRight.y = 0;
+		explosion[i].topLeft.x = 0;
+		explosion[i].topLeft.y = 0;
+		explosion[i].bottomLeft.x = 0;
+		explosion[i].bottomLeft.y = 0;
+		explosion[i].center.x = 0;
+		explosion[i].center.y = 0; 
 	};
 
 	//1st battery (left)
@@ -158,7 +162,7 @@ void initAbm(struct abmData * abm, int * abmLeft, int * batteryAbmLeft) {
 		abm[i].speed = 7;
 	}
 
-	for(i=0; i<3; i++ )
+	for (i = 0; i<3; i++)
 		batteryAbmLeft[i] = 10;
 }
 
@@ -213,15 +217,15 @@ void initBase(Base * base, int baseCount) {
 
 	//bounds
 	for (i = 0; i < baseCount; i++) {
-		base[i].destroyed = false; 
+		base[i].destroyed = false;
 		base[i].topLeft.x = base[i].pos.x;
 		base[i].topLeft.y = base[i].pos.y;
 		base[i].topRight.x = base[i].pos.x + 50;
 		base[i].topRight.y = base[i].pos.y;
 		base[i].bottomLeft.x = base[i].pos.x;
 		base[i].bottomLeft.y = base[i].pos.y + 30;
-		base[i].color.r = 0; 
-		base[i].color.g = 205; 
+		base[i].color.r = 0;
+		base[i].color.g = 205;
 		base[i].color.b = 255;
 	}
 }

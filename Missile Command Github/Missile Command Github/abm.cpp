@@ -24,8 +24,8 @@ void fire(Abm * abm, Crosshair crosshair, int * abmLeft, int * batteryAbmLeft) {
 				abm[i].dest_x = crosshair.target_x;
 				abm[i].dest_y = crosshair.target_y;
 				abm[i].launched = true;
-				closestLaunchSuccess = true;		
-				(*abmLeft)--; 
+				closestLaunchSuccess = true;
+				(*abmLeft)--;
 				(batteryAbmLeft[0])--;
 				calcAbmInc(&(abm[i]));
 				break;
@@ -79,13 +79,13 @@ void fire(Abm * abm, Crosshair crosshair, int * abmLeft, int * batteryAbmLeft) {
 				abm[i].launched = true;
 				(*abmLeft)--;
 
-				if (i < 10) 
+				if (i < 10)
 					(batteryAbmLeft[0])--;
-				
+
 				else if (i >= 10 && i < 20)
 					(batteryAbmLeft[1])--;
 
-				else if(i>=20)
+				else if (i >= 20)
 					(batteryAbmLeft[2])--;
 
 				calcAbmInc(&(abm[i]));
@@ -154,19 +154,22 @@ void updateAbm(struct abmData * abm) {
 }
 
 
-void abmArrival(Abm * abm) {
+void abmArrival(Abm * abm, Explosion * explosion) {
 	for (int i = 0; i < ABM_COUNT; i++) {
 		if (abm[i].launched) {
 			if (abm[i].num_increment > abm[i].step) {
 				abm[i].launched = false;
 				abm[i].arrived = true;
+				explosion[i].ongoing = true; 
+				explosion[i].center.x = abm[i].dest_x;
+				explosion[i].center.y = abm[i].dest_y; 
 			}
 		}
 	}
 }
 
 
-void drawExplosion(Abm * abm) {
+void drawExplosion(Abm * abm, Explosion * explosion) {
 	int r, g, b;
 
 	r = rand() % 255 + 1;
@@ -174,33 +177,36 @@ void drawExplosion(Abm * abm) {
 	b = rand() % 255 + 1;
 
 	for (int i = 0; i < ABM_COUNT; i++) {
-		if (abm[i].arrived && !abm[i].doneExploding) {
+		if (explosion[i].ongoing) {
 
 			//printf("Destination: (%d, %d): arrive: %d\n", abm[i].dest_x, abm[i].dest_y, abm[i].arrived); 
-			if (abm[i].explosionRadius >= 40) {
-				abm[i].increaseRadius = false;
+			if (explosion[i].radius >= 40 && !explosion[i].expandedRadius) {
+				explosion [i].increaseRadius = false;
+			}
+			else if (explosion[i].radius >= 60 && explosion[i].expandedRadius) {
+				explosion[i].increaseRadius = false; 
 			}
 
-			if (abm[i].increaseRadius) {
-				abm[i].explosionRadius += 1;
+			if (explosion[i].increaseRadius) {
+				explosion[i].radius += 1;
 			}
 
-			else if (!abm[i].increaseRadius) {
-				abm[i].explosionRadius -= 1;
+			else if (!explosion[i].increaseRadius) {
+				explosion[i].radius -= 1;
 			}
 
-			al_draw_filled_circle(abm[i].dest_x, abm[i].dest_y, abm[i].explosionRadius, al_map_rgb(r, g, b));
+			al_draw_filled_circle(abm[i].dest_x, abm[i].dest_y, explosion[i].radius, al_map_rgb(r, g, b));
 
 			//calculate bounds of explosion 
-			abm[i].topLeft.x = abm[i].dest_x - abm[i].explosionRadius;
-			abm[i].topLeft.y = abm[i].dest_y - abm[i].explosionRadius;
-			abm[i].topRight.x = abm[i].dest_x + abm[i].explosionRadius;
-			abm[i].topRight.y = abm[i].dest_y - abm[i].explosionRadius;
-			abm[i].bottomLeft.x = abm[i].dest_x - abm[i].explosionRadius;
-			abm[i].bottomLeft.y = abm[i].dest_y + abm[i].explosionRadius;
+			explosion[i].topLeft.x = explosion[i].center.x - explosion[i].radius;
+			explosion[i].topLeft.y = explosion[i].center.y - explosion[i].radius;
+			explosion[i].topRight.x = explosion[i].center.x + explosion[i].radius;
+			explosion[i].topRight.y = explosion[i].center.y - explosion[i].radius;
+			explosion[i].bottomLeft.x = explosion[i].center.x - explosion[i].radius;
+			explosion[i].bottomLeft.y = explosion[i].center.y + explosion[i].radius;
 
-			if (abm[i].explosionRadius < 0) {
-				abm[i].doneExploding = true;
+			if (explosion[i].radius < 0) {
+				explosion[i].ongoing = false; 
 			}
 		}
 	}

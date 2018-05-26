@@ -52,14 +52,19 @@ typedef struct abmData {
 	int speed;
 	bool launched;
 	bool arrived;
-	bool doneExploding;
-	float explosionRadius;
+	int num_increment; 
+} Abm;
+
+typedef struct explosionData {
+	bool ongoing; 
+	float radius;
 	bool increaseRadius;
-	int num_increment;
+	bool expandedRadius;
+	Vector center; 
 	Vector topRight;
 	Vector topLeft;
 	Vector bottomLeft;
-}Abm;
+} Explosion;
 
 typedef struct enemyData {
 	int dest_x;
@@ -94,31 +99,32 @@ typedef struct colorData {
 } Color;
 
 typedef struct baseData {
-	bool destroyed; 
-	Color color; 
-	Vector pos; 
+	bool destroyed;
+	Color color;
+	Vector pos;
 	Vector topRight;
 	Vector topLeft;
-	Vector bottomLeft; 
+	Vector bottomLeft;
 } Base;
 
 
 //prototypes
 int initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP **imageCrosshair, ALLEGRO_EVENT_QUEUE **event_queue, ALLEGRO_FONT ** font);
 void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair);
-void initAbm(struct abmData * abm, int * abmLeft, int * batteryAbmLeft);
+void initAbm(struct abmData * abm, int * abmLeft, int * batteryAbmLeft, Explosion * explosion);
 
-void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair, 
-	struct abmData * abm, Enemy ** enemy, int  * curr_enemy_count, int * num_spawned, int * lvl_spawn_limit, int * level, float * enemySpeed, 
-	int * spawnRate, int * splitRate, ALLEGRO_FONT * font, int * lives, int * abmLeft, int * score, Base * base, int * batteryAbmLeft);
+void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair,
+	struct abmData * abm, Enemy ** enemy, int  * curr_enemy_count, int * num_spawned, int * lvl_spawn_limit, int * level, float * enemySpeed,
+	int * spawnRate, int * splitRate, ALLEGRO_FONT * font, int * lives, int * abmLeft, int * score, Base * base, int * batteryAbmLeft,
+	Explosion * explosion);
 void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, Crosshair * crosshair);
 
 void fire(Abm * abm, Crosshair crosshair, int * abmLeft, int * batteryAbmLeft);
 void calcAbmInc(Abm * abm);
 void updateAbm(struct abmData * abm);
 void drawAbm(struct abmData * abm);
-void abmArrival(Abm * abm);  //check if abm arrived
-void drawExplosion(Abm * abm);
+void abmArrival(Abm * abm, Explosion * explosion);  //check if abm arrived
+void drawExplosion(Abm * abm, Explosion * explosion);
 
 void initEnemy(Enemy ** enemy, int * lvl_spawn_limit);
 void spawnEnemy(Enemy ** enemy, int * curr_enemy_count, int * num_spawned, int * lvl_spawn_limit, int * spawnRate, int * splitRate);
@@ -127,12 +133,12 @@ void drawEnemy(Enemy ** enemy, int * lvl_spawn_limit);
 void updateEnemy(Enemy ** enemy, int * lvl_spawn_limit, float * enemySpeed);
 void enemyArrival(Enemy ** enemy, int *curr_enemy_count, int * lvl_spawn_limit);
 
-void hitDetection(struct abmData * abm, Enemy ** enemy, int *curr_enemy_count, int * lvl_spawn_limit, int * score);
+void hitDetection(struct abmData * abm, Enemy ** enemy, int *curr_enemy_count, int * lvl_spawn_limit, int * score, Explosion * explosion);
 
-void drawInfo(ALLEGRO_FONT * font, Abm * abm, int * lives, int * level, int * abmLeft, int * score, int * batteryAbmLeft); 
-void transition(ALLEGRO_FONT * font, ALLEGRO_TIMER * timer, Abm * abm, int * lives, int * level, int * score);  
+void drawInfo(ALLEGRO_FONT * font, Abm * abm, int * lives, int * level, int * abmLeft, int * score, int * batteryAbmLeft);
+void transition(ALLEGRO_FONT * font, ALLEGRO_TIMER * timer, Abm * abm, int * lives, int * level, int * score);
 
 void drawObjects(Base * base, int baseCount);
 
-void initBase(Base * base, int baseCount); 
-void baseCollision(Base * base, Enemy ** enemy, int * lvl_spawn_limit, int baseCount, int * lives); 
+void initBase(Base * base, int baseCount);
+void baseCollision(Base * base, Enemy ** enemy, int * lvl_spawn_limit, int baseCount, int * lives);

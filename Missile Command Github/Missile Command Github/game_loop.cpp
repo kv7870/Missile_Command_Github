@@ -10,9 +10,10 @@
 #include <time.h>
 #include <stdlib.h>
 
-void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair, 
-	struct abmData * abm, Enemy ** enemy, int  * curr_enemy_count, int * num_spawned, int * lvl_spawn_limit, int * level, float * enemySpeed, 
-	int * spawnRate, int * splitRate, ALLEGRO_FONT * font, int * lives, int * abmLeft, int * score, Base * base, int * batteryAbmLeft) {
+void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair,
+	struct abmData * abm, Enemy ** enemy, int  * curr_enemy_count, int * num_spawned, int * lvl_spawn_limit, int * level, float * enemySpeed,
+	int * spawnRate, int * splitRate, ALLEGRO_FONT * font, int * lives, int * abmLeft, int * score, Base * base, int * batteryAbmLeft,
+	Explosion * explosion) {
 
 	//ship.x = SCREEN_W / 2.0 - BOUNCER_SIZE / 2.0;
 	//ship.y = SCREEN_H / 2.0 - BOUNCER_SIZE / 2.0;
@@ -22,7 +23,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 	int i;
 	int round = 1;
 	bool doneUpdate = true;
-	int r, g, b; 
+	int r, g, b;
 
 
 	bool key[5] = { false, false, false, false, false };  //array with members KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT; each member is true or false 
@@ -38,12 +39,12 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 			draw = true;
 
 			updateAbm(abm);
-			abmArrival(abm);
-			hitDetection(abm, enemy, curr_enemy_count, lvl_spawn_limit, score);
+			abmArrival(abm, explosion);
+			hitDetection(abm, enemy, curr_enemy_count, lvl_spawn_limit, score, explosion);
 			spawnEnemy(enemy, curr_enemy_count, num_spawned, lvl_spawn_limit, spawnRate, splitRate);
 			updateEnemy(enemy, lvl_spawn_limit, enemySpeed);
 			enemyArrival(enemy, curr_enemy_count, lvl_spawn_limit);
-			baseCollision(base, enemy, lvl_spawn_limit, 6, lives); 
+			baseCollision(base, enemy, lvl_spawn_limit, 6, lives);
 		}
 
 		else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
@@ -123,13 +124,13 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			drawAbm(abm);
 
-			drawExplosion(abm);
+			drawExplosion(abm, explosion);
 
 			drawEnemy(enemy, lvl_spawn_limit);
 
 			drawObjects(base, 6);
 
-			drawInfo(font, abm, lives, level, abmLeft, score, batteryAbmLeft); 
+			drawInfo(font, abm, lives, level, abmLeft, score, batteryAbmLeft);
 
 			printf("Round: %d Level: %d Spawned: %d\n", round, *level, *num_spawned);
 
@@ -152,13 +153,13 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 				}
 
 				for (int i = 0; i < ABM_COUNT; i++) {
-					if (abm[i].arrived && !abm[i].doneExploding)
+					if (explosion[i].ongoing)
 						doneUpdate = false;
 				}
 
 				if (doneUpdate) {
 
-					al_stop_timer(timer); 
+					al_stop_timer(timer);
 
 					for (i = 0; i < *lvl_spawn_limit; i++) {
 						free(enemy[i]);
@@ -168,11 +169,11 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 					(*lvl_spawn_limit) += 10;
 					(*level)++;
 					(*spawnRate) -= 100;
-					(*splitRate) -= 100; 
+					(*splitRate) -= 100;
 					*num_spawned = 0;
 					*curr_enemy_count = 0;
-					(*enemySpeed) += 2; 
-					
+					(*enemySpeed) += 0.5;
+
 
 					enemy = (Enemy **)malloc((*lvl_spawn_limit) * sizeof(Enemy *));
 					for (i = 0; i < *lvl_spawn_limit; i++) {
@@ -180,9 +181,9 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 					}
 
 					initEnemy(enemy, lvl_spawn_limit);
-					initAbm(abm, abmLeft, batteryAbmLeft);
+					initAbm(abm, abmLeft, batteryAbmLeft, explosion);
 
-					transition(font, timer, abm, lives, level, score); 
+					transition(font, timer, abm, lives, level, score);
 				}
 			}
 		}
@@ -191,20 +192,20 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 	al_draw_text(font, al_map_rgb(255, 0, 0), 400, 450, 0, "THE END");
-	al_flip_display(); 
+	al_flip_display();
 	al_rest(5);
 
 	//al_get_time
 	//al_current_time
 	//al_init_timeout
-	
+
 	/*while (1) {
-		r = rand() % 100 + 1;
-		g = rand() % 100 + 1;
-		b = rand() % 100 + 1;
-		al_clear_to_color(al_map_rgb(0, 0, 0));
-		al_draw_text(font, al_map_rgb(r, g, b), 400, 450, 0, "THE END");
-		al_flip_display();
+	r = rand() % 100 + 1;
+	g = rand() % 100 + 1;
+	b = rand() % 100 + 1;
+	al_clear_to_color(al_map_rgb(0, 0, 0));
+	al_draw_text(font, al_map_rgb(r, g, b), 400, 450, 0, "THE END");
+	al_flip_display();
 	}*/
 
 	al_destroy_bitmap(imageCrosshair);
@@ -242,10 +243,10 @@ void transition(ALLEGRO_FONT * font, ALLEGRO_TIMER * timer, Abm * abm, int * liv
 	al_draw_textf(font, al_map_rgb(255, 0, 0), 390, 400, 0, "Score: %d", *score);
 	al_draw_textf(font, al_map_rgb(255, 0, 0), 380, 500, 0, "Bases left: %d", *lives);
 
-	al_flip_display(); 
-	al_rest(3); 
+	al_flip_display();
+	al_rest(3);
 
-	al_resume_timer(timer); 
+	al_resume_timer(timer);
 }
 
 
@@ -265,6 +266,6 @@ void drawObjects(Base * base, int baseCount) {
 	al_draw_filled_rectangle(505, 870, 555, 900, al_map_rgb(base[3].color.r, base[3].color.g, base[3].color.b));
 	al_draw_filled_rectangle(605, 870, 655, 900, al_map_rgb(base[4].color.r, base[4].color.g, base[4].color.b));
 	al_draw_filled_rectangle(705, 870, 755, 900, al_map_rgb(base[5].color.r, base[5].color.g, base[5].color.b));
-	
+
 
 }

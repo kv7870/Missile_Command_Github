@@ -13,7 +13,7 @@
 
 void spawnEnemy(Enemy ** enemy, int * curr_enemy_count, int * num_spawned, int * lvl_spawn_limit, int * spawnRate, int * splitRate) {
 	int spawnTiming = 0;
-	
+
 	if (*curr_enemy_count < MAX_ENEMY && *num_spawned < (*lvl_spawn_limit)) {
 		for (int i = 0; i < *lvl_spawn_limit; i++) {
 			if (!enemy[i][0].launched && !enemy[i][0].arrived) {  //original missile 
