@@ -33,7 +33,7 @@ void fire(Abm * abm, Crosshair crosshair, int * abmLeft, int * batteryAbmLeft) {
 		}
 	}
 
-	else if (crosshair.target_y > 300 && crosshair.x <= 600) {
+	else if (crosshair.target_x > 300 && crosshair.x <= 600) {
 		for (i = 10; i < 20; i++) {
 			if (!abm[i].launched && !abm[i].arrived) {
 				abm[i].x_pos = abm[i].launch_x;
