@@ -59,7 +59,6 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, int * curr_enemy_count, 
 								explosion[i].center.x = enemy[j][k].x_pos; 
 								explosion[i].center.y = enemy[j][k].y_pos; 
 								
-
 								(*score) += 25;
 								(*curr_enemy_count)--;
 							}

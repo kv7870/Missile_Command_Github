@@ -13,7 +13,7 @@
 void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair,
 	struct abmData * abm, Enemy ** enemy, int  * curr_enemy_count, int * num_spawned, int * lvl_spawn_limit, int * level, float * enemySpeed,
 	int * spawnRate, int * splitRate, ALLEGRO_FONT * font, int * lives, int * abmLeft, int * score, Base * base, int * batteryAbmLeft,
-	Explosion * explosion, Theme * theme) {
+	Explosion * explosion, int * theme, int colorMap[][3]) {
 
 	//ship.x = SCREEN_W / 2.0 - BOUNCER_SIZE / 2.0;
 	//ship.y = SCREEN_H / 2.0 - BOUNCER_SIZE / 2.0;
@@ -122,13 +122,13 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			drawCrosshair(imageCrosshair, &crosshair);
 
-			drawAbm(abm, theme);
+			drawAbm(abm, &(theme[0]), colorMap);
 
 			drawExplosion(abm, explosion);
 
-			drawEnemy(enemy, lvl_spawn_limit, theme);
+			drawEnemy(enemy, lvl_spawn_limit, &(theme[1]), colorMap);
 
-			drawObjects(base, 6, theme);
+			drawObjects(base, 6, &(theme[2]), colorMap);
 
 			drawInfo(font, abm, lives, level, abmLeft, score, batteryAbmLeft);
 
@@ -169,7 +169,15 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 					(*lvl_spawn_limit) += 5;
 					(*level)++;
 					(*spawnRate) -= 100;
+
+					if (*spawnRate < 10)
+						*spawnRate = 10; 
+
 					(*splitRate) -= 100;
+					
+					if (*splitRate < 10)
+						*splitRate = 10;
+
 					*num_spawned = 0;
 					*curr_enemy_count = 0;
 					(*enemySpeed) += 0.5;
@@ -186,7 +194,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 					initEnemy(enemy, lvl_spawn_limit);
 					initAbm(abm, abmLeft, batteryAbmLeft, explosion);
-					initColor(theme);
+					generateTheme(theme);
 
 					transition(font, timer, abm, lives, level, score);
 				}
@@ -255,23 +263,53 @@ void transition(ALLEGRO_FONT * font, ALLEGRO_TIMER * timer, Abm * abm, int * liv
 }
 
 
-void drawObjects(Base * base, int baseCount, Theme * theme) {
+void drawObjects(Base * base, int baseCount, int * theme, int colorMap[][3]) {
+
+	int colorId2 = theme[0];
+	int colorId3 = theme[1];
 
 	//launchpads 
-	al_draw_filled_rectangle(10, 850, 80, 900, al_map_rgb(theme->color[2].r, theme->color[2].g, theme->color[2].b));
-	al_draw_filled_rectangle(390, 850, 460, 900, al_map_rgb(theme->color[2].r, theme->color[2].g, theme->color[2].b));
-	al_draw_filled_rectangle(820, 850, 890, 900, al_map_rgb(theme->color[2].r, theme->color[2].g, theme->color[2].b));
+	al_draw_filled_rectangle(10, 850, 80, 900, al_map_rgb(colorMap[colorId2][R], colorMap[colorId2][G], colorMap[colorId2][B]));
+	al_draw_filled_rectangle(390, 850, 460, 900, al_map_rgb(colorMap[colorId2][R], colorMap[colorId2][G], colorMap[colorId2][B]));
+	al_draw_filled_rectangle(820, 850, 890, 900, al_map_rgb(colorMap[colorId2][R], colorMap[colorId2][G], colorMap[colorId2][B]));
 
 	//bases
-	for (int i = 0; i < 6; i++) {
-		
-		al_draw_filled_rectangle(120, 870, 170, 900, al_map_rgb(theme->color[3].r, theme->color[3].g, theme->color[3].b));
-		al_draw_filled_rectangle(210, 870, 260, 900, al_map_rgb(theme->color[3].r, theme->color[3].g, theme->color[3].b));
-		al_draw_filled_rectangle(300, 870, 350, 900, al_map_rgb(theme->color[3].r, theme->color[3].g, theme->color[3].b));
 
-		al_draw_filled_rectangle(505, 870, 555, 900, al_map_rgb(theme->color[3].r, theme->color[3].g, theme->color[3].b));
-		al_draw_filled_rectangle(605, 870, 655, 900, al_map_rgb(theme->color[3].r, theme->color[3].g, theme->color[3].b));
-		al_draw_filled_rectangle(705, 870, 755, 900, al_map_rgb(theme->color[3].r, theme->color[3].g, theme->color[3].b));
+		//left
+		if(!base[0].destroyed)
+			al_draw_filled_rectangle(120, 870, 170, 900, al_map_rgb(colorMap[colorId3][R], colorMap[colorId3][G], colorMap[colorId3][B]));
+		if (!base[1].destroyed)
+			al_draw_filled_rectangle(210, 870, 260, 900, al_map_rgb(colorMap[colorId3][R], colorMap[colorId3][G], colorMap[colorId3][B]));
+		if (!base[2].destroyed)
+			al_draw_filled_rectangle(300, 870, 350, 900, al_map_rgb(colorMap[colorId3][R], colorMap[colorId3][G], colorMap[colorId3][B]));
+
+		//right
+		if (!base[3].destroyed)
+			al_draw_filled_rectangle(505, 870, 555, 900, al_map_rgb(colorMap[colorId3][R], colorMap[colorId3][G], colorMap[colorId3][B]));
+		if (!base[4].destroyed)
+			al_draw_filled_rectangle(605, 870, 655, 900, al_map_rgb(colorMap[colorId3][R], colorMap[colorId3][G], colorMap[colorId3][B]));
+		if (!base[5].destroyed)
+			al_draw_filled_rectangle(705, 870, 755, 900, al_map_rgb(colorMap[colorId3][R], colorMap[colorId3][G], colorMap[colorId3][B]));
+
 	}
 
+void generateOneColor(int * theme, int i)
+{
+	theme[i] = rand() % NUM_COLORS;
+
+	if (i > 1) {
+		for (int j = i - 1; j >= 0; j--) {
+			if (theme[i] == theme[j]) {
+				generateOneColor(theme, i);
+				break;
+			}
+		}
+	}
+}
+
+void generateTheme(int * theme) 
+{
+	for (int i = 0; i < COLORS_PER_THEME; i++) {		
+		generateOneColor(theme, i);
+	}	
 }

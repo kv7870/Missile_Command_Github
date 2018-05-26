@@ -111,17 +111,22 @@ void calcAbmInc(Abm * abm) {
 	abm->y_inc = abm->dy / abm->step;
 }
 
-void drawAbm(struct abmData * abm, Theme * theme) {
+void drawAbm(struct abmData * abm, int * theme, int colorMap[][3]) {
 	int r, g, b;
+
 	r = rand() % 255 + 1;
 	g = rand() % 255 + 1;
 	b = rand() % 255 + 1;
 
+	int colorId = *theme;  //theme[0] 
+
+
 	for (int i = 0; i < ABM_COUNT; i++) {
 		if (abm[i].launched) {
 
-			al_draw_filled_rectangle(abm[i].x_pos - 3, abm[i].y_pos - 3, abm[i].x_pos + 3, abm[i].y_pos + 3, al_map_rgb(theme->color[0].r, theme->color[0].g, theme->color[0].b));
-			al_draw_line(abm[i].x_pos, abm[i].y_pos + 3, abm[i].launch_x, abm[i].launch_y, al_map_rgb(theme->color[0].r, theme->color[0].g, theme->color[0].b), 4);
+			al_draw_filled_rectangle(abm[i].x_pos - 3, abm[i].y_pos - 3, abm[i].x_pos + 3, abm[i].y_pos + 3, 
+				al_map_rgb(colorMap[colorId][R], colorMap[colorId][G], colorMap[colorId][B]));
+			al_draw_line(abm[i].x_pos, abm[i].y_pos + 3, abm[i].launch_x, abm[i].launch_y, al_map_rgb(colorMap[colorId][R], colorMap[colorId][G], colorMap[colorId][B]), 4);
 
 			//hitmarkers
 			al_draw_line(abm[i].dest_x - 7, abm[i].dest_y + 7, abm[i].dest_x + 7, abm[i].dest_y - 7, al_map_rgb(r, g, b), 3);

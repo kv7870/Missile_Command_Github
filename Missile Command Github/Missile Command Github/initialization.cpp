@@ -224,21 +224,68 @@ void initBase(Base * base, int baseCount) {
 		base[i].topRight.y = base[i].pos.y;
 		base[i].bottomLeft.x = base[i].pos.x;
 		base[i].bottomLeft.y = base[i].pos.y + 30;
-		base[i].color.r = 0;
-		base[i].color.g = 205;
-		base[i].color.b = 255;
 	}
 }
 
 
-void initColor(Theme * theme) {
-	int i, j; 
+void initColorMap(int colorMap[][3]) {
 
-	for (i = 0; i < COLOR_COUNT-1; i++) {
-			theme->color[i].r = rand() % 255 + 1;
-			theme->color[i].g = rand() % 255 + 1;
-			theme->color[i].b = rand() % 255 + 1;
-	}
+	colorMap[RED][0] = 230;
+	colorMap[RED][1] = 25;
+	colorMap[RED][2] = 75;
+
+	colorMap[GREEN][0] = 60;
+	colorMap[GREEN][1] = 180;
+	colorMap[GREEN][2] = 75;
+
+	colorMap[YELLOW][0] = 255;
+	colorMap[YELLOW][1] = 225;
+	colorMap[YELLOW][2] = 25;  
+
+	colorMap[BLUE][0] = 0;
+	colorMap[BLUE][1] = 130;
+	colorMap[BLUE][2] = 200;
+
+	colorMap[ORANGE][0] = 245;
+	colorMap[ORANGE][1] = 130;
+	colorMap[ORANGE][2] = 48;
+
+	colorMap[CYAN][0] = 70;
+	colorMap[CYAN][1] = 240;
+	colorMap[CYAN][2] = 240;
+
+	colorMap[MAGENTA][0] = 240;
+	colorMap[MAGENTA][1] = 50;
+	colorMap[MAGENTA][2] = 230;
+
+	colorMap[LIME][0] = 210;
+	colorMap[LIME ][1] = 245;
+	colorMap[LIME][2] = 60;
+
+	colorMap[PINK][0] = 250;
+	colorMap[PINK][1] = 190;
+	colorMap[PINK][2] = 190;
+
+	colorMap[TEAL][0] = 0;
+	colorMap[TEAL][1] = 128;
+	colorMap[TEAL][2] = 128;
+
+	colorMap[LAVENDER][0] = 230;
+	colorMap[LAVENDER][1] = 190;
+	colorMap[LAVENDER][2] = 255;
+
+	colorMap[BEIGE][0] = 255;
+	colorMap[BEIGE][1] = 250;
+	colorMap[BEIGE][2] = 200;
+
+	colorMap[MINT][0] = 170;
+	colorMap[MINT][1] = 255;
+	colorMap[MINT][2] = 195;
+
+	colorMap[WHITE][0] = 255;
+	colorMap[WHITE][1] = 225;
+	colorMap[WHITE][2] = 255;
+
 }
 		
 
