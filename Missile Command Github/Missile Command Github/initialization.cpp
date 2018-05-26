@@ -118,6 +118,7 @@ void initAbm(struct abmData * abm, int * abmLeft) {
 	for (i = 0; i < ABM_COUNT; i++) {
 		abm[i].dest_x = 0;
 		abm[i].dest_y = 0;
+		abm[i].launch_y = 850;
 		abm[i].launched = false;
 		abm[i].dx = 0;
 		abm[i].dy = 0;
@@ -141,23 +142,20 @@ void initAbm(struct abmData * abm, int * abmLeft) {
 
 	//1st battery (left)
 	for (i = 0; i < 10; i++) {
-		abm[i].launch_x = 55;
-		abm[i].launch_y = 830;
-		abm[i].speed = 5;
+		abm[i].launch_x = 40;
+		abm[i].speed = 7;
 	}
 
 	//2nd battery (center)
 	for (i = 10; i < 20; i++) {
-		abm[i].launch_x = 445;
-		abm[i].launch_y = 830;
-		abm[i].speed = 10;
+		abm[i].launch_x = 425;
+		abm[i].speed = 14;
 	}
 
 	//3rd battery (right)
 	for (i = 20; i < 30; i++) {
-		abm[i].launch_x = 845;
-		abm[i].launch_y = 830;
-		abm[i].speed = 5;
+		abm[i].launch_x = 855;
+		abm[i].speed = 7;
 	}
 }
 
@@ -179,7 +177,7 @@ void initEnemy(Enemy ** enemy, int * lvl_spawn_limit) {
 			enemy[i][j].speed = 0;
 			enemy[i][j].arrived = false;
 			enemy[i][j].launch_y = 50;
-			enemy[i][j].dest_y = 880;
+			enemy[i][j].dest_y = 900;
 			enemy[i][j].relativeX = 0;
 			enemy[i][j].relativeY = 0;
 			enemy[i][j].distX = 0;
@@ -197,3 +195,30 @@ void initEnemy(Enemy ** enemy, int * lvl_spawn_limit) {
 }
 
 
+void initBase(Base * base, int baseCount) {
+	int i, j;
+
+	for (i = 0, j = 120; i < baseCount / 2; i++, j += 90) {
+		base[i].pos.x = j;
+		base[i].pos.y = 870;
+	}
+
+	for (i = 3, j = 505; i < 6; i++, j += 100) {
+		base[i].pos.x = j;
+		base[i].pos.y = 870;
+	}
+
+	//bounds
+	for (i = 0; i < baseCount; i++) {
+		base[i].destroyed = false; 
+		base[i].topLeft.x = base[i].pos.x;
+		base[i].topLeft.y = base[i].pos.y;
+		base[i].topRight.x = base[i].pos.x + 50;
+		base[i].topRight.y = base[i].pos.y;
+		base[i].bottomLeft.x = base[i].pos.x;
+		base[i].bottomLeft.y = base[i].pos.y + 30;
+		base[i].color.r = 0; 
+		base[i].color.g = 205; 
+		base[i].color.b = 255;
+	}
+}

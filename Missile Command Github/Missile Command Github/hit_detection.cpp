@@ -64,3 +64,28 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, int * curr_enemy_count, 
 		}
 	}
 }
+
+void baseCollision(Base * base, Enemy ** enemy, int * lvl_spawn_limit, int baseCount, int * lives) {
+	for (int i = 0; i < *lvl_spawn_limit; i++) {
+		for (int j = 0; j < SPLIT_COUNT; j++) {
+			if (enemy[i][j].launched) {
+				for (int k = 0; k < baseCount; k++) {
+					if (!base[k].destroyed) {
+						if (enemy[i][j].topRight.x >= base[k].topLeft.x &&
+							enemy[i][j].topLeft.x <= base[k].topRight.x &&
+							enemy[i][j].bottomLeft.y >= base[k].topLeft.y &&
+							enemy[i][j].topLeft.y <= base[k].bottomLeft.y) {
+
+							base[k].destroyed = true;
+							(*lives)--;
+
+							base[k].color.r = 255;
+							base[k].color.g = 0;
+							base[k].color.b = 0; 
+						}
+					}
+				}
+			}
+		}
+	}
+}

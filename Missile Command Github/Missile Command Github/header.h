@@ -86,6 +86,23 @@ typedef struct enemyData {
 	Vector bottomLeft;
 } Enemy;
 
+
+typedef struct colorData {
+	int r;
+	int g;
+	int b;
+} Color;
+
+typedef struct baseData {
+	bool destroyed; 
+	Color color; 
+	Vector pos; 
+	Vector topRight;
+	Vector topLeft;
+	Vector bottomLeft; 
+} Base;
+
+
 //prototypes
 int initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP **imageCrosshair, ALLEGRO_EVENT_QUEUE **event_queue, ALLEGRO_FONT ** font);
 void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair);
@@ -93,10 +110,10 @@ void initAbm(struct abmData * abm, int * abmLeft);
 
 void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair, 
 	struct abmData * abm, Enemy ** enemy, int  * curr_enemy_count, int * num_spawned, int * lvl_spawn_limit, int * level, float * enemySpeed, 
-	int * spawnRate, int * splitRate, ALLEGRO_FONT * font, int * lives, int * abmLeft, int * score);
+	int * spawnRate, int * splitRate, ALLEGRO_FONT * font, int * lives, int * abmLeft, int * score, Base * base, int * batteryAbmLeft);
 void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, Crosshair * crosshair);
 
-void fire(Abm * abm, Crosshair crosshair, int * abmLeft);
+void fire(Abm * abm, Crosshair crosshair, int * abmLeft, int * batteryAbmLeft);
 void calcAbmInc(Abm * abm);
 void updateAbm(struct abmData * abm);
 void drawAbm(struct abmData * abm);
@@ -112,5 +129,10 @@ void enemyArrival(Enemy ** enemy, int *curr_enemy_count, int * lvl_spawn_limit);
 
 void hitDetection(struct abmData * abm, Enemy ** enemy, int *curr_enemy_count, int * lvl_spawn_limit, int * score);
 
-void drawInfo(ALLEGRO_FONT * font, Abm * abm, int * lives, int * level, int * abmLeft, int * score); 
+void drawInfo(ALLEGRO_FONT * font, Abm * abm, int * lives, int * level, int * abmLeft, int * score, int * batteryAbmLeft); 
 void transition(ALLEGRO_FONT * font, ALLEGRO_TIMER * timer, Abm * abm, int * lives, int * level, int * score);  
+
+void drawObjects(Base * base, int baseCount);
+
+void initBase(Base * base, int baseCount); 
+void baseCollision(Base * base, Enemy ** enemy, int * lvl_spawn_limit, int baseCount, int * lives); 

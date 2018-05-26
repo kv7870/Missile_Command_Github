@@ -12,7 +12,7 @@
 #include <stdlib.h>
 
 
-void fire(Abm * abm, Crosshair crosshair, int * abmLeft) {
+void fire(Abm * abm, Crosshair crosshair, int * abmLeft, int * batteryAbmLeft) {
 	int i;
 	bool closestLaunchSuccess = false;
 
@@ -24,8 +24,9 @@ void fire(Abm * abm, Crosshair crosshair, int * abmLeft) {
 				abm[i].dest_x = crosshair.target_x;
 				abm[i].dest_y = crosshair.target_y;
 				abm[i].launched = true;
-				closestLaunchSuccess = true;
+				closestLaunchSuccess = true;		
 				(*abmLeft)--; 
+				(batteryAbmLeft[0])--;
 				calcAbmInc(&(abm[i]));
 				break;
 			}
@@ -42,6 +43,7 @@ void fire(Abm * abm, Crosshair crosshair, int * abmLeft) {
 				abm[i].launched = true;
 				closestLaunchSuccess = true;
 				(*abmLeft)--;
+				(batteryAbmLeft[1])--;
 				calcAbmInc(&(abm[i]));
 				break;
 			}
@@ -58,6 +60,7 @@ void fire(Abm * abm, Crosshair crosshair, int * abmLeft) {
 				abm[i].launched = true;
 				closestLaunchSuccess = true;
 				(*abmLeft)--;
+				(batteryAbmLeft[2])--;
 				calcAbmInc(&(abm[i]));
 				break;
 			}
@@ -75,6 +78,16 @@ void fire(Abm * abm, Crosshair crosshair, int * abmLeft) {
 				abm[i].dest_y = crosshair.target_y;
 				abm[i].launched = true;
 				(*abmLeft)--;
+
+				if (i < 10) 
+					(batteryAbmLeft[0])--;
+				
+				else if (i >= 10 && i < 20)
+					(batteryAbmLeft[1])--;
+
+				else if(i>=20)
+					(batteryAbmLeft[2])--;
+
 				calcAbmInc(&(abm[i]));
 				break;
 			}
@@ -104,10 +117,6 @@ void drawAbm(struct abmData * abm) {
 	g = rand() % 255 + 1;
 	b = rand() % 255 + 1;
 
-	al_draw_filled_rectangle(10, 830, 100, 900, al_map_rgb(255, 255, 255));   //(55, 830)
-	al_draw_filled_rectangle(400, 830, 490, 900, al_map_rgb(255, 255, 255));  //(445, 830)
-	al_draw_filled_rectangle(800, 830, 890, 900, al_map_rgb(255, 255, 255));  //(845, 830)
-
 	for (int i = 0; i < ABM_COUNT; i++) {
 		if (abm[i].launched) {
 			al_draw_filled_rectangle(abm[i].x_pos - 3, abm[i].y_pos - 3, abm[i].x_pos + 3, abm[i].y_pos + 3, al_map_rgb(255, 255, 255));
@@ -130,16 +139,16 @@ void updateAbm(struct abmData * abm) {
 		if (abm[i].launched) {  //only update launched & alive abm's 
 
 			if (abm[i].dest_x > abm[i].launch_x) {
-				abm[i].x_pos += 10 * abm[i].x_inc;
+				abm[i].x_pos += abm[i].speed * abm[i].x_inc;
 				//abm[i].num_increment += 10; 
 			}
 			else if (abm[i].dest_x < abm[i].launch_x) {
-				abm[i].x_pos -= 10 * abm[i].x_inc;
+				abm[i].x_pos -= abm[i].speed * abm[i].x_inc;
 				//abm[i].num_increment += 10; 
 			}
 
-			abm[i].y_pos -= 10 * abm[i].y_inc;
-			abm[i].num_increment += 10;
+			abm[i].y_pos -= abm[i].speed * abm[i].y_inc;
+			abm[i].num_increment += abm[i].speed;
 		}
 	}
 }
@@ -151,7 +160,6 @@ void abmArrival(Abm * abm) {
 			if (abm[i].num_increment > abm[i].step) {
 				abm[i].launched = false;
 				abm[i].arrived = true;
-				//abm[i].num_increment = 1; 
 			}
 		}
 	}

@@ -12,7 +12,7 @@
 
 void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair, 
 	struct abmData * abm, Enemy ** enemy, int  * curr_enemy_count, int * num_spawned, int * lvl_spawn_limit, int * level, float * enemySpeed, 
-	int * spawnRate, int * splitRate, ALLEGRO_FONT * font, int * lives, int * abmLeft, int * score) {
+	int * spawnRate, int * splitRate, ALLEGRO_FONT * font, int * lives, int * abmLeft, int * score, Base * base, int * batteryAbmLeft) {
 
 	//ship.x = SCREEN_W / 2.0 - BOUNCER_SIZE / 2.0;
 	//ship.y = SCREEN_H / 2.0 - BOUNCER_SIZE / 2.0;
@@ -42,6 +42,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 			spawnEnemy(enemy, curr_enemy_count, num_spawned, lvl_spawn_limit, spawnRate, splitRate);
 			updateEnemy(enemy, lvl_spawn_limit, enemySpeed);
 			enemyArrival(enemy, curr_enemy_count, lvl_spawn_limit);
+			baseCollision(base, enemy, lvl_spawn_limit, 6, lives); 
 		}
 
 		else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
@@ -62,7 +63,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 				crosshair.target_y = ev.mouse.y;
 				printf("(%d, %d) ", ev.mouse.x, ev.mouse.y);
 				printf("fired");
-				fire(abm, crosshair, abmLeft);
+				fire(abm, crosshair, abmLeft, batteryAbmLeft);
 			}
 		}
 
@@ -125,7 +126,9 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			drawEnemy(enemy, lvl_spawn_limit);
 
-			drawInfo(font, abm, lives, level, abmLeft, score); 
+			drawObjects(base, 6);
+
+			drawInfo(font, abm, lives, level, abmLeft, score, batteryAbmLeft); 
 
 			printf("Round: %d Level: %d Spawned: %d\n", round, *level, *num_spawned);
 
@@ -189,7 +192,7 @@ void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, Crosshair * crosshair) {
 	al_draw_bitmap(imageCrosshair, crosshair->x - 27, crosshair->y - 23, 0);
 }
 
-void drawInfo(ALLEGRO_FONT * font, Abm * abm, int * lives, int * level, int * abmLeft, int * score) {
+void drawInfo(ALLEGRO_FONT * font, Abm * abm, int * lives, int * level, int * abmLeft, int * score, int * batteryAbmLeft) {
 	//char printString[200];
 	//sprintf(printString, "%s", string); 
 	//al_draw_text(font, al_map_rgb(255, 255, 255), 10, 10, ALLEGRO_ALIGN_CENTRE, printString);
@@ -197,6 +200,12 @@ void drawInfo(ALLEGRO_FONT * font, Abm * abm, int * lives, int * level, int * ab
 	al_draw_textf(font, al_map_rgb(255, 0, 0), 170, 10, 0, "Missiles: %d", *abmLeft);
 	al_draw_textf(font, al_map_rgb(255, 0, 0), 370, 10, 0, "Score: %d", *score);
 	al_draw_textf(font, al_map_rgb(255, 0, 0), 530, 10, 0, "Level: %d", *level);
+
+
+	//# abm left per battery 
+	al_draw_textf(font, al_map_rgb(255, 0, 0), 35, 860, 0, "%d", batteryAbmLeft[0]);
+	al_draw_textf(font, al_map_rgb(255, 0, 0), 415, 860, 0, "%d", batteryAbmLeft[1]);
+	al_draw_textf(font, al_map_rgb(255, 0, 0), 850, 860, 0, "%d", batteryAbmLeft[2]);
 
 }
 
@@ -212,7 +221,25 @@ void transition(ALLEGRO_FONT * font, ALLEGRO_TIMER * timer, Abm * abm, int * liv
 	al_rest(3); 
 
 	al_resume_timer(timer); 
+}
 
 
+void drawObjects(Base * base, int baseCount) {
+
+	//launchpads 
+	al_draw_filled_rectangle(10, 850, 80, 900, al_map_rgb(255, 255, 0));
+	al_draw_filled_rectangle(390, 850, 460, 900, al_map_rgb(255, 255, 0));
+	al_draw_filled_rectangle(820, 850, 890, 900, al_map_rgb(255, 255, 0));
+
+	//bases
+	al_draw_filled_rectangle(120, 870, 170, 900, al_map_rgb(base[0].color.r, base[0].color.g, base[0].color.b));
+	al_draw_filled_rectangle(210, 870, 260, 900, al_map_rgb(base[1].color.r, base[1].color.g, base[1].color.b));
+	al_draw_filled_rectangle(300, 870, 350, 900, al_map_rgb(base[2].color.r, base[2].color.g, base[2].color.b));
+
+	//bases
+	al_draw_filled_rectangle(505, 870, 555, 900, al_map_rgb(base[3].color.r, base[3].color.g, base[3].color.b));
+	al_draw_filled_rectangle(605, 870, 655, 900, al_map_rgb(base[4].color.r, base[4].color.g, base[4].color.b));
+	al_draw_filled_rectangle(705, 870, 755, 900, al_map_rgb(base[5].color.r, base[5].color.g, base[5].color.b));
 	
+
 }
