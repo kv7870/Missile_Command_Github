@@ -23,8 +23,6 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 	int i;
 	int round = 1;
 	bool doneUpdate = true;
-	int r, g, b;
-
 
 	bool key[5] = { false, false, false, false, false };  //array with members KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT; each member is true or false 
 
@@ -181,11 +179,6 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 					*num_spawned = 0;
 					*curr_enemy_count = 0;
 					(*enemySpeed) += 0.5;
-
-					//change theme & color
-					//*useTheme = rand() % THEME_COUNT + 1; 
-					//*useColor = rand() % COLOR_COUNT + 1; 
-
 
 					enemy = (Enemy **)malloc((*lvl_spawn_limit) * sizeof(Enemy *));
 					for (i = 0; i < *lvl_spawn_limit; i++) {

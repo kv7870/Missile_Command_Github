@@ -167,3 +167,4 @@ void baseCollision(Base * base, Enemy ** enemy, int * lvl_spawn_limit, int baseC
 
 void initColorMap(int colorMap[][3]);
 void generateTheme(int * theme); 
+void clampSquare(Explosion * explosion, Enemy * enemy, Vector * clamp); 
