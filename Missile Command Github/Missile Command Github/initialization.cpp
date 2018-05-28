@@ -108,12 +108,19 @@ void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair) {
 }
 
 
+void initLevel(Level * level) {
+	level->num_spawned = 0;
+	level->curr_enemy_count = 0;
+	level->abmLeft = 30;
+
+	for (int i = 0; i < 3; i++) {
+		level->batteryAbmLeft[i] = 10;
+	}
+}
 
 //initialize abm 
-void initAbm(struct abmData * abm, int * abmLeft, int * batteryAbmLeft, Explosion * explosion) {
+void initAbm(struct abmData * abm, Explosion * explosion) {
 	int i;
-
-	*abmLeft = 30;
 
 	for (i = 0; i < ABM_COUNT; i++) {
 		abm[i].dest_x = 0;
@@ -128,12 +135,12 @@ void initAbm(struct abmData * abm, int * abmLeft, int * batteryAbmLeft, Explosio
 		abm[i].y_pos = 0;
 		abm[i].step = 0;
 		abm[i].arrived = false;
-		abm[i].num_increment = 1; 
+		abm[i].num_increment = 1;
 
 		explosion[i].ongoing = false;
 		explosion[i].radius = 0;
 		explosion[i].increaseRadius = true;
-		explosion[i].expandedRadius = false; 
+		explosion[i].expandedRadius = false;
 		explosion[i].topRight.x = 0;
 		explosion[i].topRight.y = 0;
 		explosion[i].topLeft.x = 0;
@@ -141,7 +148,7 @@ void initAbm(struct abmData * abm, int * abmLeft, int * batteryAbmLeft, Explosio
 		explosion[i].bottomLeft.x = 0;
 		explosion[i].bottomLeft.y = 0;
 		explosion[i].center.x = 0;
-		explosion[i].center.y = 0; 
+		explosion[i].center.y = 0;
 	};
 
 	//1st battery (left)
@@ -161,13 +168,10 @@ void initAbm(struct abmData * abm, int * abmLeft, int * batteryAbmLeft, Explosio
 		abm[i].launch_x = 855;
 		abm[i].speed = 7;
 	}
-
-	for (i = 0; i<3; i++)
-		batteryAbmLeft[i] = 10;
 }
 
-void initEnemy(Enemy ** enemy, int * lvl_spawn_limit) {
-	for (int i = 0; i < *lvl_spawn_limit; i++) {
+void initEnemy(Enemy ** enemy, Level * level) {
+	for (int i = 0; i < level->spawnLimit; i++) {
 		for (int j = 0; j < SPLIT_COUNT; j++) {
 
 			//init main enemy missile 
@@ -240,7 +244,7 @@ void initColorMap(int colorMap[][3]) {
 
 	colorMap[YELLOW][0] = 255;
 	colorMap[YELLOW][1] = 225;
-	colorMap[YELLOW][2] = 25;  
+	colorMap[YELLOW][2] = 25;
 
 	colorMap[BLUE][0] = 0;
 	colorMap[BLUE][1] = 130;
@@ -259,7 +263,7 @@ void initColorMap(int colorMap[][3]) {
 	colorMap[MAGENTA][2] = 230;
 
 	colorMap[LIME][0] = 210;
-	colorMap[LIME ][1] = 245;
+	colorMap[LIME][1] = 245;
 	colorMap[LIME][2] = 60;
 
 	colorMap[PINK][0] = 250;
@@ -287,7 +291,6 @@ void initColorMap(int colorMap[][3]) {
 	colorMap[WHITE][2] = 255;
 
 }
-		
 
 
 

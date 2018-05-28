@@ -79,15 +79,15 @@ typedef struct abmData {
 	int speed;
 	bool launched;
 	bool arrived;
-	int num_increment; 
+	int num_increment;
 } Abm;
 
 typedef struct explosionData {
-	bool ongoing; 
+	bool ongoing;
 	float radius;
 	bool increaseRadius;
 	bool expandedRadius;
-	Vector center; 
+	Vector center;
 	Vector topRight;
 	Vector topLeft;
 	Vector bottomLeft;
@@ -127,44 +127,57 @@ typedef struct baseData {
 	Vector bottomLeft;
 } Base;
 
-
+typedef struct levelData {
+	int spawnRate;
+	int splitRate;
+	int splitAngle;
+	int enemySpeed; 
+	int round; //round 1, round 2...
+	int curr_enemy_count; 
+	int num_spawned;
+	int spawnLimit; 
+	int lives;
+	int abmLeft; 
+	int batteryAbmLeft[3]; 
+	int score; 
+} Level;
 
 //prototypes
 int initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP **imageCrosshair, ALLEGRO_EVENT_QUEUE **event_queue, ALLEGRO_FONT ** font);
 void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair);
-void initAbm(struct abmData * abm, int * abmLeft, int * batteryAbmLeft, Explosion * explosion);
+void initAbm(struct abmData * abm, Explosion * explosion);
 
 void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair,
-	struct abmData * abm, Enemy ** enemy, int  * curr_enemy_count, int * num_spawned, int * lvl_spawn_limit, int * level, float * enemySpeed,
-	int * spawnRate, int * splitRate, ALLEGRO_FONT * font, int * lives, int * abmLeft, int * score, Base * base, int * batteryAbmLeft,
-	Explosion * explosion, int * theme, int colorMap[][3]);
+	struct abmData * abm, Enemy ** enemy, ALLEGRO_FONT * font, Base * base, Explosion * explosion, int * theme, int colorMap[][3], Level * level);
 
 void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, Crosshair * crosshair);
 
-void fire(Abm * abm, Crosshair crosshair, int * abmLeft, int * batteryAbmLeft);
+void fire(Abm * abm, Crosshair crosshair, Level * level);
 void calcAbmInc(Abm * abm);
 void updateAbm(struct abmData * abm);
 void drawAbm(struct abmData * abm, int * theme, int colorMap[][3]);
 void abmArrival(Abm * abm, Explosion * explosion);  //check if abm arrived
 void drawExplosion(Abm * abm, Explosion * explosion);
 
-void initEnemy(Enemy ** enemy, int * lvl_spawn_limit);
-void spawnEnemy(Enemy ** enemy, int * curr_enemy_count, int * num_spawned, int * lvl_spawn_limit, int * spawnRate, int * splitRate);
+void initEnemy(Enemy ** enemy, Level * level);
+void spawnEnemy(Enemy ** enemy, Level * level);
 void calcEnemyInc(Enemy * enemy);
-void drawEnemy(Enemy ** enemy, int * lvl_spawn_limit, int * theme, int colorMap[][3]);
-void updateEnemy(Enemy ** enemy, int * lvl_spawn_limit, float * enemySpeed);
-void enemyArrival(Enemy ** enemy, int *curr_enemy_count, int * lvl_spawn_limit);
+void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level);
+void updateEnemy(Enemy ** enemy, Level * level);
+void enemyArrival(Enemy ** enemy, Level * level);
 
-void hitDetection(struct abmData * abm, Enemy ** enemy, int *curr_enemy_count, int * lvl_spawn_limit, int * score, Explosion * explosion);
+void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, Level * level);
 
-void drawInfo(ALLEGRO_FONT * font, Abm * abm, int * lives, int * level, int * abmLeft, int * score, int * batteryAbmLeft);
-void transition(ALLEGRO_FONT * font, ALLEGRO_TIMER * timer, Abm * abm, int * lives, int * level, int * score);
+void drawInfo(ALLEGRO_FONT * font, Abm * abm, Level * level);
+void transition(ALLEGRO_FONT * font, ALLEGRO_TIMER * timer, Abm * abm, Level * level);
 
 void drawObjects(Base * base, int baseCount, int * theme, int colorMap[][3]);
 
 void initBase(Base * base, int baseCount);
-void baseCollision(Base * base, Enemy ** enemy, int * lvl_spawn_limit, int baseCount, int * lives);
+void baseCollision(Base * base, Enemy ** enemy, int baseCount, Level * level);
 
 void initColorMap(int colorMap[][3]);
-void generateTheme(int * theme); 
-void clampSquare(Explosion * explosion, Enemy * enemy, Vector * clamp); 
+void generateTheme(int * theme);
+void clampSquare(Explosion * explosion, Enemy * enemy, Vector * clamp);
+
+void initLevel(Level * level); 

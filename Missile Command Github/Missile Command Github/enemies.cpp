@@ -11,38 +11,38 @@
 #include <time.h>
 #include <stdlib.h>
 
-void spawnEnemy(Enemy ** enemy, int * curr_enemy_count, int * num_spawned, int * lvl_spawn_limit, int * spawnRate, int * splitRate) {
+void spawnEnemy(Enemy ** enemy, Level * level) {
 	int spawnTiming = 0;
 
-	if (*curr_enemy_count < MAX_ENEMY && *num_spawned < (*lvl_spawn_limit)) {
-		for (int i = 0; i < *lvl_spawn_limit; i++) {
+	if (level->curr_enemy_count < MAX_ENEMY && level->num_spawned < level->spawnLimit) {
+		for (int i = 0; i < level->spawnLimit; i++) {
 			if (!enemy[i][0].launched && !enemy[i][0].arrived) {  //original missile 
-				spawnTiming = rand() % *spawnRate + 1;
+				spawnTiming = rand() % level->spawnRate + 1;
 				if (spawnTiming == 5) {
 					enemy[i][0].launch_x = rand() % 861 + 20;
 					enemy[i][0].dest_x = rand() % 801 + 50;
 					enemy[i][0].x_pos = enemy[i][0].launch_x;
 					enemy[i][0].y_pos = enemy[i][0].launch_y;
 					enemy[i][0].launched = true;
-					(*curr_enemy_count)++;
-					(*num_spawned)++;
+					(level->curr_enemy_count)++;
+					(level->num_spawned)++;
 					calcEnemyInc(&(enemy[i][0]));
 					break;  //prevents all enemies spawning at once
 				}
 			}
 
-			spawnTiming = rand() % *splitRate + 1;
+			spawnTiming = rand() % level->splitRate + 1;
 			if (spawnTiming == 50) {
 				for (int j = 1; j < SPLIT_COUNT; j++) {
 					if (enemy[i][j - 1].launched && !enemy[i][j].launched) {
 						enemy[i][j].launch_x = enemy[i][j - 1].x_pos;
 						enemy[i][j].launch_y = enemy[i][j - 1].y_pos;
-						enemy[i][j].dest_x = enemy[i][j - 1].dest_x + 50;
+						enemy[i][j].dest_x = enemy[i][j - 1].dest_x + level->splitAngle;
 						enemy[i][j].x_pos = enemy[i][j].launch_x;
 						enemy[i][j].y_pos = enemy[i][j].launch_y;
 						enemy[i][j].launched = true;
-						(*num_spawned)++;
-						(*curr_enemy_count)++;
+						(level->num_spawned)++;
+						(level->curr_enemy_count)++;
 						calcEnemyInc(&(enemy[i][j]));
 						break;
 					}
@@ -69,19 +69,19 @@ void calcEnemyInc(Enemy * enemy) {
 }
 
 
-void updateEnemy(Enemy ** enemy, int * lvl_spawn_limit, float * enemySpeed) {
-	for (int i = 0; i < *lvl_spawn_limit; i++) {
+void updateEnemy(Enemy ** enemy, Level * level) {
+	for (int i = 0; i < level->spawnLimit; i++) {
 		for (int j = 0; j < SPLIT_COUNT; j++) {
 			if (enemy[i][j].launched) {
 
 				if (enemy[i][j].dest_x > enemy[i][j].launch_x) {
-					enemy[i][j].x_pos += (*enemySpeed) * enemy[i][j].x_inc;
+					enemy[i][j].x_pos += (level->enemySpeed) * enemy[i][j].x_inc;
 				}
 				else if (enemy[i][j].dest_x < enemy[i][j].launch_x) {
-					enemy[i][j].x_pos -= (*enemySpeed) * enemy[i][j].x_inc;
+					enemy[i][j].x_pos -= (level->enemySpeed) * enemy[i][j].x_inc;
 				}
 
-				enemy[i][j].y_pos += (*enemySpeed) * enemy[i][j].y_inc;
+				enemy[i][j].y_pos += (level->enemySpeed) * enemy[i][j].y_inc;
 
 				//calculate bounds
 				enemy[i][j].topLeft.x = enemy[i][j].x_pos - SIZE;
@@ -96,11 +96,11 @@ void updateEnemy(Enemy ** enemy, int * lvl_spawn_limit, float * enemySpeed) {
 }
 
 
-void drawEnemy(Enemy ** enemy, int * lvl_spawn_limit, int * theme, int colorMap[][3])
+void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level)
 {
 	int colorId = *theme;  //theme[0] 
 
-	for (int i = 0; i < *lvl_spawn_limit; i++) {
+	for (int i = 0; i < level->spawnLimit; i++) {
 		for (int j = 0; j < SPLIT_COUNT; j++) {
 			if (enemy[i][j].launched) {
 				al_draw_filled_rectangle(enemy[i][j].x_pos - 3, enemy[i][j].y_pos - 3, enemy[i][j].x_pos + 3, enemy[i][j].y_pos + 3, al_map_rgb(colorMap[colorId][R], colorMap[colorId][G], colorMap[colorId][B]));
@@ -111,15 +111,15 @@ void drawEnemy(Enemy ** enemy, int * lvl_spawn_limit, int * theme, int colorMap[
 }
 
 
-void enemyArrival(Enemy ** enemy, int * curr_enemy_count, int * lvl_spawn_limit) {
-	for (int i = 0; i < *lvl_spawn_limit; i++) {
+void enemyArrival(Enemy ** enemy, Level * level) {
+	for (int i = 0; i < level->spawnLimit; i++) {
 		for (int j = 0; j < SPLIT_COUNT; j++) {
 			if (enemy[i][j].launched) {
 				if (enemy[i][j].y_pos >= enemy[i][j].dest_y) {
 					enemy[i][j].launched = false;
 					enemy[i][j].arrived = true;
 
-					(*curr_enemy_count)--;
+					(level->curr_enemy_count)--;
 				}
 			}
 		}

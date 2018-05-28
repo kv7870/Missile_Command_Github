@@ -12,49 +12,49 @@
 #include <stdlib.h>
 
 
-void hitDetection(struct abmData * abm, Enemy ** enemy, int * curr_enemy_count, int * lvl_spawn_limit, int * score, Explosion * explosion) {
+void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, Level * level) {
 
 	//enemy is...
 	bool left = false;
 	bool right = false;
 	bool below = false; 
 	bool above = false; 
-	Vector distance;
-	Vector clamp; 
+	Vector distance = { 0, 0 };
+	Vector clamp = { 0, 0 };
 
-	distance.x = 900;
-	distance.y = 900;
-	clamp.x = 0;
-	clamp.y = 0; 
+	//distance.x = 900;
+	//distance.y = 900;
+	//clamp.x = 0;
+	//clamp.y = 0; 
 
 	for (int i = 0; i < ABM_COUNT; i++) {
 
 		if (explosion[i].ongoing) {
 
-			for (int j = 0; j < *lvl_spawn_limit; j++) {
+			for (int j = 0; j < level->spawnLimit; j++) {
 				for (int k = 0; k < SPLIT_COUNT; k++) {
 					if (enemy[j][k].launched) {
 
 						//check bounds
-						if (explosion[i].topRight.x >= enemy[j][k].topLeft.x &&
-							explosion[i].topLeft.x <= enemy[j][k].topRight.x &&
-							explosion[i].bottomLeft.y >= enemy[j][k].topLeft.y &&
-							explosion[i].topLeft.y <= enemy[j][k].bottomLeft.y) {
+					//	if (explosion[i].topRight.x >= enemy[j][k].topLeft.x &&
+						//	explosion[i].topLeft.x <= enemy[j][k].topRight.x &&
+						//	explosion[i].bottomLeft.y >= enemy[j][k].topLeft.y &&
+						//	explosion[i].topLeft.y <= enemy[j][k].bottomLeft.y) {
 
 							clampSquare(&(explosion[i]), &(enemy[j][k]), &clamp);
 							 
 							distance.x = fabs(explosion[i].center.x - clamp.x);
 							distance.y = fabs(explosion[i].center.y - clamp.y); 
 
-							if (distance.x <= explosion[i].radius && distance.y <= explosion[i].radius) {
+							if (distance.x < explosion[i].radius && distance.y < explosion[i].radius) {
 								enemy[j][k].launched = false;
 								explosion[i].expandedRadius = true;
 								explosion[i].increaseRadius = true;
 								explosion[i].center.x = enemy[j][k].x_pos;
 								explosion[i].center.y = enemy[j][k].y_pos;
 
-								(*score) += 25;
-								(*curr_enemy_count)--;
+								level->score += 25;
+								(level->curr_enemy_count)--;
 							}
 						}
 					}
@@ -62,7 +62,7 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, int * curr_enemy_count, 
 			}
 		}
 	}
-}
+//}
 
 void clampSquare(Explosion * explosion, Enemy * enemy, Vector * clamp) {
 
@@ -90,8 +90,8 @@ void clampSquare(Explosion * explosion, Enemy * enemy, Vector * clamp) {
 }
 
 
-void baseCollision(Base * base, Enemy ** enemy, int * lvl_spawn_limit, int baseCount, int * lives) {
-	for (int i = 0; i < *lvl_spawn_limit; i++) {
+void baseCollision(Base * base, Enemy ** enemy, int baseCount, Level * level) {
+	for (int i = 0; i < level->spawnLimit; i++) {
 		for (int j = 0; j < SPLIT_COUNT; j++) {
 			if (enemy[i][j].launched) {
 				for (int k = 0; k < baseCount; k++) {
@@ -102,7 +102,7 @@ void baseCollision(Base * base, Enemy ** enemy, int * lvl_spawn_limit, int baseC
 							enemy[i][j].topLeft.y <= base[k].bottomLeft.y) {
 
 							base[k].destroyed = true;
-							(*lives)--;
+							(level->lives)--;
 						}
 					}
 				}

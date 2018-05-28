@@ -11,9 +11,7 @@
 #include <stdlib.h>
 
 void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair,
-	struct abmData * abm, Enemy ** enemy, int  * curr_enemy_count, int * num_spawned, int * lvl_spawn_limit, int * level, float * enemySpeed,
-	int * spawnRate, int * splitRate, ALLEGRO_FONT * font, int * lives, int * abmLeft, int * score, Base * base, int * batteryAbmLeft,
-	Explosion * explosion, int * theme, int colorMap[][3]) {
+	struct abmData * abm, Enemy ** enemy, ALLEGRO_FONT * font, Base * base, Explosion * explosion, int * theme, int colorMap[][3], Level * level) {
 
 	//ship.x = SCREEN_W / 2.0 - BOUNCER_SIZE / 2.0;
 	//ship.y = SCREEN_H / 2.0 - BOUNCER_SIZE / 2.0;
@@ -38,11 +36,11 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			updateAbm(abm);
 			abmArrival(abm, explosion);
-			hitDetection(abm, enemy, curr_enemy_count, lvl_spawn_limit, score, explosion);
-			spawnEnemy(enemy, curr_enemy_count, num_spawned, lvl_spawn_limit, spawnRate, splitRate);
-			updateEnemy(enemy, lvl_spawn_limit, enemySpeed);
-			enemyArrival(enemy, curr_enemy_count, lvl_spawn_limit);
-			baseCollision(base, enemy, lvl_spawn_limit, 6, lives);
+			hitDetection(abm, enemy, explosion, level);
+			spawnEnemy(enemy, level);
+			updateEnemy(enemy, level);
+			enemyArrival(enemy, level);
+			baseCollision(base, enemy, 6, level);
 		}
 
 		else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
@@ -63,7 +61,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 				crosshair.target_y = ev.mouse.y;
 				printf("(%d, %d) ", ev.mouse.x, ev.mouse.y);
 				printf("fired");
-				fire(abm, crosshair, abmLeft, batteryAbmLeft);
+				fire(abm, crosshair, level);
 			}
 		}
 
@@ -124,26 +122,26 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			drawExplosion(abm, explosion);
 
-			drawEnemy(enemy, lvl_spawn_limit, &(theme[1]), colorMap);
+			drawEnemy(enemy, &(theme[1]), colorMap, level);
 
 			drawObjects(base, 6, &(theme[2]), colorMap);
 
-			drawInfo(font, abm, lives, level, abmLeft, score, batteryAbmLeft);
+			drawInfo(font, abm, level);
 
-			printf("Round: %d Level: %d Spawned: %d\n", round, *level, *num_spawned);
+			printf("Level: %d Spawned: %d\n", level->round, level->num_spawned);
 
 			al_flip_display();
 
 			//game over 
-			if (*lives == 0) {
+			if (level->lives == 0) {
 				done = true;
 			}
 
-			if (*num_spawned >= *lvl_spawn_limit) {
+			if (level->num_spawned >= level->spawnLimit) {
 
 				doneUpdate = true;
 
-				for (int i = 0; i < *lvl_spawn_limit; i++) {
+				for (int i = 0; i < level->spawnLimit; i++) {
 					for (int j = 0; j < SPLIT_COUNT; j++) {
 						if (enemy[i][j].launched)
 							doneUpdate = false;
@@ -159,37 +157,51 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 					al_stop_timer(timer);
 
-					for (i = 0; i < *lvl_spawn_limit; i++) {
+					for (i = 0; i < level->spawnLimit; i++) {
 						free(enemy[i]);
 					}
 					free(enemy);
 
-					(*lvl_spawn_limit) += 5;
-					(*level)++;
-					(*spawnRate) -= 100;
+					(level->spawnLimit) += 5;
+					(level->round)++;
+					(level->spawnRate) -= 100;
 
-					if (*spawnRate < 10)
-						*spawnRate = 10; 
+					if (level->spawnRate < 10)
+						level->spawnRate = 10;
 
-					(*splitRate) -= 100;
+					(level->splitRate) -= 100;
+
+					if (level->splitRate < 10)
+						level->splitRate = 10;
 					
-					if (*splitRate < 10)
-						*splitRate = 10;
+					if(level->splitAngle >= 80)
+						(level->splitAngle) += 10; 
+					
+					(level->enemySpeed) += 0.5;
 
-					*num_spawned = 0;
-					*curr_enemy_count = 0;
-					(*enemySpeed) += 0.5;
+					//100 points for any remaining bases
+					for (i = 0; i < 6; i++) {
+						if (!base[i].destroyed) 
+							(level->score) += 100;
+					}
 
-					enemy = (Enemy **)malloc((*lvl_spawn_limit) * sizeof(Enemy *));
-					for (i = 0; i < *lvl_spawn_limit; i++) {
+					//5 points for any unused missile
+					for (i = 0; i < ABM_COUNT; i++) {
+						if (!abm[i].launched && !abm[i].arrived)
+							(level->score) += 5;
+					}
+
+					enemy = (Enemy **)malloc((level->spawnLimit) * sizeof(Enemy *));
+					for (i = 0; i < level->spawnLimit; i++) {
 						enemy[i] = (Enemy *)malloc(SPLIT_COUNT * sizeof(Enemy));
 					}
 
-					initEnemy(enemy, lvl_spawn_limit);
-					initAbm(abm, abmLeft, batteryAbmLeft, explosion);
+					initLevel(level); 
+					initEnemy(enemy, level);
+					initAbm(abm,  explosion);
 					generateTheme(theme);
 
-					transition(font, timer, abm, lives, level, score);
+					transition(font, timer, abm, level);
 				}
 			}
 		}
@@ -224,30 +236,29 @@ void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, Crosshair * crosshair) {
 	al_draw_bitmap(imageCrosshair, crosshair->x - 27, crosshair->y - 23, 0);
 }
 
-void drawInfo(ALLEGRO_FONT * font, Abm * abm, int * lives, int * level, int * abmLeft, int * score, int * batteryAbmLeft) {
+void drawInfo(ALLEGRO_FONT * font, Abm * abm, Level * level) {
 	//char printString[200];
 	//sprintf(printString, "%s", string); 
 	//al_draw_text(font, al_map_rgb(255, 255, 255), 10, 10, ALLEGRO_ALIGN_CENTRE, printString);
-	al_draw_textf(font, al_map_rgb(255, 0, 0), 10, 10, 0, "Bases: %d", *lives);
-	al_draw_textf(font, al_map_rgb(255, 0, 0), 170, 10, 0, "Missiles: %d", *abmLeft);
-	al_draw_textf(font, al_map_rgb(255, 0, 0), 370, 10, 0, "Score: %d", *score);
-	al_draw_textf(font, al_map_rgb(255, 0, 0), 530, 10, 0, "Level: %d", *level);
+	al_draw_textf(font, al_map_rgb(255, 0, 0), 10, 10, 0, "Bases: %d", level->lives);
+	al_draw_textf(font, al_map_rgb(255, 0, 0), 170, 10, 0, "Missiles: %d", level->abmLeft);
+	al_draw_textf(font, al_map_rgb(255, 0, 0), 370, 10, 0, "Score: %d", level->score);
+	al_draw_textf(font, al_map_rgb(255, 0, 0), 530, 10, 0, "Level: %d", level->round);
 
 
 	//# abm left per battery 
-	al_draw_textf(font, al_map_rgb(255, 0, 0), 35, 860, 0, "%d", batteryAbmLeft[0]);
-	al_draw_textf(font, al_map_rgb(255, 0, 0), 415, 860, 0, "%d", batteryAbmLeft[1]);
-	al_draw_textf(font, al_map_rgb(255, 0, 0), 850, 860, 0, "%d", batteryAbmLeft[2]);
-
+	al_draw_textf(font, al_map_rgb(255, 0, 0), 35, 860, 0, "%d", level->batteryAbmLeft[0]);
+	al_draw_textf(font, al_map_rgb(255, 0, 0), 415, 860, 0, "%d", level->batteryAbmLeft[1]);
+	al_draw_textf(font, al_map_rgb(255, 0, 0), 850, 860, 0, "%d", level->batteryAbmLeft[2]);
 }
 
-void transition(ALLEGRO_FONT * font, ALLEGRO_TIMER * timer, Abm * abm, int * lives, int * level, int * score) {
+void transition(ALLEGRO_FONT * font, ALLEGRO_TIMER * timer, Abm * abm, Level * level) {
 
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 
-	al_draw_textf(font, al_map_rgb(255, 0, 0), 400, 300, 0, "Level: %d", *level);
-	al_draw_textf(font, al_map_rgb(255, 0, 0), 390, 400, 0, "Score: %d", *score);
-	al_draw_textf(font, al_map_rgb(255, 0, 0), 380, 500, 0, "Bases left: %d", *lives);
+	al_draw_textf(font, al_map_rgb(255, 0, 0), 400, 300, 0, "Level: %d", level->round);
+	al_draw_textf(font, al_map_rgb(255, 0, 0), 390, 400, 0, "Score: %d", level->score);
+	al_draw_textf(font, al_map_rgb(255, 0, 0), 380, 500, 0, "Bases left: %d", level->lives);
 
 	al_flip_display();
 	al_rest(3);
@@ -268,23 +279,23 @@ void drawObjects(Base * base, int baseCount, int * theme, int colorMap[][3]) {
 
 	//bases
 
-		//left
-		if(!base[0].destroyed)
-			al_draw_filled_rectangle(120, 870, 170, 900, al_map_rgb(colorMap[colorId3][R], colorMap[colorId3][G], colorMap[colorId3][B]));
-		if (!base[1].destroyed)
-			al_draw_filled_rectangle(210, 870, 260, 900, al_map_rgb(colorMap[colorId3][R], colorMap[colorId3][G], colorMap[colorId3][B]));
-		if (!base[2].destroyed)
-			al_draw_filled_rectangle(300, 870, 350, 900, al_map_rgb(colorMap[colorId3][R], colorMap[colorId3][G], colorMap[colorId3][B]));
+	//left
+	if (!base[0].destroyed)
+		al_draw_filled_rectangle(120, 870, 170, 900, al_map_rgb(colorMap[colorId3][R], colorMap[colorId3][G], colorMap[colorId3][B]));
+	if (!base[1].destroyed)
+		al_draw_filled_rectangle(210, 870, 260, 900, al_map_rgb(colorMap[colorId3][R], colorMap[colorId3][G], colorMap[colorId3][B]));
+	if (!base[2].destroyed)
+		al_draw_filled_rectangle(300, 870, 350, 900, al_map_rgb(colorMap[colorId3][R], colorMap[colorId3][G], colorMap[colorId3][B]));
 
-		//right
-		if (!base[3].destroyed)
-			al_draw_filled_rectangle(505, 870, 555, 900, al_map_rgb(colorMap[colorId3][R], colorMap[colorId3][G], colorMap[colorId3][B]));
-		if (!base[4].destroyed)
-			al_draw_filled_rectangle(605, 870, 655, 900, al_map_rgb(colorMap[colorId3][R], colorMap[colorId3][G], colorMap[colorId3][B]));
-		if (!base[5].destroyed)
-			al_draw_filled_rectangle(705, 870, 755, 900, al_map_rgb(colorMap[colorId3][R], colorMap[colorId3][G], colorMap[colorId3][B]));
+	//right
+	if (!base[3].destroyed)
+		al_draw_filled_rectangle(505, 870, 555, 900, al_map_rgb(colorMap[colorId3][R], colorMap[colorId3][G], colorMap[colorId3][B]));
+	if (!base[4].destroyed)
+		al_draw_filled_rectangle(605, 870, 655, 900, al_map_rgb(colorMap[colorId3][R], colorMap[colorId3][G], colorMap[colorId3][B]));
+	if (!base[5].destroyed)
+		al_draw_filled_rectangle(705, 870, 755, 900, al_map_rgb(colorMap[colorId3][R], colorMap[colorId3][G], colorMap[colorId3][B]));
 
-	}
+}
 
 void generateOneColor(int * theme, int i)
 {
@@ -300,9 +311,9 @@ void generateOneColor(int * theme, int i)
 	}
 }
 
-void generateTheme(int * theme) 
+void generateTheme(int * theme)
 {
-	for (int i = 0; i < COLORS_PER_THEME; i++) {		
+	for (int i = 0; i < COLORS_PER_THEME; i++) {
 		generateOneColor(theme, i);
-	}	
+	}
 }

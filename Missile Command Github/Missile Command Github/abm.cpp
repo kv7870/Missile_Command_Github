@@ -12,7 +12,7 @@
 #include <stdlib.h>
 
 
-void fire(Abm * abm, Crosshair crosshair, int * abmLeft, int * batteryAbmLeft) {
+void fire(Abm * abm, Crosshair crosshair, Level * level) {
 	int i;
 	bool closestLaunchSuccess = false;
 
@@ -25,8 +25,8 @@ void fire(Abm * abm, Crosshair crosshair, int * abmLeft, int * batteryAbmLeft) {
 				abm[i].dest_y = crosshair.target_y;
 				abm[i].launched = true;
 				closestLaunchSuccess = true;
-				(*abmLeft)--;
-				(batteryAbmLeft[0])--;
+				(level->abmLeft)--;
+				(level->batteryAbmLeft[0])--;
 				calcAbmInc(&(abm[i]));
 				break;
 			}
@@ -42,8 +42,8 @@ void fire(Abm * abm, Crosshair crosshair, int * abmLeft, int * batteryAbmLeft) {
 				abm[i].dest_y = crosshair.target_y;
 				abm[i].launched = true;
 				closestLaunchSuccess = true;
-				(*abmLeft)--;
-				(batteryAbmLeft[1])--;
+				(level->abmLeft)--;
+				(level->batteryAbmLeft[1])--;
 				calcAbmInc(&(abm[i]));
 				break;
 			}
@@ -59,8 +59,8 @@ void fire(Abm * abm, Crosshair crosshair, int * abmLeft, int * batteryAbmLeft) {
 				abm[i].dest_y = crosshair.target_y;
 				abm[i].launched = true;
 				closestLaunchSuccess = true;
-				(*abmLeft)--;
-				(batteryAbmLeft[2])--;
+				(level->abmLeft)--;
+				(level->batteryAbmLeft[2])--;
 				calcAbmInc(&(abm[i]));
 				break;
 			}
@@ -77,16 +77,16 @@ void fire(Abm * abm, Crosshair crosshair, int * abmLeft, int * batteryAbmLeft) {
 				abm[i].dest_x = crosshair.target_x;
 				abm[i].dest_y = crosshair.target_y;
 				abm[i].launched = true;
-				(*abmLeft)--;
+				(level->abmLeft)--;
 
 				if (i < 10)
-					(batteryAbmLeft[0])--;
+					(level->batteryAbmLeft[0])--;
 
 				else if (i >= 10 && i < 20)
-					(batteryAbmLeft[1])--;
+					(level->batteryAbmLeft[1])--;
 
 				else if (i >= 20)
-					(batteryAbmLeft[2])--;
+					(level->batteryAbmLeft[2])--;
 
 				calcAbmInc(&(abm[i]));
 				break;
@@ -189,7 +189,7 @@ void drawExplosion(Abm * abm, Explosion * explosion) {
 			if (explosion[i].radius >= 40 && !explosion[i].expandedRadius) {
 				explosion [i].increaseRadius = false;
 			}
-			else if (explosion[i].radius >= 60 && explosion[i].expandedRadius) {
+			else if (explosion[i].radius >= 80 && explosion[i].expandedRadius) {
 				explosion[i].increaseRadius = false; 
 			}
 
