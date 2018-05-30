@@ -10,7 +10,8 @@
 #include <time.h>
 #include <stdlib.h>
 
-int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITMAP ** imageCrosshair, ALLEGRO_EVENT_QUEUE ** event_queue, ALLEGRO_FONT ** font) {
+int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITMAP ** imageCrosshair, ALLEGRO_EVENT_QUEUE ** event_queue, ALLEGRO_FONT ** font, ALLEGRO_BITMAP ** background,
+	ALLEGRO_BITMAP ** imageUfo) {
 
 	if (!al_init()) {
 		fprintf(stderr, "failed to initialize allegro!\n");
@@ -86,6 +87,24 @@ int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITM
 		return 0;
 	}
 
+
+	*background = al_load_bitmap("2wuJNqK.jpg");
+	if (!background) {
+		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
+			NULL, ALLEGRO_MESSAGEBOX_ERROR);
+		al_destroy_display(*display);
+		return 0;
+	}
+
+	*imageUfo = al_load_bitmap("ufo.png");
+	if (!background) {
+		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
+			NULL, ALLEGRO_MESSAGEBOX_ERROR);
+		al_destroy_display(*display);
+		return 0;
+	}
+
+
 	//register 
 	al_register_event_source(*event_queue, al_get_display_event_source(*display));
 	al_register_event_source(*event_queue, al_get_timer_event_source(*timer));
@@ -112,6 +131,10 @@ void initLevel(Level * level) {
 	level->num_spawned = 0;
 	level->curr_enemy_count = 0;
 	level->abmLeft = 30;
+	level->ufoNumSpawned = 0; 
+	level->curr_ufo_count = 0;
+	level->ufoSpawnSide[LEFT] = -150;
+	level->ufoSpawnSide[RIGHT] = 900; 
 
 	for (int i = 0; i < 3; i++) {
 		level->batteryAbmLeft[i] = 10;
@@ -170,7 +193,7 @@ void initAbm(struct abmData * abm, Explosion * explosion) {
 	}
 }
 
-void initEnemy(Enemy ** enemy, Level * level) {
+void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo) {
 	for (int i = 0; i < level->spawnLimit; i++) {
 		for (int j = 0; j < SPLIT_COUNT; j++) {
 
@@ -185,7 +208,6 @@ void initEnemy(Enemy ** enemy, Level * level) {
 			enemy[i][j].x_pos = 0;
 			enemy[i][j].y_pos = 0;
 			enemy[i][j].step = 0;
-			enemy[i][j].speed = 0;
 			enemy[i][j].arrived = false;
 			enemy[i][j].launch_y = 50;
 			enemy[i][j].dest_y = 900;
@@ -200,8 +222,22 @@ void initEnemy(Enemy ** enemy, Level * level) {
 			enemy[i][j].topLeft.y = 0;
 			enemy[i][j].bottomLeft.x = 0;
 			enemy[i][j].bottomLeft.y = 0;
-		}
 
+		}
+	}
+
+	for (int i = 0; i < level->ufoSpawnLimit; i++) {
+		ufo[i].spawned = false;
+		ufo[i].arrived = false;
+		ufo[i].pos.x = 0;
+		ufo[i].pos.y = 0;
+		ufo[i].topRight.x = 0;
+		ufo[i].topRight.y = 0;
+		ufo[i].topLeft.x = 0;
+		ufo[i].topLeft.y = 0;
+		ufo[i].bottomLeft.x = 0;
+		ufo[i].bottomLeft.y = 0;
+		ufo[i].origin = 0; 
 	}
 }
 
@@ -234,63 +270,48 @@ void initBase(Base * base, int baseCount) {
 
 void initColorMap(int colorMap[][3]) {
 
-	colorMap[RED][0] = 230;
-	colorMap[RED][1] = 25;
-	colorMap[RED][2] = 75;
+	colorMap[NEON_RED][R] = 255;
+	colorMap[NEON_RED][G] = 10;
+	colorMap[NEON_RED][B] = 71;
 
-	colorMap[GREEN][0] = 60;
-	colorMap[GREEN][1] = 180;
-	colorMap[GREEN][2] = 75;
+	colorMap[NEON_GREEN][R] = 71;
+	colorMap[NEON_GREEN][G] = 255;
+	colorMap[NEON_GREEN][B] = 10; 
 
-	colorMap[YELLOW][0] = 255;
-	colorMap[YELLOW][1] = 225;
-	colorMap[YELLOW][2] = 25;
+	colorMap[NEON_YELLOW][R] = 194;
+	colorMap[NEON_YELLOW][G] = 255;
+	colorMap[NEON_YELLOW][B] = 10;
 
-	colorMap[BLUE][0] = 0;
-	colorMap[BLUE][1] = 130;
-	colorMap[BLUE][2] = 200;
+	colorMap[NEON_BLUE][R] = 10;
+	colorMap[NEON_BLUE][G] = 194;
+	colorMap[NEON_BLUE][B] = 255;
 
-	colorMap[ORANGE][0] = 245;
-	colorMap[ORANGE][1] = 130;
-	colorMap[ORANGE][2] = 48;
+	colorMap[LIME][R] = 121;
+	colorMap[LIME][G] = 255;
+	colorMap[LIME][B] = 3;
 
-	colorMap[CYAN][0] = 70;
-	colorMap[CYAN][1] = 240;
-	colorMap[CYAN][2] = 240;
+	colorMap[NEON_PINK][R] = 255;
+	colorMap[NEON_PINK][G] = 10;
+	colorMap[NEON_PINK][B] = 194;
 
-	colorMap[MAGENTA][0] = 240;
-	colorMap[MAGENTA][1] = 50;
-	colorMap[MAGENTA][2] = 230;
+	colorMap[RED][R] = 255;
+	colorMap[RED][G] = 0;
+	colorMap[RED][B] = 25;
 
-	colorMap[LIME][0] = 210;
-	colorMap[LIME][1] = 245;
-	colorMap[LIME][2] = 60;
+	colorMap[RED][R] = 255;
+	colorMap[RED][G] = 0;
+	colorMap[RED][B] = 25;
 
-	colorMap[PINK][0] = 250;
-	colorMap[PINK][1] = 190;
-	colorMap[PINK][2] = 190;
+	colorMap[YELLOW][R] = 255;
+	colorMap[YELLOW][G] = 222;
+	colorMap[YELLOW][B] = 0;
 
-	colorMap[TEAL][0] = 0;
-	colorMap[TEAL][1] = 128;
-	colorMap[TEAL][2] = 128;
-
-	colorMap[LAVENDER][0] = 230;
-	colorMap[LAVENDER][1] = 190;
-	colorMap[LAVENDER][2] = 255;
-
-	colorMap[BEIGE][0] = 255;
-	colorMap[BEIGE][1] = 250;
-	colorMap[BEIGE][2] = 200;
-
-	colorMap[MINT][0] = 170;
-	colorMap[MINT][1] = 255;
-	colorMap[MINT][2] = 195;
-
-	colorMap[WHITE][0] = 255;
-	colorMap[WHITE][1] = 225;
-	colorMap[WHITE][2] = 255;
+	colorMap[TEAL][R] = 0;
+	colorMap[TEAL][G] = 255;
+	colorMap[TEAL][B] = 187;
 
 }
+
 
 
 

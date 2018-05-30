@@ -11,7 +11,8 @@
 #include <stdlib.h>
 
 void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair,
-	struct abmData * abm, Enemy ** enemy, ALLEGRO_FONT * font, Base * base, Explosion * explosion, int * theme, int colorMap[][3], Level * level) {
+	struct abmData * abm, Enemy ** enemy, ALLEGRO_FONT * font, Base * base, Explosion * explosion, int * theme, int colorMap[][3], Level * level, ALLEGRO_BITMAP * background,
+	ALLEGRO_BITMAP * imageUfo, Ufo * ufo) {
 
 	//ship.x = SCREEN_W / 2.0 - BOUNCER_SIZE / 2.0;
 	//ship.y = SCREEN_H / 2.0 - BOUNCER_SIZE / 2.0;
@@ -37,9 +38,9 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 			updateAbm(abm);
 			abmArrival(abm, explosion);
 			hitDetection(abm, enemy, explosion, level);
-			spawnEnemy(enemy, level);
-			updateEnemy(enemy, level);
-			enemyArrival(enemy, level);
+			spawnEnemy(enemy, level, ufo);
+			updateEnemy(enemy, level, ufo);
+			enemyArrival(enemy, level, ufo);
 			baseCollision(base, enemy, 6, level);
 		}
 
@@ -109,24 +110,27 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 		}
 		}*/
 
-		//must draw everything every tick of timer 
+		//must draw everything every tick of timer      
 		if (draw && al_is_event_queue_empty(event_queue)) {
 			draw = false;
 			round++;
 
 			al_clear_to_color(al_map_rgb(0, 0, 0));  //clear screen to black to create illusion of animation; draw & clear screen, draw & clear screen... 
 
-			drawCrosshair(imageCrosshair, &crosshair);
+			al_draw_bitmap(background, 0, 0, 0);
 
+			drawExplosion(abm, explosion, colorMap);
+		
 			drawAbm(abm, &(theme[0]), colorMap);
 
-			drawExplosion(abm, explosion);
-
-			drawEnemy(enemy, &(theme[1]), colorMap, level);
+			drawEnemy(enemy, &(theme[1]), colorMap, level, ufo, imageUfo);
 
 			drawObjects(base, 6, &(theme[2]), colorMap);
 
+		
 			drawInfo(font, abm, level);
+
+			drawCrosshair(imageCrosshair, &crosshair);
 
 			printf("Level: %d Spawned: %d\n", level->round, level->num_spawned);
 
@@ -137,6 +141,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 				done = true;
 			}
 
+			//next level 
 			if (level->num_spawned >= level->spawnLimit) {
 
 				doneUpdate = true;
@@ -162,9 +167,15 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 					}
 					free(enemy);
 
+					free(ufo); 
+
 					(level->spawnLimit) += 5;
 					(level->round)++;
 					(level->spawnRate) -= 100;
+
+					level->spawnUfo = true;
+					level->ufoSpeed += 0.5; 
+					level->ufoSpawnLimit += 2; 
 
 					if (level->spawnRate < 10)
 						level->spawnRate = 10;
@@ -196,9 +207,11 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 						enemy[i] = (Enemy *)malloc(SPLIT_COUNT * sizeof(Enemy));
 					}
 
+					ufo = (Ufo *)malloc((level->ufoSpawnLimit) * sizeof(Ufo));
+
 					initLevel(level); 
-					initEnemy(enemy, level);
-					initAbm(abm,  explosion);
+					initEnemy(enemy, level, ufo);
+					initAbm(abm, explosion);
 					generateTheme(theme);
 
 					transition(font, timer, abm, level);

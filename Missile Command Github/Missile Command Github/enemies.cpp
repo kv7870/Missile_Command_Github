@@ -11,8 +11,9 @@
 #include <time.h>
 #include <stdlib.h>
 
-void spawnEnemy(Enemy ** enemy, Level * level) {
+void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo) {
 	int spawnTiming = 0;
+	int ufoSpawnTiming = 0;
 
 	if (level->curr_enemy_count < MAX_ENEMY && level->num_spawned < level->spawnLimit) {
 		for (int i = 0; i < level->spawnLimit; i++) {
@@ -50,6 +51,25 @@ void spawnEnemy(Enemy ** enemy, Level * level) {
 			}
 		}
 	}
+
+	if (level->spawnUfo) {
+		if (level->curr_ufo_count < MAX_UFO && level->ufoNumSpawned < level->ufoSpawnLimit) {
+			spawnTiming = rand() % level->ufoSpawnRate + 1;
+			if (spawnTiming == 5) {
+				for (int i = 0; i < level->ufoSpawnLimit; i++) {
+					if (!ufo[i].spawned && !ufo[i].arrived) {
+						ufo[i].spawned = true;
+						ufo[i].origin = level->ufoSpawnSide[rand() / (RAND_MAX + 1)];
+						ufo[i].pos.x = ufo[i].origin;
+						ufo[i].pos.y = rand() % 100 + 50;
+						(level->ufoNumSpawned)++;
+						(level->curr_ufo_count)++;
+						break;
+					}
+				}
+			}
+		}
+	}
 }
 
 
@@ -69,7 +89,7 @@ void calcEnemyInc(Enemy * enemy) {
 }
 
 
-void updateEnemy(Enemy ** enemy, Level * level) {
+void updateEnemy(Enemy ** enemy, Level * level, Ufo * ufo) {
 	for (int i = 0; i < level->spawnLimit; i++) {
 		for (int j = 0; j < SPLIT_COUNT; j++) {
 			if (enemy[i][j].launched) {
@@ -93,10 +113,20 @@ void updateEnemy(Enemy ** enemy, Level * level) {
 			}
 		}
 	}
+
+	for (int i = 0; i < level->ufoSpawnLimit; i++) {
+		if (ufo[i].spawned) {
+			if (ufo[i].origin == 900)
+				ufo[i].pos.x-=2; 
+			else if (ufo[i].origin == -150) {
+				ufo[i].pos.x+=2;
+			}
+		}
+	}
 }
 
 
-void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level)
+void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Ufo * ufo, ALLEGRO_BITMAP * imageUfo)
 {
 	int colorId = *theme;  //theme[0] 
 
@@ -108,10 +138,17 @@ void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level)
 			}
 		}
 	}
+
+	for (int i = 0; i < level->ufoSpawnLimit; i++) {
+		if (ufo[i].spawned) {
+			al_draw_bitmap(imageUfo, ufo[i].pos.x, ufo[i].pos.y, 0);
+		}
+
+	}
 }
 
 
-void enemyArrival(Enemy ** enemy, Level * level) {
+void enemyArrival(Enemy ** enemy, Level * level, Ufo * ufo) {
 	for (int i = 0; i < level->spawnLimit; i++) {
 		for (int j = 0; j < SPLIT_COUNT; j++) {
 			if (enemy[i][j].launched) {
@@ -123,5 +160,25 @@ void enemyArrival(Enemy ** enemy, Level * level) {
 				}
 			}
 		}
+	}
+
+	for (int i = 0; i < level->ufoSpawnLimit; i++) {
+		if(ufo[i].spawned) {
+			if (ufo[i].origin == -150) {
+				if (ufo[i].pos.x > 900) {
+					ufo[i].arrived = true; 
+					level->curr_ufo_count--; 
+				}
+			}
+			else if (ufo[i].origin == 900) {
+				if (ufo[i].pos.x < -150) {
+					ufo[i].arrived = true;
+					level->curr_ufo_count--; 
+				}
+
+			}
+
+		}
+
 	}
 }
