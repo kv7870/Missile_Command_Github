@@ -12,7 +12,7 @@
 #include <stdlib.h>
 
 
-void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, Level * level) {
+void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, Level * level, Ufo * ufo) {
 
 	//enemy is...
 	bool left = false;
@@ -60,9 +60,23 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, L
 					}
 				}
 			}
+
+			for (int j = 0; j < level->ufoSpawnLimit; j++) {
+				if (ufo[j].spawned) {
+					if (explosion[i].topRight.x >= ufo[j].topLeft.x &&
+					explosion[i].topLeft.x <= ufo[j].topRight.x &&
+					explosion[i].bottomLeft.y >= ufo[j].topLeft.y &&
+					explosion[i].topLeft.y <= ufo[j].bottomLeft.y) {
+						ufo[j].spawned = false;
+						level->score += 100; 
+						(level->curr_ufo_count)--;
+
+
+				}
+			}
 		}
 	}
-//}
+}
 
 void clampSquare(Explosion * explosion, Enemy * enemy, Vector * clamp) {
 

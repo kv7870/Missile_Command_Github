@@ -124,7 +124,7 @@ typedef struct enemyData {
 typedef struct ufoData {
 	bool spawned;
 	bool arrived; 
-	int origin; 
+	int origin;
 	Vector pos; 
 	Vector topRight;
 	Vector topLeft;
@@ -160,11 +160,12 @@ typedef struct levelData {
 	int ufoSpawnRate; 
 	int ufoNumSpawned; 
 	int ufoSpawnSide[2]; 
+	Vector ufoSize; 
 } Level;
 
 //prototypes
 int initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP **imageCrosshair, ALLEGRO_EVENT_QUEUE **event_queue, ALLEGRO_FONT ** font, 
-	ALLEGRO_BITMAP ** background, ALLEGRO_BITMAP ** imageUfo);
+	ALLEGRO_BITMAP ** background, ALLEGRO_BITMAP ** imageUfo, Level * level);
 void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair);
 void initAbm(struct abmData * abm, Explosion * explosion);
 
@@ -188,7 +189,7 @@ void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Uf
 void updateEnemy(Enemy ** enemy, Level * level, Ufo * ufo);
 void enemyArrival(Enemy ** enemy, Level * level, Ufo * ufo);
 
-void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, Level * level);
+void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, Level * level, Ufo * ufo);
 
 void drawInfo(ALLEGRO_FONT * font, Abm * abm, Level * level);
 void transition(ALLEGRO_FONT * font, ALLEGRO_TIMER * timer, Abm * abm, Level * level);

@@ -11,7 +11,7 @@
 #include <stdlib.h>
 
 int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITMAP ** imageCrosshair, ALLEGRO_EVENT_QUEUE ** event_queue, ALLEGRO_FONT ** font, ALLEGRO_BITMAP ** background,
-	ALLEGRO_BITMAP ** imageUfo) {
+	ALLEGRO_BITMAP ** imageUfo, Level * level) {
 
 	if (!al_init()) {
 		fprintf(stderr, "failed to initialize allegro!\n");
@@ -96,13 +96,16 @@ int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITM
 		return 0;
 	}
 
-	*imageUfo = al_load_bitmap("ufo.png");
+	*imageUfo = al_load_bitmap("ufoSmall.png");
 	if (!background) {
 		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
 			NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		al_destroy_display(*display);
 		return 0;
 	}
+
+	level->ufoSize.x = al_get_bitmap_width(*imageUfo);
+	level->ufoSize.y = al_get_bitmap_height(*imageUfo); 
 
 
 	//register 
@@ -133,7 +136,7 @@ void initLevel(Level * level) {
 	level->abmLeft = 30;
 	level->ufoNumSpawned = 0; 
 	level->curr_ufo_count = 0;
-	level->ufoSpawnSide[LEFT] = -150;
+	level->ufoSpawnSide[LEFT] = 0 - level->ufoSize.x;
 	level->ufoSpawnSide[RIGHT] = 900; 
 
 	for (int i = 0; i < 3; i++) {

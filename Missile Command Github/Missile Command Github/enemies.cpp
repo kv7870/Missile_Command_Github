@@ -14,9 +14,10 @@
 void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo) {
 	int spawnTiming = 0;
 	int ufoSpawnTiming = 0;
+	int i, j; 
 
 	if (level->curr_enemy_count < MAX_ENEMY && level->num_spawned < level->spawnLimit) {
-		for (int i = 0; i < level->spawnLimit; i++) {
+		for (i = 0; i < level->spawnLimit; i++) {
 			if (!enemy[i][0].launched && !enemy[i][0].arrived) {  //original missile 
 				spawnTiming = rand() % level->spawnRate + 1;
 				if (spawnTiming == 5) {
@@ -34,7 +35,7 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo) {
 
 			spawnTiming = rand() % level->splitRate + 1;
 			if (spawnTiming == 50) {
-				for (int j = 1; j < SPLIT_COUNT; j++) {
+				for (j = 1; j < SPLIT_COUNT; j++) {
 					if (enemy[i][j - 1].launched && !enemy[i][j].launched) {
 						enemy[i][j].launch_x = enemy[i][j - 1].x_pos;
 						enemy[i][j].launch_y = enemy[i][j - 1].y_pos;
@@ -56,10 +57,20 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo) {
 		if (level->curr_ufo_count < MAX_UFO && level->ufoNumSpawned < level->ufoSpawnLimit) {
 			spawnTiming = rand() % level->ufoSpawnRate + 1;
 			if (spawnTiming == 5) {
-				for (int i = 0; i < level->ufoSpawnLimit; i++) {
+				for (i = 0; i < level->ufoSpawnLimit; i++) {
 					if (!ufo[i].spawned && !ufo[i].arrived) {
 						ufo[i].spawned = true;
-						ufo[i].origin = level->ufoSpawnSide[rand() / (RAND_MAX + 1)];
+
+						if (i == 0) {
+							ufo[i].origin = level->ufoSpawnSide[rand() % 2]; //& 1
+						}
+						else {
+							if (ufo[i - 1].origin == 0 - level->ufoSize.x)
+								ufo[i].origin = 900;
+							else if (ufo[i - 1].origin == 900)
+								ufo[i].origin == 0 - level->ufoSize.x; 
+						}
+							
 						ufo[i].pos.x = ufo[i].origin;
 						ufo[i].pos.y = rand() % 100 + 50;
 						(level->ufoNumSpawned)++;
@@ -115,11 +126,20 @@ void updateEnemy(Enemy ** enemy, Level * level, Ufo * ufo) {
 	}
 
 	for (int i = 0; i < level->ufoSpawnLimit; i++) {
+	
 		if (ufo[i].spawned) {
 			if (ufo[i].origin == 900)
 				ufo[i].pos.x-=2; 
 			else if (ufo[i].origin == -150) {
 				ufo[i].pos.x+=2;
+
+				ufo[i].topLeft.x = ufo[i].pos.x; 
+				ufo[i].topLeft.y = ufo[i].pos.y;
+				ufo[i].topRight.x = ufo[i].pos.x + level->ufoSize.x;
+				ufo[i].topRight.y = ufo[i].pos.y; 
+				ufo[i].bottomLeft.x = ufo[i].pos.x;
+				ufo[i].bottomLeft.y = ufo[i].pos.y + level->ufoSize.y;
+
 			}
 		}
 	}

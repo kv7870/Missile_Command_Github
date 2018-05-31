@@ -37,7 +37,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			updateAbm(abm);
 			abmArrival(abm, explosion);
-			hitDetection(abm, enemy, explosion, level);
+			hitDetection(abm, enemy, explosion, level, ufo);
 			spawnEnemy(enemy, level, ufo);
 			updateEnemy(enemy, level, ufo);
 			enemyArrival(enemy, level, ufo);
@@ -158,6 +158,10 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 						doneUpdate = false;
 				}
 
+				for (int i = 0; i < level->ufoSpawnLimit; i++) {
+					if (ufo[i].spawned)
+						doneUpdate = false;
+				}
 				if (doneUpdate) {
 
 					al_stop_timer(timer);
@@ -176,13 +180,17 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 					level->spawnUfo = true;
 					level->ufoSpeed += 0.5; 
 					level->ufoSpawnLimit += 2; 
+					level->ufoSpawnRate -= 100;
 
-					if (level->spawnRate < 10)
+					if (level->ufoSpawnRate < 0)
+						level->ufoSpawnRate = 10; 
+
+					if (level->spawnRate < 0)
 						level->spawnRate = 10;
 
 					(level->splitRate) -= 100;
 
-					if (level->splitRate < 10)
+					if (level->splitRate < 0)
 						level->splitRate = 10;
 					
 					if(level->splitAngle >= 80)
@@ -207,7 +215,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 						enemy[i] = (Enemy *)malloc(SPLIT_COUNT * sizeof(Enemy));
 					}
 
-					ufo = (Ufo *)malloc((level->ufoSpawnLimit) * sizeof(Ufo));
+					ufo = (Ufo *)malloc(level->ufoSpawnLimit * sizeof(Ufo));
 
 					initLevel(level); 
 					initEnemy(enemy, level, ufo);

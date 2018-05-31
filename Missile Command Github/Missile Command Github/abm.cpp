@@ -204,7 +204,7 @@ void drawExplosion(Abm * abm, Explosion * explosion, int colorMap[][3]) {
 				explosion[i].radius -= 1;
 			}
 
-			al_draw_filled_circle(abm[i].dest_x, abm[i].dest_y, explosion[i].radius, al_map_rgb(colorMap[explosionColor][R], colorMap[explosionColor][G], colorMap[explosionColor][B]));
+			al_draw_filled_circle(abm[i].dest_x, abm[i].dest_y, explosion[i].radius, al_map_rgb(r, g, b));
 
 			//calculate bounds of explosion 
 			explosion[i].topLeft.x = explosion[i].center.x - explosion[i].radius;
