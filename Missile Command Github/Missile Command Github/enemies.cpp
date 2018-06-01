@@ -11,12 +11,13 @@
 #include <time.h>
 #include <stdlib.h>
 
-void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo) {
+void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 	int spawnTiming = 0;
 	int ufoSpawnTiming = 0;
 	int i, j; 
 
-	if (level->curr_enemy_count < MAX_ENEMY && level->num_spawned < level->spawnLimit) {
+	//spawn enemy missile
+	if (level->curr_enemy_count < level->maxEnemyOnScreen && level->num_spawned < level->spawnLimit) {
 		for (i = 0; i < level->spawnLimit; i++) {
 			if (!enemy[i][0].launched && !enemy[i][0].arrived) {  //original missile 
 				spawnTiming = rand() % level->spawnRate + 1;
@@ -53,9 +54,14 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo) {
 		}
 	}
 
-	if (level->spawnUfo) {
-		if (level->curr_ufo_count < MAX_UFO && level->ufoNumSpawned < level->ufoSpawnLimit) {
+
+	//spawn ufo
+	if (level->spawnUfo) 
+	{
+		if (level->curr_ufo_count < level->maxUfoOnScreen && level->ufoNumSpawned < level->ufoSpawnLimit) {
+
 			spawnTiming = rand() % level->ufoSpawnRate + 1;
+
 			if (spawnTiming == 5) {
 				for (i = 0; i < level->ufoSpawnLimit; i++) {
 					if (!ufo[i].spawned && !ufo[i].arrived) {
@@ -64,24 +70,47 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo) {
 						if (i == 0) {
 							ufo[i].origin = level->ufoSpawnSide[rand() % 2]; //& 1
 						}
-						else {
+						else if (i < 0)
 							if (ufo[i - 1].origin == 0 - level->ufoSize.x)
 								ufo[i].origin = 900;
 							else if (ufo[i - 1].origin == 900)
-								ufo[i].origin == 0 - level->ufoSize.x; 
+								ufo[i].origin = 0 - level->ufoSize.x; 
 						}
 							
 						ufo[i].pos.x = ufo[i].origin;
 						ufo[i].pos.y = rand() % 100 + 50;
 						(level->ufoNumSpawned)++;
 						(level->curr_ufo_count)++;
-						break;
+							break;
 					}
 				}
 			}
 		}
+
+
+	//spawn bomb
+	if (level->spawnBomb) {
+		if (level->curr_bomb_count < level->maxBombOnScreen && level->bombNumSpawned < level->bombSpawnLimit) {
+			spawnTiming = rand() % level->bombSpawnRate + 1;
+
+			//if(spawnTiming == rand%level->bombSpawnRate + 1); 
+			if (spawnTiming == 10) {
+				for (i = 0; i < level->bombSpawnLimit; i++) {
+					if (!bomb[i].spawned && !bomb[i].arrived) {
+						bomb[i].spawned = true;
+						bomb[i].origin.x = rand() % 600 + 200;
+						bomb[i].pos.x = bomb[i].origin.x;
+						bomb[i].pos.y = bomb[i].origin.y;
+						break; 
+					}
+				}
+			}
+
+		}
 	}
 }
+
+
 
 
 void calcEnemyInc(Enemy * enemy) {
@@ -98,6 +127,59 @@ void calcEnemyInc(Enemy * enemy) {
 	enemy->x_inc = enemy->dx / enemy->step;
 	enemy->y_inc = enemy->dy / enemy->step;
 }
+
+
+void updateBomb(Level * level, Bomb * bomb, Explosion * explosion) {
+
+	for (int i = 0; i < level->bombSpawnLimit; i++) {
+		if (bomb[i].spawned) {
+
+			//calculate bounds
+			bomb[i].topLeft.x = bomb[i].pos.x;
+			bomb[i].topLeft.y = bomb[i].pos.y;
+			bomb[i].topRight.x = bomb[i].pos.x + level->bombSize.x;
+			bomb[i].topRight.y = bomb[i].pos.y;
+			bomb[i].bottomLeft.x = bomb[i].pos.x;
+			bomb[i].bottomLeft.y = bomb[i].pos.y + level->bombSize.y;
+
+			bomb[i].pos.y += 1;
+
+			for (int j = 0; j < ABM_COUNT; j++) {
+				if (explosion[j].ongoing) {
+
+					//if explosion and bomb are on same y plane 
+					if ((bomb[i].pos.y <= explosion[j].center.y + explosion[j].radius) && (bomb[i].pos.y + level->bombSize.y >= explosion[j].center.y - explosion[j].radius)) {
+						//exit(0); 
+						//bomb on right of explosion
+						if (explosion[j].center.x + explosion[j].radius - 50> bomb[i].pos.x) {
+							bomb[i].pos.x -= 2;
+						}
+
+						//bomb on left of explosion 
+						else if (explosion[j].center.x - explosion[j].radius + 50 < bomb[i].pos.x + level->bombSize.x) {
+							bomb[i].pos.x += 2;
+							
+						}
+					}
+
+					//if explosion and bomb are on same x plane 
+					if (bomb[i].pos.x <= explosion[j].center.x + explosion[j].radius && bomb[i].pos.x + level->bombSize.x >= explosion[j].center.x + explosion[j].radius) {
+
+						//explosion underneath bomb
+						if (((bomb[i].pos.y + level->bombSize.y) + level->bombSpeed) >= (explosion[j].center.y - explosion[j].radius - 50)) {
+							bomb[i].pos.y -= level->bombSpeed;
+						}
+
+						/*else if ((bomb[i].bottomLeft.y + level->bombSpeed) < (explosion[j].center.y - explosion[j].radius - 5)) {
+							bomb[i].pos.y += level->bombSpeed;
+						}*/
+					}
+				}
+			}
+		}
+	}
+}
+
 
 
 void updateEnemy(Enemy ** enemy, Level * level, Ufo * ufo) {
@@ -131,26 +213,28 @@ void updateEnemy(Enemy ** enemy, Level * level, Ufo * ufo) {
 			if (ufo[i].origin == 900)
 				ufo[i].pos.x-=2; 
 			else if (ufo[i].origin == -150) {
-				ufo[i].pos.x+=2;
-
-				ufo[i].topLeft.x = ufo[i].pos.x; 
-				ufo[i].topLeft.y = ufo[i].pos.y;
-				ufo[i].topRight.x = ufo[i].pos.x + level->ufoSize.x;
-				ufo[i].topRight.y = ufo[i].pos.y; 
-				ufo[i].bottomLeft.x = ufo[i].pos.x;
-				ufo[i].bottomLeft.y = ufo[i].pos.y + level->ufoSize.y;
-
+				ufo[i].pos.x += 2;
 			}
+
+			//calculate bounds
+			ufo[i].topLeft.x = ufo[i].pos.x; 
+			ufo[i].topLeft.y = ufo[i].pos.y;
+			ufo[i].topRight.x = ufo[i].pos.x + level->ufoSize.x;
+			ufo[i].topRight.y = ufo[i].pos.y; 
+			ufo[i].bottomLeft.x = ufo[i].pos.x;
+			ufo[i].bottomLeft.y = ufo[i].pos.y + level->ufoSize.y;
+
 		}
 	}
 }
 
 
-void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Ufo * ufo, ALLEGRO_BITMAP * imageUfo)
+void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Ufo * ufo, ALLEGRO_BITMAP * imageUfo, ALLEGRO_BITMAP * imageBomb, Bomb * bomb)
 {
 	int colorId = *theme;  //theme[0] 
+	int i; 
 
-	for (int i = 0; i < level->spawnLimit; i++) {
+	for (i = 0; i < level->spawnLimit; i++) {
 		for (int j = 0; j < SPLIT_COUNT; j++) {
 			if (enemy[i][j].launched) {
 				al_draw_filled_rectangle(enemy[i][j].x_pos - 3, enemy[i][j].y_pos - 3, enemy[i][j].x_pos + 3, enemy[i][j].y_pos + 3, al_map_rgb(colorMap[colorId][R], colorMap[colorId][G], colorMap[colorId][B]));
@@ -159,17 +243,22 @@ void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Uf
 		}
 	}
 
-	for (int i = 0; i < level->ufoSpawnLimit; i++) {
-		if (ufo[i].spawned) {
+	for (i = 0; i < level->ufoSpawnLimit; i++) {
+		if (ufo[i].spawned) 
 			al_draw_bitmap(imageUfo, ufo[i].pos.x, ufo[i].pos.y, 0);
-		}
+	}
 
+	for (i = 0; i < level->bombSpawnLimit; i++) {
+		if (bomb[i].spawned)
+			al_draw_bitmap(imageBomb, bomb[i].pos.x, bomb[i].pos.y, 0);
 	}
 }
 
 
-void enemyArrival(Enemy ** enemy, Level * level, Ufo * ufo) {
-	for (int i = 0; i < level->spawnLimit; i++) {
+void enemyArrival(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
+	int i; 
+
+	for (i = 0; i < level->spawnLimit; i++) {
 		for (int j = 0; j < SPLIT_COUNT; j++) {
 			if (enemy[i][j].launched) {
 				if (enemy[i][j].y_pos >= enemy[i][j].dest_y) {
@@ -182,7 +271,7 @@ void enemyArrival(Enemy ** enemy, Level * level, Ufo * ufo) {
 		}
 	}
 
-	for (int i = 0; i < level->ufoSpawnLimit; i++) {
+	for (i = 0; i < level->ufoSpawnLimit; i++) {
 		if(ufo[i].spawned) {
 			if (ufo[i].origin == -150) {
 				if (ufo[i].pos.x > 900) {
@@ -200,5 +289,12 @@ void enemyArrival(Enemy ** enemy, Level * level, Ufo * ufo) {
 
 		}
 
+	}
+
+	for (i = 0; i < level->bombSpawnLimit; i++) {
+		if (bomb[i].spawned) {
+			if (bomb[i].pos.y >= 900)
+				bomb[i].spawned = false;
+		}
 	}
 }

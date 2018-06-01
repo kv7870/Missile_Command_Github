@@ -11,7 +11,7 @@
 #include <stdlib.h>
 
 int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITMAP ** imageCrosshair, ALLEGRO_EVENT_QUEUE ** event_queue, ALLEGRO_FONT ** font, ALLEGRO_BITMAP ** background,
-	ALLEGRO_BITMAP ** imageUfo, Level * level) {
+	ALLEGRO_BITMAP ** imageUfo, Level * level, ALLEGRO_BITMAP ** imageBomb) {
 
 	if (!al_init()) {
 		fprintf(stderr, "failed to initialize allegro!\n");
@@ -104,9 +104,20 @@ int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITM
 		return 0;
 	}
 
+	*imageBomb = al_load_bitmap("bomb.png");
+	if (!imageBomb) {
+		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
+			NULL, ALLEGRO_MESSAGEBOX_ERROR);
+		al_destroy_display(*display);
+		return 0;
+	}
+
+
 	level->ufoSize.x = al_get_bitmap_width(*imageUfo);
 	level->ufoSize.y = al_get_bitmap_height(*imageUfo); 
 
+	level->bombSize.x = al_get_bitmap_width(*imageBomb); 
+	level->bombSize.y = al_get_bitmap_height(*imageBomb);
 
 	//register 
 	al_register_event_source(*event_queue, al_get_display_event_source(*display));
@@ -120,7 +131,37 @@ int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITM
 }
 
 
+void oneTimeInit(Level * level) {
 
+	//enemy missile 
+	level->enemySpeed = 2;
+	level->lives = 6;
+	level->spawnLimit = 10;
+	level->spawnRate = 1000;
+	level->splitRate = 1000;
+	level->splitAngle = 50;
+	level->score = 0;
+	level->round = 1;
+
+	//ufo
+	level->spawnUfo = true;
+	level->ufoSpeed = 0.5;
+	level->ufoSpawnLimit = 1;
+	level->ufoSpawnRate = 500;
+
+	//bomb
+	level->spawnBomb = true;
+	level->bombSpawnLimit = 1;
+	level->bombSpeed = 2;
+	level->bombSpawnRate = 50;
+
+	//max on screen simultaneously 
+	level->maxEnemyOnScreen = 5;
+	level->maxUfoOnScreen = 3;
+	level->maxBombOnScreen = 3;
+}
+
+ 
 //spawn crosshair at center of screen y
 void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair) {
 	crosshair->x = 450;
@@ -131,14 +172,22 @@ void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair) {
 
 
 void initLevel(Level * level) {
+	//enemy missile
 	level->num_spawned = 0;
 	level->curr_enemy_count = 0;
-	level->abmLeft = 30;
+
+	//ufo
 	level->ufoNumSpawned = 0; 
 	level->curr_ufo_count = 0;
 	level->ufoSpawnSide[LEFT] = 0 - level->ufoSize.x;
 	level->ufoSpawnSide[RIGHT] = 900; 
 
+	//bomb
+	level->curr_bomb_count = 0;
+	level->bombNumSpawned = 0; 
+
+	//abm
+	level->abmLeft = 30;
 	for (int i = 0; i < 3; i++) {
 		level->batteryAbmLeft[i] = 10;
 	}
@@ -196,7 +245,7 @@ void initAbm(struct abmData * abm, Explosion * explosion) {
 	}
 }
 
-void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo) {
+void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 	for (int i = 0; i < level->spawnLimit; i++) {
 		for (int j = 0; j < SPLIT_COUNT; j++) {
 
@@ -234,6 +283,8 @@ void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo) {
 		ufo[i].arrived = false;
 		ufo[i].pos.x = 0;
 		ufo[i].pos.y = 0;
+
+		//bounds
 		ufo[i].topRight.x = 0;
 		ufo[i].topRight.y = 0;
 		ufo[i].topLeft.x = 0;
@@ -241,6 +292,26 @@ void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo) {
 		ufo[i].bottomLeft.x = 0;
 		ufo[i].bottomLeft.y = 0;
 		ufo[i].origin = 0; 
+	}
+
+	for (int i = 0; i < level->bombSpawnLimit; i++) {
+		bomb[i].spawned = false;
+		bomb[i].arrived = false;
+		bomb[i].pos.x = 0;
+		bomb[i].pos.y = 0;
+		bomb[i].origin.x = 0;
+		bomb[i].origin.y = 0;
+		bomb[i].target.x = 0; 
+		bomb[i].target.y = 0;
+
+		//bounds
+		bomb[i].topRight.x = 0;
+		bomb[i].topRight.y = 0;
+		bomb[i].topLeft.x = 0;
+		bomb[i].topLeft.y = 0;
+		bomb[i].bottomLeft.x = 0;
+		bomb[i].bottomLeft.y = 0;
+
 	}
 }
 

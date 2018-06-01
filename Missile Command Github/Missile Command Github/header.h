@@ -23,17 +23,14 @@
 const float FPS = 60;
 const int SCREEN_W = 900;
 const int SCREEN_H = 900;
-const int BOUNCER_SIZE = 32;
 const int NUM_BULLETS = 100;
 const int ROWS = 5;   //rows of enemies
 const int COLS = 3;  //columns of enemies 
 const int frameCount = 33;
-const int MAX_ENEMY = 5; //max enemies on screen at one time
 const int MAX_SPLIT = 10;
 const int SPLIT_COUNT = 4;
 const int SIZE = 1.5;  //3x3 square
 const int ABM_COUNT = 30;
-const int MAX_UFO = 3; 
 
 enum KEYS {
 	KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_SPACE  //by default member 1 = 0, member 2 = 1, member 3 = 2, member 4 = 3... 
@@ -131,6 +128,17 @@ typedef struct ufoData {
 	Vector bottomLeft; 
 } Ufo;
 
+typedef struct bombData {
+	bool spawned;
+	bool arrived;
+	Vector origin; 
+	Vector target;
+	Vector pos;
+	Vector topRight;
+	Vector topLeft;
+	Vector bottomLeft; 
+} Bomb;
+
 typedef struct baseData {
 	bool destroyed;
 	Vector pos;
@@ -140,38 +148,56 @@ typedef struct baseData {
 } Base;
 
 typedef struct levelData {
+	int round; //round 1, round 2...
+	int lives;
+	int score;
+	int abmLeft;
+	int batteryAbmLeft[3];
+
+	int maxEnemyOnScreen; 
+	int maxUfoOnScreen;
+	int maxBombOnScreen; 
+
 	int spawnRate;
 	int splitRate;
 	int splitAngle;
 	int enemySpeed; 
-	int round; //round 1, round 2...
+
 	int curr_enemy_count; 
 	int num_spawned;
 	int spawnLimit; 
-	int lives;
-	int abmLeft; 
-	int batteryAbmLeft[3]; 
-	int score; 
+
 	bool spawnUfo;
 	int ufoSpeed; 
 	int curr_ufo_count;
-	//int maxUfoOnScreen;
+
+	//ufo
 	int ufoSpawnLimit; 
 	int ufoSpawnRate; 
 	int ufoNumSpawned; 
 	int ufoSpawnSide[2]; 
-	Vector ufoSize; 
+	Vector ufoSize;
+
+	//bomb
+	bool spawnBomb; 
+	int curr_bomb_count; 
+	int bombSpawnLimit;
+	int bombNumSpawned;
+	int bombSpeed;
+	int bombSpawnRate; 
+	Vector bombSize;
+	
 } Level;
 
 //prototypes
 int initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP **imageCrosshair, ALLEGRO_EVENT_QUEUE **event_queue, ALLEGRO_FONT ** font, 
-	ALLEGRO_BITMAP ** background, ALLEGRO_BITMAP ** imageUfo, Level * level);
+	ALLEGRO_BITMAP ** background, ALLEGRO_BITMAP ** imageUfo, Level * level, ALLEGRO_BITMAP ** imageBomb);
 void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair);
 void initAbm(struct abmData * abm, Explosion * explosion);
 
 void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair,
 	struct abmData * abm, Enemy ** enemy, ALLEGRO_FONT * font, Base * base, Explosion * explosion, int * theme, int colorMap[][3], Level * level, ALLEGRO_BITMAP * background,
-	ALLEGRO_BITMAP * imageUfo, Ufo * ufo);
+	ALLEGRO_BITMAP * imageUfo, Ufo * ufo, ALLEGRO_BITMAP * imageBomb, Bomb * bomb);
 
 void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, Crosshair * crosshair);
 
@@ -182,12 +208,12 @@ void drawAbm(struct abmData * abm, int * theme, int colorMap[][3]);
 void abmArrival(Abm * abm, Explosion * explosion);  //check if abm arrived
 void drawExplosion(Abm * abm, Explosion * explosion, int colorMap[][3]);
 
-void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo);
-void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo);
+void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb);
+void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb);
 void calcEnemyInc(Enemy * enemy);
-void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Ufo * ufo, ALLEGRO_BITMAP * imageUfo);
+void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Ufo * ufo, ALLEGRO_BITMAP * imageUfo, ALLEGRO_BITMAP * imageBomb, Bomb * bomb);
 void updateEnemy(Enemy ** enemy, Level * level, Ufo * ufo);
-void enemyArrival(Enemy ** enemy, Level * level, Ufo * ufo);
+void enemyArrival(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb);
 
 void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, Level * level, Ufo * ufo);
 
@@ -204,3 +230,7 @@ void generateTheme(int * theme);
 void clampSquare(Explosion * explosion, Enemy * enemy, Vector * clamp);
 
 void initLevel(Level * level); 
+
+void updateBomb(Level * level, Bomb * bomb, Explosion * explosion); 
+
+void oneTimeInit(Level * level); 

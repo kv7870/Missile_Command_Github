@@ -12,10 +12,8 @@
 
 void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair,
 	struct abmData * abm, Enemy ** enemy, ALLEGRO_FONT * font, Base * base, Explosion * explosion, int * theme, int colorMap[][3], Level * level, ALLEGRO_BITMAP * background,
-	ALLEGRO_BITMAP * imageUfo, Ufo * ufo) {
+	ALLEGRO_BITMAP * imageUfo, Ufo * ufo, ALLEGRO_BITMAP * imageBomb, Bomb * bomb) {
 
-	//ship.x = SCREEN_W / 2.0 - BOUNCER_SIZE / 2.0;
-	//ship.y = SCREEN_H / 2.0 - BOUNCER_SIZE / 2.0;
 	bool done = false;
 	bool draw = true;
 	int count = 0;
@@ -38,9 +36,10 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 			updateAbm(abm);
 			abmArrival(abm, explosion);
 			hitDetection(abm, enemy, explosion, level, ufo);
-			spawnEnemy(enemy, level, ufo);
+			spawnEnemy(enemy, level, ufo, bomb);
 			updateEnemy(enemy, level, ufo);
-			enemyArrival(enemy, level, ufo);
+			updateBomb(level, bomb, explosion); 
+			enemyArrival(enemy, level, ufo, bomb);
 			baseCollision(base, enemy, 6, level);
 		}
 
@@ -123,7 +122,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 		
 			drawAbm(abm, &(theme[0]), colorMap);
 
-			drawEnemy(enemy, &(theme[1]), colorMap, level, ufo, imageUfo);
+			drawEnemy(enemy, &(theme[1]), colorMap, level, ufo, imageUfo, imageBomb, bomb);
 
 			drawObjects(base, 6, &(theme[2]), colorMap);
 
@@ -218,7 +217,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 					ufo = (Ufo *)malloc(level->ufoSpawnLimit * sizeof(Ufo));
 
 					initLevel(level); 
-					initEnemy(enemy, level, ufo);
+					initEnemy(enemy, level, ufo, bomb);
 					initAbm(abm, explosion);
 					generateTheme(theme);
 
@@ -268,9 +267,9 @@ void drawInfo(ALLEGRO_FONT * font, Abm * abm, Level * level) {
 
 
 	//# abm left per battery 
-	al_draw_textf(font, al_map_rgb(255, 0, 0), 35, 860, 0, "%d", level->batteryAbmLeft[0]);
-	al_draw_textf(font, al_map_rgb(255, 0, 0), 415, 860, 0, "%d", level->batteryAbmLeft[1]);
-	al_draw_textf(font, al_map_rgb(255, 0, 0), 850, 860, 0, "%d", level->batteryAbmLeft[2]);
+	al_draw_textf(font, al_map_rgb(0, 0, 0), 35, 860, 0, "%d", level->batteryAbmLeft[0]);
+	al_draw_textf(font, al_map_rgb(0, 0, 0), 415, 860, 0, "%d", level->batteryAbmLeft[1]);
+	al_draw_textf(font, al_map_rgb(0, 0, 0), 850, 860, 0, "%d", level->batteryAbmLeft[2]);
 }
 
 void transition(ALLEGRO_FONT * font, ALLEGRO_TIMER * timer, Abm * abm, Level * level) {
