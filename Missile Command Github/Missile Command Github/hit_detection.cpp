@@ -46,12 +46,12 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, L
 							distance.x = fabs(explosion[i].center.x - clamp.x);
 							distance.y = fabs(explosion[i].center.y - clamp.y); 
 
-							if (distance.x < explosion[i].radius && distance.y < explosion[i].radius) {
+							if (pow(distance.x, 2) + pow(distance.y, 2) <= pow(explosion[i].radius, 2)) {
 								enemy[j][k].launched = false;
 								explosion[i].expandedRadius = true;
 								explosion[i].increaseRadius = true;
-								explosion[i].center.x = enemy[j][k].x_pos;
-								explosion[i].center.y = enemy[j][k].y_pos;
+								//explosion[i].center.x = enemy[j][k].x_pos;
+								//explosion[i].center.y = enemy[j][k].y_pos;
 
 								level->score += 25;
 								(level->curr_enemy_count)--;

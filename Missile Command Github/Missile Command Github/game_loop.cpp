@@ -12,7 +12,7 @@
 
 void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair,
 	struct abmData * abm, Enemy ** enemy, ALLEGRO_FONT * font, Base * base, Explosion * explosion, int * theme, int colorMap[][3], Level * level, ALLEGRO_BITMAP * background,
-	ALLEGRO_BITMAP * imageUfo, Ufo * ufo, ALLEGRO_BITMAP * imageBomb, Bomb * bomb) {
+	ALLEGRO_BITMAP * imageUfo, Ufo * ufo, ALLEGRO_BITMAP ** imageBomb, Bomb * bomb, ALLEGRO_BITMAP * imageLauncher, ALLEGRO_BITMAP * texture) {
 
 	bool done = false;
 	bool draw = true;
@@ -33,14 +33,15 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 		if (ev.type == ALLEGRO_EVENT_TIMER) {  //update every 1/60 of a second 
 			draw = true;
 
-			updateAbm(abm);
-			abmArrival(abm, explosion);
-			hitDetection(abm, enemy, explosion, level, ufo);
 			spawnEnemy(enemy, level, ufo, bomb);
+			updateAbm(abm);
 			updateEnemy(enemy, level, ufo);
-			updateBomb(level, bomb, explosion); 
+			hitDetection(abm, enemy, explosion, level, ufo);
+			abmArrival(abm, explosion);
+			updateBomb(level, bomb, explosion);
 			enemyArrival(enemy, level, ufo, bomb);
 			baseCollision(base, enemy, 6, level);
+
 		}
 
 		else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
@@ -118,13 +119,15 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			al_draw_bitmap(background, 0, 0, 0);
 
+			drawObjects(base, 6, &(theme[2]), colorMap, imageLauncher, texture);
+
 			drawExplosion(abm, explosion, colorMap);
 		
 			drawAbm(abm, &(theme[0]), colorMap);
 
 			drawEnemy(enemy, &(theme[1]), colorMap, level, ufo, imageUfo, imageBomb, bomb);
 
-			drawObjects(base, 6, &(theme[2]), colorMap);
+			
 
 		
 			drawInfo(font, abm, level);
@@ -287,15 +290,62 @@ void transition(ALLEGRO_FONT * font, ALLEGRO_TIMER * timer, Abm * abm, Level * l
 }
 
 
-void drawObjects(Base * base, int baseCount, int * theme, int colorMap[][3]) {
+void drawObjects(Base * base, int baseCount, int * theme, int colorMap[][3], ALLEGRO_BITMAP * imageLauncher, ALLEGRO_BITMAP * texture) {
 
 	int colorId2 = theme[0];
 	int colorId3 = theme[1];
 
-	//launchpads 
-	al_draw_filled_rectangle(10, 850, 80, 900, al_map_rgb(colorMap[colorId2][R], colorMap[colorId2][G], colorMap[colorId2][B]));
-	al_draw_filled_rectangle(390, 850, 460, 900, al_map_rgb(colorMap[colorId2][R], colorMap[colorId2][G], colorMap[colorId2][B]));
-	al_draw_filled_rectangle(820, 850, 890, 900, al_map_rgb(colorMap[colorId2][R], colorMap[colorId2][G], colorMap[colorId2][B]));
+	//planet surface
+	al_draw_filled_ellipse(450, 900, 500, 60, al_map_rgb(94, 242, 104)); 
+	//69 190 247
+	//94, 242, 104
+
+	//al_draw_bitmap(texture, 0, 800, 0); 
+	//al_draw_filled_rectangle(0, 850, 900, 900, al_map_rgb(153, 102, 51)); 
+
+	//abm pics 
+
+	//first battery (left)
+	al_draw_bitmap(imageLauncher, -10, 800, 0); 
+	al_draw_bitmap(imageLauncher, 0, 800, 0);
+	al_draw_bitmap(imageLauncher, 10, 800, 0);
+	al_draw_bitmap(imageLauncher, 20, 800, 0);
+	al_draw_bitmap(imageLauncher, 30, 800, 0);
+	al_draw_bitmap(imageLauncher, 40, 800, 0);
+	al_draw_bitmap(imageLauncher, 50, 800, 0);
+	al_draw_bitmap(imageLauncher, 60, 800, 0);
+	al_draw_bitmap(imageLauncher, 70, 800, 0);
+	al_draw_bitmap(imageLauncher, 80, 800, 0);
+
+
+	//second battery (center)
+	al_draw_bitmap(imageLauncher, 370, 800, 0);
+	al_draw_bitmap(imageLauncher, 380, 800, 0);
+	al_draw_bitmap(imageLauncher, 390, 800, 0);
+	al_draw_bitmap(imageLauncher, 400, 800, 0);
+	al_draw_bitmap(imageLauncher, 410, 800, 0);
+	al_draw_bitmap(imageLauncher, 420, 800, 0);
+	al_draw_bitmap(imageLauncher, 430, 800, 0);
+	al_draw_bitmap(imageLauncher, 440, 800, 0);
+	al_draw_bitmap(imageLauncher, 450, 800, 0);
+	al_draw_bitmap(imageLauncher, 460, 800, 0);
+
+	//third battery (right) 
+	al_draw_bitmap(imageLauncher, 770, 800, 0);
+	al_draw_bitmap(imageLauncher, 780, 800, 0);
+	al_draw_bitmap(imageLauncher, 790, 800, 0);
+	al_draw_bitmap(imageLauncher, 800, 800, 0);
+	al_draw_bitmap(imageLauncher, 810, 800, 0);
+	al_draw_bitmap(imageLauncher, 820, 800, 0);
+	al_draw_bitmap(imageLauncher, 830, 800, 0);
+	al_draw_bitmap(imageLauncher, 840, 800, 0);
+	al_draw_bitmap(imageLauncher, 850, 800, 0);
+	al_draw_bitmap(imageLauncher, 860, 800, 0);
+
+
+	//al_draw_filled_rectangle(10, 850, 80, 900, al_map_rgb(colorMap[colorId2][R], colorMap[colorId2][G], colorMap[colorId2][B]));
+	//al_draw_filled_rectangle(390, 850, 460, 900, al_map_rgb(colorMap[colorId2][R], colorMap[colorId2][G], colorMap[colorId2][B]));
+	//al_draw_filled_rectangle(820, 850, 890, 900, al_map_rgb(colorMap[colorId2][R], colorMap[colorId2][G], colorMap[colorId2][B]));
 
 	//bases
 

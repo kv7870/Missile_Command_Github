@@ -85,7 +85,7 @@ typedef struct abmData {
 
 typedef struct explosionData {
 	bool ongoing;
-	float radius;
+	int radius;
 	bool increaseRadius;
 	bool expandedRadius;
 	Vector center;
@@ -108,11 +108,6 @@ typedef struct enemyData {
 	float step;
 	bool launched;
 	bool arrived;
-	int relativeX;
-	int relativeY;
-	int distX;
-	int distY;
-	int distTotal;
 	Vector topRight;
 	Vector topLeft;
 	Vector bottomLeft;
@@ -191,13 +186,14 @@ typedef struct levelData {
 
 //prototypes
 int initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP **imageCrosshair, ALLEGRO_EVENT_QUEUE **event_queue, ALLEGRO_FONT ** font, 
-	ALLEGRO_BITMAP ** background, ALLEGRO_BITMAP ** imageUfo, Level * level, ALLEGRO_BITMAP ** imageBomb);
+	ALLEGRO_BITMAP ** background, ALLEGRO_BITMAP ** imageUfo, Level * level, ALLEGRO_BITMAP ** imageBomb, ALLEGRO_BITMAP ** imageLauncher, ALLEGRO_BITMAP ** texture);
+
 void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair);
 void initAbm(struct abmData * abm, Explosion * explosion);
 
 void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair,
 	struct abmData * abm, Enemy ** enemy, ALLEGRO_FONT * font, Base * base, Explosion * explosion, int * theme, int colorMap[][3], Level * level, ALLEGRO_BITMAP * background,
-	ALLEGRO_BITMAP * imageUfo, Ufo * ufo, ALLEGRO_BITMAP * imageBomb, Bomb * bomb);
+	ALLEGRO_BITMAP * imageUfo, Ufo * ufo, ALLEGRO_BITMAP ** imageBomb, Bomb * bomb, ALLEGRO_BITMAP * imageLauncher, ALLEGRO_BITMAP * texture);
 
 void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, Crosshair * crosshair);
 
@@ -211,7 +207,7 @@ void drawExplosion(Abm * abm, Explosion * explosion, int colorMap[][3]);
 void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb);
 void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb);
 void calcEnemyInc(Enemy * enemy);
-void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Ufo * ufo, ALLEGRO_BITMAP * imageUfo, ALLEGRO_BITMAP * imageBomb, Bomb * bomb);
+void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Ufo * ufo, ALLEGRO_BITMAP * imageUfo, ALLEGRO_BITMAP ** imageBomb, Bomb * bomb);
 void updateEnemy(Enemy ** enemy, Level * level, Ufo * ufo);
 void enemyArrival(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb);
 
@@ -220,7 +216,7 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, L
 void drawInfo(ALLEGRO_FONT * font, Abm * abm, Level * level);
 void transition(ALLEGRO_FONT * font, ALLEGRO_TIMER * timer, Abm * abm, Level * level);
 
-void drawObjects(Base * base, int baseCount, int * theme, int colorMap[][3]);
+void drawObjects(Base * base, int baseCount, int * theme, int colorMap[][3], ALLEGRO_BITMAP * imageLauncher, ALLEGRO_BITMAP * texture);
 
 void initBase(Base * base, int baseCount);
 void baseCollision(Base * base, Enemy ** enemy, int baseCount, Level * level);

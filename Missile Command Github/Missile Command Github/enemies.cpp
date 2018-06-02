@@ -131,55 +131,112 @@ void calcEnemyInc(Enemy * enemy) {
 
 void updateBomb(Level * level, Bomb * bomb, Explosion * explosion) {
 
+	bool moveBombDown = true; 
+
 	for (int i = 0; i < level->bombSpawnLimit; i++) {
-		if (bomb[i].spawned) {
 
-			//calculate bounds
-			bomb[i].topLeft.x = bomb[i].pos.x;
-			bomb[i].topLeft.y = bomb[i].pos.y;
-			bomb[i].topRight.x = bomb[i].pos.x + level->bombSize.x;
-			bomb[i].topRight.y = bomb[i].pos.y;
-			bomb[i].bottomLeft.x = bomb[i].pos.x;
-			bomb[i].bottomLeft.y = bomb[i].pos.y + level->bombSize.y;
+		if (bomb[i].spawned) {	
 
-			bomb[i].pos.y += 1;
+			if (moveBombDown) {
+				bomb[i].pos.y += 1;
+			}
+
+			moveBombDown = true;
 
 			for (int j = 0; j < ABM_COUNT; j++) {
 				if (explosion[j].ongoing) {
 
-					//if explosion and bomb are on same y plane 
-					if ((bomb[i].pos.y <= explosion[j].center.y + explosion[j].radius) && (bomb[i].pos.y + level->bombSize.y >= explosion[j].center.y - explosion[j].radius)) {
-						//exit(0); 
-						//bomb on right of explosion
-						if (explosion[j].center.x + explosion[j].radius - 50> bomb[i].pos.x) {
-							bomb[i].pos.x -= 2;
-						}
+					//CASE 1: explosion diameter < bomb
+					if (explosion[j].radius * 2 < level->bombSize.y) {
+						//check if on bomb and explosion are on same y range 
+						if ((explosion[j].center.y + explosion[j].radius >= bomb[i].pos.y && explosion[j].center.y + explosion[j].radius <= bomb[i].pos.y + level->bombSize.y) ||
+							explosion[j].center.y - explosion[j].radius >= bomb[i].pos.y && explosion[j].center.y - explosion[j].radius <= bomb[i].pos.y + level->bombSize.y) {
 
-						//bomb on left of explosion 
-						else if (explosion[j].center.x - explosion[j].radius + 50 < bomb[i].pos.x + level->bombSize.x) {
-							bomb[i].pos.x += 2;
-							
+							//bomb is to left of explosion
+							if ((bomb[i].pos.x + 0.5*level->bombSize.x) < explosion[j].center.x) {		
+								if (fabs((explosion[j].center.x - explosion[j].radius) - (bomb[i].pos.x + level->bombSize.x)) < 20) {   //move bomb if too close
+									bomb[i].pos.x -= 2;
+								}
+							}
+
+							//bomb is to right of explosion	
+							else /*if ((bomb[i].pos.x + 0.5*level->bombSize.x) > explosion[j].center.x)*/ {	
+								if (fabs((explosion[j].center.x + explosion[j].radius) - (bomb[i].pos.x)) < 20) {   //move bomb if too close
+									bomb[i].pos.x += 2;
+								}
+							}
 						}
 					}
 
-					//if explosion and bomb are on same x plane 
-					if (bomb[i].pos.x <= explosion[j].center.x + explosion[j].radius && bomb[i].pos.x + level->bombSize.x >= explosion[j].center.x + explosion[j].radius) {
 
-						//explosion underneath bomb
-						if (((bomb[i].pos.y + level->bombSize.y) + level->bombSpeed) >= (explosion[j].center.y - explosion[j].radius - 50)) {
-							bomb[i].pos.y -= level->bombSpeed;
+
+					//CASE 2: explosion diameter > bomb
+					else if (explosion[j].radius * 2 > level->bombSize.y) {
+
+						//check if bomb and explosion are on same y plane
+						if ( (bomb[i].pos.y + level->bombSize.y >= explosion[j].center.y - explosion[j].radius && bomb[i].pos.y <= explosion[j].center.y + explosion[j].radius) ||
+							(bomb[i].pos.y >= explosion[j].center.y - explosion[j].radius && bomb[i].pos.y <= explosion[j].center.y + explosion[j].radius) ) {
+
+							//bomb is to left of explosion
+							if ((bomb[i].pos.x + 0.5*level->bombSize.x) < explosion[j].center.x) {	
+								if (fabs((explosion[j].center.x - explosion[j].radius) - (bomb[i].pos.x + level->bombSize.x)) < 20) { 	//move bomb if too close 
+									bomb[i].pos.x -= 2;
+								}
+							}
+
+							//bomb is to right of explosion	
+							else {
+								if (fabs((explosion[j].center.x + explosion[j].radius) - (bomb[i].pos.x)) < 20) {  	//move bomb if too close 
+									bomb[i].pos.x += 2;
+								}
+							}
 						}
+					}
 
-						/*else if ((bomb[i].bottomLeft.y + level->bombSpeed) < (explosion[j].center.y - explosion[j].radius - 5)) {
-							bomb[i].pos.y += level->bombSpeed;
-						}*/
+
+					//CASE 3
+					if (explosion[j].radius * 2 < level->bombSize.x) {
+						//check if bomb and explosion are on same x plane
+						if ((explosion[j].center.x + explosion[j].radius >= bomb[i].pos.x && explosion[j].center.x + explosion[j].radius <= bomb[i].pos.x + level->bombSize.x) ||
+							(explosion[j].center.x - explosion[j].radius >= bomb[i].pos.x && explosion[j].center.x + explosion[j].radius <= bomb[i].pos.x + level->bombSize.x)) {
+
+							if (fabs((explosion[j].center.y + explosion[j].radius) - (bomb[i].pos.y + level->bombSize.y)) < 100) {
+								bomb[i].pos.y -= 3;
+								moveBombDown = false; 
+							}
+						}
+					}
+
+
+
+					//CASE 4
+					else if (explosion[j].radius * 2 > level->bombSize.x) {
+						//check if bomb and explosion are on same x plane
+						if ((bomb[i].pos.x >= explosion[j].center.x - explosion[j].radius && bomb[i].pos.x <= explosion[j].center.x + explosion[j].radius) ||
+							(bomb[i].pos.x + level->bombSize.x >= explosion[j].center.x - explosion[j].radius && bomb[i].pos.x <= explosion[j].center.x + explosion[j].radius)) {
+
+							if (fabs((explosion[j].center.y + explosion[j].radius) - (bomb[i].pos.y + level->bombSize.y)) < 100) {
+								bomb[i].pos.y -= 3;
+								moveBombDown = false; 
+							}
+
+						}
 					}
 				}
+
+
+
+				//calculate bounds
+				bomb[i].topLeft.x = bomb[i].pos.x;
+				bomb[i].topLeft.y = bomb[i].pos.y;
+				bomb[i].topRight.x = bomb[i].pos.x + level->bombSize.x;
+				bomb[i].topRight.y = bomb[i].pos.y;
+				bomb[i].bottomLeft.x = bomb[i].pos.x;
+				bomb[i].bottomLeft.y = bomb[i].pos.y + level->bombSize.y;
 			}
 		}
 	}
 }
-
 
 
 void updateEnemy(Enemy ** enemy, Level * level, Ufo * ufo) {
@@ -229,7 +286,7 @@ void updateEnemy(Enemy ** enemy, Level * level, Ufo * ufo) {
 }
 
 
-void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Ufo * ufo, ALLEGRO_BITMAP * imageUfo, ALLEGRO_BITMAP * imageBomb, Bomb * bomb)
+void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Ufo * ufo, ALLEGRO_BITMAP * imageUfo, ALLEGRO_BITMAP ** imageBomb, Bomb * bomb)
 {
 	int colorId = *theme;  //theme[0] 
 	int i; 
@@ -249,8 +306,11 @@ void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Uf
 	}
 
 	for (i = 0; i < level->bombSpawnLimit; i++) {
-		if (bomb[i].spawned)
-			al_draw_bitmap(imageBomb, bomb[i].pos.x, bomb[i].pos.y, 0);
+		if (bomb[i].spawned) {
+			al_draw_bitmap(imageBomb[rand()%5], bomb[i].pos.x, bomb[i].pos.y, 0);
+			//al_draw_circle(bomb[i].pos.x, bomb[i].pos.y, 50, al_map_rgb(255, 255, 255), 5); 
+		}
+	
 	}
 }
 

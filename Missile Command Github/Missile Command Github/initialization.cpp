@@ -11,7 +11,7 @@
 #include <stdlib.h>
 
 int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITMAP ** imageCrosshair, ALLEGRO_EVENT_QUEUE ** event_queue, ALLEGRO_FONT ** font, ALLEGRO_BITMAP ** background,
-	ALLEGRO_BITMAP ** imageUfo, Level * level, ALLEGRO_BITMAP ** imageBomb) {
+	ALLEGRO_BITMAP ** imageUfo, Level * level, ALLEGRO_BITMAP ** imageBomb, ALLEGRO_BITMAP ** imageLauncher, ALLEGRO_BITMAP ** texture) {
 
 	if (!al_init()) {
 		fprintf(stderr, "failed to initialize allegro!\n");
@@ -104,8 +104,56 @@ int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITM
 		return 0;
 	}
 
-	*imageBomb = al_load_bitmap("bomb.png");
+	imageBomb[0] = al_load_bitmap("greenBomb.png");
 	if (!imageBomb) {
+		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
+			NULL, ALLEGRO_MESSAGEBOX_ERROR);
+		al_destroy_display(*display);
+		return 0;
+	}
+
+	imageBomb[1] = al_load_bitmap("blueBomb.png");
+	if (!imageBomb) {
+		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
+			NULL, ALLEGRO_MESSAGEBOX_ERROR);
+		al_destroy_display(*display);
+		return 0;
+	}
+
+	imageBomb[2] = al_load_bitmap("pinkBomb.png");
+	if (!imageBomb) {
+		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
+			NULL, ALLEGRO_MESSAGEBOX_ERROR);
+		al_destroy_display(*display);
+		return 0;
+	}
+
+	imageBomb[3] = al_load_bitmap("yellowBomb.png");
+	if (!imageBomb) {
+		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
+			NULL, ALLEGRO_MESSAGEBOX_ERROR);
+		al_destroy_display(*display);
+		return 0;
+	}
+
+	imageBomb[4] = al_load_bitmap("whiteBomb.png");
+	if (!imageBomb) {
+		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
+			NULL, ALLEGRO_MESSAGEBOX_ERROR);
+		al_destroy_display(*display);
+		return 0;
+	}
+
+	*imageLauncher = al_load_bitmap("missile.png");
+	if (!imageLauncher) {
+		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
+			NULL, ALLEGRO_MESSAGEBOX_ERROR);
+		al_destroy_display(*display);
+		return 0;
+	}
+
+	*texture = al_load_bitmap("texture.jpg");
+	if (!texture) {
 		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
 			NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		al_destroy_display(*display);
@@ -263,11 +311,6 @@ void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 			enemy[i][j].arrived = false;
 			enemy[i][j].launch_y = 50;
 			enemy[i][j].dest_y = 900;
-			enemy[i][j].relativeX = 0;
-			enemy[i][j].relativeY = 0;
-			enemy[i][j].distX = 0;
-			enemy[i][j].distY = 0;
-			enemy[i][j].distTotal = 0;
 			enemy[i][j].topRight.x = 0;
 			enemy[i][j].topRight.y = 0;
 			enemy[i][j].topLeft.x = 0;
