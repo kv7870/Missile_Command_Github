@@ -78,6 +78,87 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, L
 	}
 }
 
+
+void bombHitDetection(Bomb * bomb, Explosion * explosion, Level * level) {
+	int i, j;
+	const double alpha = 0.25* 3.14159265359; 
+	Vector clamp = { 0, 0 }; 
+	Vector distance = { 0, 0 }; 
+
+	for (i = 0; i < level->bombSpawnLimit; i++) {
+		if (bomb[i].spawned) {
+			for (j = 0; j < ABM_COUNT; j++) {
+				if (explosion[j].ongoing) {
+
+					rotateBomb(&bomb[i], &explosion[j], level, alpha);
+
+					clampBomb(&explosion[j], &bomb[i], &clamp);
+
+					distance.x = fabs(explosion[j].xNew - clamp.x);
+					distance.y = fabs(explosion[j].yNew - clamp.y);
+
+					if (pow(distance.x, 2) + pow(distance.y, 2) <= pow(explosion[j].radius, 2)) {
+						bomb[i].spawned = false;
+						explosion[j].expandedRadius = true;
+						explosion[j].increaseRadius = true;
+						//explosion[i].center.x = enemy[j][k].x_pos;
+						//explosion[i].center.y = enemy[j][k].y_pos;
+
+						level->score += 100;
+						(level->curr_bomb_count)--;
+					}
+				}
+			}
+		}
+	}
+}
+
+
+void rotateBomb(Bomb * bomb, Explosion * explosion, Level * level, double alpha) 
+{
+	double xe = explosion->center.x;
+	double ye = explosion->center.y; 
+
+	double xb = bomb->pos.x + 0.5 * level->bombSize.x;
+	double yb = bomb->pos.y + 0.5 * level->bombSize.y;
+
+	double r = sqrt((xe - xb) * (xe - xb) + (ye - yb) * (ye - yb));
+	double theta = atan2(-(xe - xb), (ye - yb));
+
+	if (theta < 0.)
+		theta += 2. * 3.14159265359; 
+
+	explosion->xNew = xb - r * sin(theta + alpha);
+	explosion->yNew = yb - r * sin(theta + alpha); 
+}
+
+
+void clampBomb(Explosion * explosion, Bomb * bomb, Vector * clamp) {
+
+	//clamp x (xNew = new rotated center.x)
+	if (explosion->xNew < bomb->topLeft.x) {
+		clamp->x = bomb->topLeft.x;
+	}
+	else if (explosion->xNew > bomb->topRight.x) {
+		clamp->x = bomb->topRight.x;
+	}
+	else {
+		clamp->x = explosion->xNew;
+	}
+
+	//clamp y
+	if (explosion->yNew < bomb->topLeft.y) {
+		clamp->x = bomb->topLeft.y;
+	}
+	else if (explosion->yNew > bomb->bottomLeft.y) {
+		clamp->y = bomb->bottomLeft.y;
+	}
+	else {
+		clamp->y = explosion->yNew;
+	}
+}
+
+
 void clampSquare(Explosion * explosion, Enemy * enemy, Vector * clamp) {
 
 	//clamp x
@@ -102,6 +183,8 @@ void clampSquare(Explosion * explosion, Enemy * enemy, Vector * clamp) {
 		clamp->y = explosion->center.y;
 	}
 }
+
+
 
 
 void baseCollision(Base * base, Enemy ** enemy, int baseCount, Level * level) {

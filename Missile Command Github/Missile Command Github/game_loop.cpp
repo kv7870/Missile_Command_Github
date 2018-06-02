@@ -41,7 +41,8 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 			updateBomb(level, bomb, explosion);
 			enemyArrival(enemy, level, ufo, bomb);
 			baseCollision(base, enemy, 6, level);
-
+			bombHitDetection(bomb, explosion, level);
+ 
 		}
 
 		else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
@@ -126,9 +127,6 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 			drawAbm(abm, &(theme[0]), colorMap);
 
 			drawEnemy(enemy, &(theme[1]), colorMap, level, ufo, imageUfo, imageBomb, bomb);
-
-			
-
 		
 			drawInfo(font, abm, level);
 
@@ -296,7 +294,7 @@ void drawObjects(Base * base, int baseCount, int * theme, int colorMap[][3], ALL
 	int colorId3 = theme[1];
 
 	//planet surface
-	al_draw_filled_ellipse(450, 900, 500, 60, al_map_rgb(94, 242, 104)); 
+	al_draw_filled_ellipse(450, 900, 500, 60, al_map_rgb(69, 190, 247)); 
 	//69 190 247
 	//94, 242, 104
 

@@ -88,6 +88,10 @@ typedef struct explosionData {
 	int radius;
 	bool increaseRadius;
 	bool expandedRadius;
+
+	double xNew;
+	double yNew;
+
 	Vector center;
 	Vector topRight;
 	Vector topLeft;
@@ -230,3 +234,10 @@ void initLevel(Level * level);
 void updateBomb(Level * level, Bomb * bomb, Explosion * explosion); 
 
 void oneTimeInit(Level * level); 
+
+void horizontalEvasion(Bomb * bomb, Explosion * explosion, Level * level);
+void verticalEvasion(Bomb * bomb, Explosion * explosion, Level * level, bool * moveBombDown);
+
+void bombHitDetection(Bomb * bomb, Explosion * explosion, Level * level);
+void rotateBomb(Bomb * bomb, Explosion * explosion, Level * level, double alpha);
+void clampBomb(Explosion * explosion, Bomb * bomb, Vector * clamp); 

@@ -146,87 +146,55 @@ void updateBomb(Level * level, Bomb * bomb, Explosion * explosion) {
 			for (int j = 0; j < ABM_COUNT; j++) {
 				if (explosion[j].ongoing) {
 
-					//CASE 1: explosion diameter < bomb
+					//CASE 1: explosion diameter < bomb (evade horizontally)
 					if (explosion[j].radius * 2 < level->bombSize.y) {
 						//check if on bomb and explosion are on same y range 
 						if ((explosion[j].center.y + explosion[j].radius >= bomb[i].pos.y && explosion[j].center.y + explosion[j].radius <= bomb[i].pos.y + level->bombSize.y) ||
 							explosion[j].center.y - explosion[j].radius >= bomb[i].pos.y && explosion[j].center.y - explosion[j].radius <= bomb[i].pos.y + level->bombSize.y) {
 
-							//bomb is to left of explosion
-							if ((bomb[i].pos.x + 0.5*level->bombSize.x) < explosion[j].center.x) {		
-								if (fabs((explosion[j].center.x - explosion[j].radius) - (bomb[i].pos.x + level->bombSize.x)) < 20) {   //move bomb if too close
-									bomb[i].pos.x -= 2;
-								}
-							}
-
-							//bomb is to right of explosion	
-							else /*if ((bomb[i].pos.x + 0.5*level->bombSize.x) > explosion[j].center.x)*/ {	
-								if (fabs((explosion[j].center.x + explosion[j].radius) - (bomb[i].pos.x)) < 20) {   //move bomb if too close
-									bomb[i].pos.x += 2;
-								}
-							}
+							horizontalEvasion(&(bomb[i]), &(explosion[j]), level); 
 						}
 					}
 
 
 
-					//CASE 2: explosion diameter > bomb
+					//CASE 2: explosion diameter > bomb (evade horizontally) 
 					else if (explosion[j].radius * 2 > level->bombSize.y) {
 
 						//check if bomb and explosion are on same y plane
 						if ( (bomb[i].pos.y + level->bombSize.y >= explosion[j].center.y - explosion[j].radius && bomb[i].pos.y <= explosion[j].center.y + explosion[j].radius) ||
 							(bomb[i].pos.y >= explosion[j].center.y - explosion[j].radius && bomb[i].pos.y <= explosion[j].center.y + explosion[j].radius) ) {
 
-							//bomb is to left of explosion
-							if ((bomb[i].pos.x + 0.5*level->bombSize.x) < explosion[j].center.x) {	
-								if (fabs((explosion[j].center.x - explosion[j].radius) - (bomb[i].pos.x + level->bombSize.x)) < 20) { 	//move bomb if too close 
-									bomb[i].pos.x -= 2;
-								}
-							}
-
-							//bomb is to right of explosion	
-							else {
-								if (fabs((explosion[j].center.x + explosion[j].radius) - (bomb[i].pos.x)) < 20) {  	//move bomb if too close 
-									bomb[i].pos.x += 2;
-								}
-							}
+							horizontalEvasion(&(bomb[i]), &(explosion[j]), level); 
 						}
 					}
 
 
-					//CASE 3
+					//CASE 3: explosion diameter > bomb (evade vertically)
 					if (explosion[j].radius * 2 < level->bombSize.x) {
 						//check if bomb and explosion are on same x plane
 						if ((explosion[j].center.x + explosion[j].radius >= bomb[i].pos.x && explosion[j].center.x + explosion[j].radius <= bomb[i].pos.x + level->bombSize.x) ||
 							(explosion[j].center.x - explosion[j].radius >= bomb[i].pos.x && explosion[j].center.x + explosion[j].radius <= bomb[i].pos.x + level->bombSize.x)) {
 
-							if (fabs((explosion[j].center.y + explosion[j].radius) - (bomb[i].pos.y + level->bombSize.y)) < 100) {
-								bomb[i].pos.y -= 3;
-								moveBombDown = false; 
-							}
+							verticalEvasion(&(bomb[i]), &(explosion[j]), level, &moveBombDown); 
 						}
 					}
 
 
-
-					//CASE 4
+					//CASE 4: explosion diameter < bomb (evade vertically)
 					else if (explosion[j].radius * 2 > level->bombSize.x) {
 						//check if bomb and explosion are on same x plane
 						if ((bomb[i].pos.x >= explosion[j].center.x - explosion[j].radius && bomb[i].pos.x <= explosion[j].center.x + explosion[j].radius) ||
 							(bomb[i].pos.x + level->bombSize.x >= explosion[j].center.x - explosion[j].radius && bomb[i].pos.x <= explosion[j].center.x + explosion[j].radius)) {
 
-							if (fabs((explosion[j].center.y + explosion[j].radius) - (bomb[i].pos.y + level->bombSize.y)) < 100) {
-								bomb[i].pos.y -= 3;
-								moveBombDown = false; 
-							}
+							verticalEvasion(&(bomb[i]), &(explosion[j]), level, &moveBombDown); 
 
 						}
 					}
 				}
 
 
-
-				//calculate bounds
+				//calculate bounds 
 				bomb[i].topLeft.x = bomb[i].pos.x;
 				bomb[i].topLeft.y = bomb[i].pos.y;
 				bomb[i].topRight.x = bomb[i].pos.x + level->bombSize.x;
@@ -237,6 +205,33 @@ void updateBomb(Level * level, Bomb * bomb, Explosion * explosion) {
 		}
 	}
 }
+
+
+void horizontalEvasion(Bomb * bomb, Explosion * explosion, Level * level) {
+	//bomb is to left of explosion
+	if ((bomb->pos.x + 0.5*level->bombSize.x) < explosion->center.x) {
+		if (fabs((explosion->center.x - explosion->radius) - (bomb->pos.x + level->bombSize.x)) < 20) {   //move bomb if too close
+			bomb->pos.x -= 1;
+		}
+	}
+
+	//bomb is to right of explosion	
+	else /*if ((bomb[i].pos.x + 0.5*level->bombSize.x) > explosion[j].center.x)*/ {
+		if (fabs((explosion->center.x + explosion->radius) - (bomb->pos.x)) < 20) {   //move bomb if too close
+			bomb->pos.x += 1;
+		}
+	}
+}
+
+
+void verticalEvasion(Bomb * bomb, Explosion * explosion, Level * level, bool * moveBombDown) {
+
+	if (fabs((explosion->center.y + explosion->radius) - (bomb->pos.y + level->bombSize.y)) < 100) {
+		bomb->pos.y -= 2;
+		*moveBombDown = false;
+	}
+}
+
 
 
 void updateEnemy(Enemy ** enemy, Level * level, Ufo * ufo) {
