@@ -56,41 +56,58 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 
 
 	//spawn ufo
-	if (level->spawnUfo) 
-	{
-		if (level->curr_ufo_count < level->maxUfoOnScreen && level->ufoNumSpawned < level->ufoSpawnLimit) {
+	if (level->spawnUfo) {
+		printf("curr: %d max: %d num: %d limit: %d\n", level->curr_ufo_count, level->maxUfoOnScreen, level->ufoNumSpawned, level->ufoSpawnLimit);
+		
+		if (level->curr_ufo_count < level->maxUfoOnScreen) 
+		{
+			if (level->ufoNumSpawned < level->ufoSpawnLimit) 
+			{
+				
+				spawnTiming = rand() % level->ufoSpawnRate + 1;
 
-			spawnTiming = rand() % level->ufoSpawnRate + 1;
+				if (spawnTiming > 0 && spawnTiming < 100) 
+				{
+		
+					for (i = 0; i < level->ufoSpawnLimit; i++) 
+					{
+						printf("Spawned: %d arrived: %d\n", ufo[i].spawned, ufo[i].arrived);
+						if (!ufo[i].spawned && !ufo[i].arrived) 
+						{
+							ufo[i].spawned = true;
 
-			if (spawnTiming == 5) {
-				for (i = 0; i < level->ufoSpawnLimit; i++) {
-					if (!ufo[i].spawned && !ufo[i].arrived) {
-						ufo[i].spawned = true;
-
-						if (i == 0) {
-							ufo[i].origin = level->ufoSpawnSide[rand() % 2]; //& 1
-						}
-						else if (i < 0)
-							if (ufo[i - 1].origin == 0 - level->ufoSize.x)
-								ufo[i].origin = 900;
-							else if (ufo[i - 1].origin == 900)
-								ufo[i].origin = 0 - level->ufoSize.x; 
-						}
+							if (i == 0) 
+								ufo[i].origin = level->ufoSpawnSide[rand() % 2]; //& 1
 							
-						ufo[i].pos.x = ufo[i].origin;
-						ufo[i].pos.y = rand() % 100 + 50;
-						(level->ufoNumSpawned)++;
-						(level->curr_ufo_count)++;
+							else if (i > 0) {
+								if (ufo[i - 1].origin == 0 - level->ufoSize.x)
+									ufo[i].origin = 900;
+								else if (ufo[i - 1].origin == 900)
+									ufo[i].origin = 0 - level->ufoSize.x;
+							}
+
+							ufo[i].pos.x = ufo[i].origin;
+							ufo[i].pos.y = rand() % 100 + 50;
+							(level->ufoNumSpawned)++;
+							(level->curr_ufo_count)++;
+							printf("OK-200: %d\n", ufo[i].spawned);
 							break;
+						}
+
+					
 					}
+
 				}
 			}
 		}
+			
+	}
 
 
 	//spawn bomb
 	if (level->spawnBomb) {
 		if (level->curr_bomb_count < level->maxBombOnScreen && level->bombNumSpawned < level->bombSpawnLimit) {
+			
 			spawnTiming = rand() % level->bombSpawnRate + 1;
 
 			//if(spawnTiming == rand%level->bombSpawnRate + 1); 
@@ -101,6 +118,8 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 						bomb[i].origin.x = rand() % 600 + 200;
 						bomb[i].pos.x = bomb[i].origin.x;
 						bomb[i].pos.y = bomb[i].origin.y;
+						(level->curr_bomb_count)++;
+						(level->bombNumSpawned)++;
 						break; 
 					}
 				}
@@ -109,9 +128,6 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 		}
 	}
 }
-
-
-
 
 void calcEnemyInc(Enemy * enemy) {
 	enemy->dx = fabs(enemy->dest_x - enemy->launch_x);
@@ -234,7 +250,7 @@ void verticalEvasion(Bomb * bomb, Explosion * explosion, Level * level, bool * m
 
 
 
-void updateEnemy(Enemy ** enemy, Level * level, Ufo * ufo) {
+void updateEnemy(Enemy ** enemy, Level * level) {
 	for (int i = 0; i < level->spawnLimit; i++) {
 		for (int j = 0; j < SPLIT_COUNT; j++) {
 			if (enemy[i][j].launched) {
@@ -258,33 +274,120 @@ void updateEnemy(Enemy ** enemy, Level * level, Ufo * ufo) {
 			}
 		}
 	}
+}
+
+
+void updateUfo(Ufo * ufo, Level * level) {
 
 	for (int i = 0; i < level->ufoSpawnLimit; i++) {
-	
+
+		printf("OK-300: %d\n", ufo[i].spawned);
+
 		if (ufo[i].spawned) {
 			if (ufo[i].origin == 900)
-				ufo[i].pos.x-=2; 
+				ufo[i].pos.x -= 2;
 			else if (ufo[i].origin == -150) {
 				ufo[i].pos.x += 2;
 			}
 
 			//calculate bounds
-			ufo[i].topLeft.x = ufo[i].pos.x; 
+			ufo[i].topLeft.x = ufo[i].pos.x;
 			ufo[i].topLeft.y = ufo[i].pos.y;
 			ufo[i].topRight.x = ufo[i].pos.x + level->ufoSize.x;
-			ufo[i].topRight.y = ufo[i].pos.y; 
+			ufo[i].topRight.y = ufo[i].pos.y;
 			ufo[i].bottomLeft.x = ufo[i].pos.x;
-			ufo[i].bottomLeft.y = ufo[i].pos.y + level->ufoSize.y;
+			ufo[i].bottomLeft.y = ufo[i].pos.y + level->ufoSize.y; 
 
+		}
+	}
+
+}
+
+
+void spawnUfoMissile(Ufo * ufo, Level * level) {
+	int spawnTiming;
+	int baseX[6] = { 145, 235, 325, 530, 630, 730 }; 
+
+	for (int i = 0; i < level->ufoSpawnLimit; i++) {
+		if (ufo[i].spawned) {
+
+			spawnTiming = rand() % level->ufoMissileSpawnRate + 1;
+
+			if (spawnTiming == 50) {
+				for (int j = 0; j < 2; j++) {
+					if (!ufo[i].missile[j].launched)
+					{
+
+						ufo[i].missile[j].launched = true;
+						ufo[i].missile[j].launch_x = ufo[i].pos.x + 0.5 * level->ufoSize.x;
+						ufo[i].missile[j].launch_y = ufo[i].pos.y + level->ufoSize.y;
+						ufo[i].missile[j].dest_x = baseX[(rand()%6)]; 
+						ufo[i].missile[j].x_pos = ufo[i].missile[j].launch_x;
+						ufo[i].missile[j].y_pos = ufo[i].missile[j].launch_y;
+
+						calcUfoMissileInc(&(ufo[i].missile[j]));
+						//break; 
+					}
+				}
+			}
+
+			//break; 
 		}
 	}
 }
 
 
+void calcUfoMissileInc(Enemy * missile) { 
+
+		missile->dx = fabs(missile->dest_x - missile->launch_x);
+		missile->dy = fabs(missile->dest_y - missile->launch_y);
+
+		if (missile->dx >= missile->dy) {
+			missile->step = missile->dx;
+		}
+		else {
+			missile->step = missile->dy;
+		}
+
+		missile->x_inc = missile->dx / missile->step;
+		missile->y_inc = missile->dy / missile->step;
+}
+
+
+void updateUfoMissile(Ufo * ufo, Level * level) {
+
+	for (int i = 0; i < level->ufoSpawnLimit; i++) {
+		if (ufo[i].spawned) {
+			for (int j = 0; j < 2; j++) {
+				if (ufo[i].missile[j].launched) {
+
+					if (ufo[i].missile[j].dest_x > ufo[i].missile[j].launch_x) {
+						ufo[i].missile[j].x_pos += (level->enemySpeed) * ufo[i].missile[j].x_inc;
+					}
+					else if (ufo[i].missile[j].dest_x < ufo[i].missile[j].launch_x) {
+						ufo[i].missile[j].x_pos -= (level->enemySpeed) * ufo[i].missile[j].x_inc;
+					}
+
+					ufo[i].missile[j].y_pos += (level->enemySpeed) * ufo[i].missile[j].y_inc;
+
+					//calculate bounds
+					ufo[i].missile[j].topLeft.x = ufo[i].missile[j].x_pos - SIZE;
+					ufo[i].missile[j].topLeft.y = ufo[i].missile[j].y_pos - SIZE;
+					ufo[i].missile[j].topRight.x = ufo[i].missile[j].x_pos + SIZE;
+					ufo[i].missile[j].topRight.y = ufo[i].missile[j].y_pos - SIZE;
+					ufo[i].missile[j].bottomLeft.x = ufo[i].missile[j].x_pos - SIZE;
+					ufo[i].missile[j].bottomLeft.y = ufo[i].missile[j].y_pos + SIZE;
+				}
+			}
+		}
+	}
+
+}
+
 void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Ufo * ufo, ALLEGRO_BITMAP * imageUfo, ALLEGRO_BITMAP ** imageBomb, Bomb * bomb)
 {
 	int colorId = *theme;  //theme[0] 
-	int i; 
+	int i, j;
 
 	for (i = 0; i < level->spawnLimit; i++) {
 		for (int j = 0; j < SPLIT_COUNT; j++) {
@@ -296,17 +399,25 @@ void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Uf
 	}
 
 	for (i = 0; i < level->ufoSpawnLimit; i++) {
-		if (ufo[i].spawned) 
+		if (ufo[i].spawned) {
 			al_draw_bitmap(imageUfo, ufo[i].pos.x, ufo[i].pos.y, 0);
+
+			for (j = 0; j < 2; j++) {
+				if (ufo[i].missile[j].launched) {
+					al_draw_filled_rectangle(ufo[i].missile[j].x_pos - 3, ufo[i].missile[j].y_pos - 3, ufo[i].missile[j].x_pos + 3, ufo[i].missile[j].y_pos + 3, al_map_rgb(colorMap[colorId][R], colorMap[colorId][G], colorMap[colorId][B]));
+					al_draw_line(ufo[i].missile[j].x_pos, ufo[i].missile[j].y_pos - 3, ufo[i].missile[j].launch_x, ufo[i].missile[j].launch_y, al_map_rgb(colorMap[colorId][R], colorMap[colorId][G], colorMap[colorId][B]), 4);
+				}
+			}
+		}
 	}
 
 	for (i = 0; i < level->bombSpawnLimit; i++) {
 		if (bomb[i].spawned) {
-			al_draw_bitmap(imageBomb[rand()%5], bomb[i].pos.x, bomb[i].pos.y, 0);
+			al_draw_bitmap(imageBomb[rand() % 5], bomb[i].pos.x, bomb[i].pos.y, 0);
 			//al_draw_circle(bomb[i].pos.x, bomb[i].pos.y, 50, al_map_rgb(255, 255, 255), 5); 
 		}
-	
 	}
+
 }
 
 
@@ -331,13 +442,13 @@ void enemyArrival(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 			if (ufo[i].origin == -150) {
 				if (ufo[i].pos.x > 900) {
 					ufo[i].arrived = true; 
-					level->curr_ufo_count--; 
+					(level->curr_ufo_count)--; 
 				}
 			}
 			else if (ufo[i].origin == 900) {
 				if (ufo[i].pos.x < -150) {
 					ufo[i].arrived = true;
-					level->curr_ufo_count--; 
+					(level->curr_ufo_count)--; 
 				}
 
 			}

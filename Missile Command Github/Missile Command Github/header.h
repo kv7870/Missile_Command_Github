@@ -121,6 +121,9 @@ typedef struct ufoData {
 	bool spawned;
 	bool arrived; 
 	int origin;
+
+	Enemy missile[2]; 
+
 	Vector pos; 
 	Vector topRight;
 	Vector topLeft;
@@ -175,6 +178,7 @@ typedef struct levelData {
 	int ufoSpawnRate; 
 	int ufoNumSpawned; 
 	int ufoSpawnSide[2]; 
+	int ufoMissileSpawnRate; 
 	Vector ufoSize;
 
 	//bomb
@@ -212,7 +216,7 @@ void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb);
 void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb);
 void calcEnemyInc(Enemy * enemy);
 void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Ufo * ufo, ALLEGRO_BITMAP * imageUfo, ALLEGRO_BITMAP ** imageBomb, Bomb * bomb);
-void updateEnemy(Enemy ** enemy, Level * level, Ufo * ufo);
+void updateEnemy(Enemy ** enemy, Level * level);
 void enemyArrival(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb);
 
 void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, Level * level, Ufo * ufo);
@@ -220,7 +224,7 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, L
 void drawInfo(ALLEGRO_FONT * font, Abm * abm, Level * level);
 void transition(ALLEGRO_FONT * font, ALLEGRO_TIMER * timer, Abm * abm, Level * level);
 
-void drawObjects(Base * base, int baseCount, int * theme, int colorMap[][3], ALLEGRO_BITMAP * imageLauncher, ALLEGRO_BITMAP * texture);
+void drawObjects(Base * base, int baseCount, int * theme, int colorMap[][3], ALLEGRO_BITMAP * imageLauncher, ALLEGRO_BITMAP * texture, Abm * abm);
 
 void initBase(Base * base, int baseCount);
 void baseCollision(Base * base, Enemy ** enemy, int baseCount, Level * level);
@@ -241,3 +245,8 @@ void verticalEvasion(Bomb * bomb, Explosion * explosion, Level * level, bool * m
 void bombHitDetection(Bomb * bomb, Explosion * explosion, Level * level);
 void rotateBomb(Bomb * bomb, Explosion * explosion, Level * level, double alpha);
 void clampBomb(Explosion * explosion, Bomb * bomb, Vector * clamp); 
+
+void updateUfo(Ufo * ufo, Level * level);
+void spawnUfoMissile(Ufo * ufo, Level * level); 
+void updateUfoMissile(Ufo * ufo, Level * level);
+void calcUfoMissileInc(Enemy * missile); 

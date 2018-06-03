@@ -194,8 +194,9 @@ void oneTimeInit(Level * level) {
 	//ufo
 	level->spawnUfo = true;
 	level->ufoSpeed = 0.5;
-	level->ufoSpawnLimit = 1;
-	level->ufoSpawnRate = 500;
+	level->ufoSpawnLimit = 3;  
+	level->ufoSpawnRate = 100;
+	level->ufoMissileSpawnRate = 100; 
 
 	//bomb
 	level->spawnBomb = true;
@@ -335,6 +336,28 @@ void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 		ufo[i].bottomLeft.x = 0;
 		ufo[i].bottomLeft.y = 0;
 		ufo[i].origin = 0; 
+
+		for (int j = 0; j < 2; j++) {
+			ufo[i].missile[j].launched = false; 
+			ufo[i].missile[j].arrived = false; 
+			ufo[i].missile[j].x_pos = 0;
+			ufo[i].missile[j].y_pos = 0; 
+			ufo[i].missile[j].dx = 0;
+			ufo[i].missile[j].dy = 0;
+			ufo[i].missile[j].x_inc = 0;
+			ufo[i].missile[j].y_inc = 0;
+			ufo[i].missile[j].step = 0; 
+			ufo[i].missile[j].launch_x = 0;
+			ufo[i].missile[j].launch_y = 0;
+			ufo[i].missile[j].dest_x = 0; 
+			ufo[i].missile[j].dest_y = 900;
+			ufo[i].missile[j].topRight.x = 0;
+			ufo[i].missile[j].topRight.y = 0;
+			ufo[i].missile[j].topLeft.x = 0;
+			ufo[i].missile[j].topLeft.y = 0;
+			ufo[i].missile[j].bottomLeft.x = 0;
+			ufo[i].missile[j].bottomLeft.y = 0;
+		}
 	}
 
 	for (int i = 0; i < level->bombSpawnLimit; i++) {
@@ -354,7 +377,6 @@ void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 		bomb[i].topLeft.y = 0;
 		bomb[i].bottomLeft.x = 0;
 		bomb[i].bottomLeft.y = 0;
-
 	}
 }
 

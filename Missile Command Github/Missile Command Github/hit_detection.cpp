@@ -51,7 +51,7 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, L
 								explosion[i].expandedRadius = true;
 								explosion[i].increaseRadius = true;
 								//explosion[i].center.x = enemy[j][k].x_pos;
-								//explosion[i].center.y = enemy[j][k].y_pos;
+								//explosion[i] .center.y = enemy[j][k].y_pos;
 
 								level->score += 25;
 								(level->curr_enemy_count)--;
@@ -59,19 +59,22 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, L
 						}
 					}
 				}
-			}
+			
 
-			for (int j = 0; j < level->ufoSpawnLimit; j++) {
-				if (ufo[j].spawned) {
-					if (explosion[i].topRight.x >= ufo[j].topLeft.x &&
-					explosion[i].topLeft.x <= ufo[j].topRight.x &&
-					explosion[i].bottomLeft.y >= ufo[j].topLeft.y &&
-					explosion[i].topLeft.y <= ufo[j].bottomLeft.y) {
-						ufo[j].spawned = false;
-						level->score += 100; 
-						(level->curr_ufo_count)--;
+				for (int j = 0; j < level->ufoSpawnLimit; j++) {
+					if (ufo[j].spawned) {
+						if (explosion[i].topRight.x >= ufo[j].topLeft.x &&
+							explosion[i].topLeft.x <= ufo[j].topRight.x &&
+							explosion[i].bottomLeft.y >= ufo[j].topLeft.y &&
+							explosion[i].topLeft.y <= ufo[j].bottomLeft.y) {
+
+							ufo[j].spawned = false;
+
+							level->score += 100;
+							(level->curr_ufo_count)--;
 
 
+					}
 				}
 			}
 		}

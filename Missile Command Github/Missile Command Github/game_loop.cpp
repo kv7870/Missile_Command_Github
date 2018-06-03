@@ -34,14 +34,38 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 			draw = true;
 
 			spawnEnemy(enemy, level, ufo, bomb);
+
+			printf("OK-400: %d\n", ufo[0].spawned);
+
 			updateAbm(abm);
-			updateEnemy(enemy, level, ufo);
+		
+			printf("OK-500: %d\n", ufo[0].spawned);
+
+			updateEnemy(enemy, level);
+	
+			printf("OK-600: %d\n", ufo[0].spawned);
+
 			hitDetection(abm, enemy, explosion, level, ufo);
+			
+			printf("OK-700: %d\n", ufo[0].spawned);
 			abmArrival(abm, explosion);
+			printf("OK-800: %d\n", ufo[0].spawned);
 			updateBomb(level, bomb, explosion);
+			
+
+			printf("OK-900: %d\n", ufo[0].spawned);
+			updateUfo(ufo, level);
+			printf("OK-1000: %d\n", ufo[0].spawned);
+			updateUfoMissile(ufo, level);
+			printf("OK-1100: %d\n", ufo[0].spawned);
+			spawnUfoMissile(ufo, level); 
+			printf("OK-1200: %d\n", ufo[0].spawned);
 			enemyArrival(enemy, level, ufo, bomb);
+			printf("OK-1300: %d\n", ufo[0].spawned);
 			baseCollision(base, enemy, 6, level);
+			printf("OK-1400: %d\n", ufo[0].spawned);
 			bombHitDetection(bomb, explosion, level);
+			
  
 		}
 
@@ -120,7 +144,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			al_draw_bitmap(background, 0, 0, 0);
 
-			drawObjects(base, 6, &(theme[2]), colorMap, imageLauncher, texture);
+			drawObjects(base, 6, &(theme[2]), colorMap, imageLauncher, texture, abm);
 
 			drawExplosion(abm, explosion, colorMap);
 		
@@ -180,17 +204,16 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 					level->spawnUfo = true;
 					level->ufoSpeed += 0.5; 
 					level->ufoSpawnLimit += 2; 
-					level->ufoSpawnRate -= 100;
 
-					if (level->ufoSpawnRate < 0)
-						level->ufoSpawnRate = 10; 
+					if(level->ufoSpawnRate > 10)
+						level->ufoSpawnRate -= 10;
 
-					if (level->spawnRate < 0)
+					if (level->spawnRate <= 0)
 						level->spawnRate = 10;
 
 					(level->splitRate) -= 100;
 
-					if (level->splitRate < 0)
+					if (level->splitRate <= 0)
 						level->splitRate = 10;
 					
 					if(level->splitAngle >= 80)
@@ -288,7 +311,7 @@ void transition(ALLEGRO_FONT * font, ALLEGRO_TIMER * timer, Abm * abm, Level * l
 }
 
 
-void drawObjects(Base * base, int baseCount, int * theme, int colorMap[][3], ALLEGRO_BITMAP * imageLauncher, ALLEGRO_BITMAP * texture) {
+void drawObjects(Base * base, int baseCount, int * theme, int colorMap[][3], ALLEGRO_BITMAP * imageLauncher, ALLEGRO_BITMAP * texture, Abm * abm) {
 
 	int colorId2 = theme[0];
 	int colorId3 = theme[1];
@@ -304,41 +327,71 @@ void drawObjects(Base * base, int baseCount, int * theme, int colorMap[][3], ALL
 	//abm pics 
 
 	//first battery (left)
-	al_draw_bitmap(imageLauncher, -10, 800, 0); 
-	al_draw_bitmap(imageLauncher, 0, 800, 0);
-	al_draw_bitmap(imageLauncher, 10, 800, 0);
-	al_draw_bitmap(imageLauncher, 20, 800, 0);
-	al_draw_bitmap(imageLauncher, 30, 800, 0);
-	al_draw_bitmap(imageLauncher, 40, 800, 0);
-	al_draw_bitmap(imageLauncher, 50, 800, 0);
-	al_draw_bitmap(imageLauncher, 60, 800, 0);
-	al_draw_bitmap(imageLauncher, 70, 800, 0);
-	al_draw_bitmap(imageLauncher, 80, 800, 0);
+	if(!abm[0].launched && !abm[0].arrived)
+		al_draw_bitmap(imageLauncher, -10, 800, 0); 
+	if (!abm[1].launched && !abm[1].arrived)
+		al_draw_bitmap(imageLauncher, 0, 800, 0);
+	if (!abm[2].launched && !abm[2].arrived)
+		al_draw_bitmap(imageLauncher, 10, 800, 0);
+	if (!abm[3].launched && !abm[3].arrived)
+		al_draw_bitmap(imageLauncher, 20, 800, 0);
+	if (!abm[4].launched && !abm[4].arrived)
+		al_draw_bitmap(imageLauncher, 30, 800, 0);
+	if (!abm[5].launched && !abm[5].arrived)
+		al_draw_bitmap(imageLauncher, 40, 800, 0);
+	if (!abm[6].launched && !abm[6].arrived)
+		al_draw_bitmap(imageLauncher, 50, 800, 0);
+	if (!abm[7].launched && !abm[7].arrived)
+		al_draw_bitmap(imageLauncher, 60, 800, 0);
+	if (!abm[8].launched && !abm[8].arrived)
+		al_draw_bitmap(imageLauncher, 70, 800, 0);
+	if (!abm[9].launched && !abm[9].arrived)
+		al_draw_bitmap(imageLauncher, 80, 800, 0);
 
 
 	//second battery (center)
-	al_draw_bitmap(imageLauncher, 370, 800, 0);
-	al_draw_bitmap(imageLauncher, 380, 800, 0);
-	al_draw_bitmap(imageLauncher, 390, 800, 0);
-	al_draw_bitmap(imageLauncher, 400, 800, 0);
-	al_draw_bitmap(imageLauncher, 410, 800, 0);
-	al_draw_bitmap(imageLauncher, 420, 800, 0);
-	al_draw_bitmap(imageLauncher, 430, 800, 0);
-	al_draw_bitmap(imageLauncher, 440, 800, 0);
-	al_draw_bitmap(imageLauncher, 450, 800, 0);
-	al_draw_bitmap(imageLauncher, 460, 800, 0);
+	if (!abm[10].launched && !abm[10].arrived)
+		al_draw_bitmap(imageLauncher, 370, 800, 0);
+	if (!abm[11].launched && !abm[11].arrived)
+		al_draw_bitmap(imageLauncher, 380, 800, 0);
+	if (!abm[12].launched && !abm[12].arrived)
+		al_draw_bitmap(imageLauncher, 390, 800, 0);
+	if (!abm[13].launched && !abm[13].arrived)
+		al_draw_bitmap(imageLauncher, 400, 800, 0);
+	if (!abm[14].launched && !abm[14].arrived)
+		al_draw_bitmap(imageLauncher, 410, 800, 0);
+	if (!abm[15].launched && !abm[15].arrived)
+		al_draw_bitmap(imageLauncher, 420, 800, 0);
+	if (!abm[16].launched && !abm[16].arrived)
+		al_draw_bitmap(imageLauncher, 430, 800, 0);
+	if (!abm[17].launched && !abm[17].arrived)
+		al_draw_bitmap(imageLauncher, 440, 800, 0);
+	if (!abm[18].launched && !abm[18].arrived)
+		al_draw_bitmap(imageLauncher, 450, 800, 0);
+	if (!abm[19].launched && !abm[19].arrived)
+		al_draw_bitmap(imageLauncher, 460, 800, 0);
 
 	//third battery (right) 
-	al_draw_bitmap(imageLauncher, 770, 800, 0);
-	al_draw_bitmap(imageLauncher, 780, 800, 0);
-	al_draw_bitmap(imageLauncher, 790, 800, 0);
-	al_draw_bitmap(imageLauncher, 800, 800, 0);
-	al_draw_bitmap(imageLauncher, 810, 800, 0);
-	al_draw_bitmap(imageLauncher, 820, 800, 0);
-	al_draw_bitmap(imageLauncher, 830, 800, 0);
-	al_draw_bitmap(imageLauncher, 840, 800, 0);
-	al_draw_bitmap(imageLauncher, 850, 800, 0);
-	al_draw_bitmap(imageLauncher, 860, 800, 0);
+	if (!abm[20].launched && !abm[20].arrived)
+		al_draw_bitmap(imageLauncher, 770, 800, 0);
+	if (!abm[21].launched && !abm[21].arrived)
+		al_draw_bitmap(imageLauncher, 780, 800, 0);
+	if (!abm[22].launched && !abm[22].arrived)
+		al_draw_bitmap(imageLauncher, 790, 800, 0);
+	if (!abm[23].launched && !abm[23].arrived)
+		al_draw_bitmap(imageLauncher, 800, 800, 0);
+	if (!abm[24].launched && !abm[24].arrived)
+		al_draw_bitmap(imageLauncher, 810, 800, 0);
+	if (!abm[25].launched && !abm[25].arrived)
+		al_draw_bitmap(imageLauncher, 820, 800, 0);
+	if (!abm[26].launched && !abm[26].arrived)
+		al_draw_bitmap(imageLauncher, 830, 800, 0);
+	if (!abm[27].launched && !abm[27].arrived)
+		al_draw_bitmap(imageLauncher, 840, 800, 0);
+	if (!abm[28].launched && !abm[28].arrived)
+		al_draw_bitmap(imageLauncher, 850, 800, 0);
+	if (!abm[29].launched && !abm[29].arrived)
+		al_draw_bitmap(imageLauncher, 860, 800, 0);
 
 
 	//al_draw_filled_rectangle(10, 850, 80, 900, al_map_rgb(colorMap[colorId2][R], colorMap[colorId2][G], colorMap[colorId2][B]));
