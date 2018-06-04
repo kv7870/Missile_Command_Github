@@ -11,10 +11,11 @@
 #include <time.h>
 #include <stdlib.h>
 
-void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
+void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb)
+{
 	int spawnTiming = 0;
 	int ufoSpawnTiming = 0;
-	int i, j; 
+	int i, j;
 
 	//spawn enemy missile
 	if (level->curr_enemy_count < level->maxEnemyOnScreen && level->num_spawned < level->spawnLimit) {
@@ -57,57 +58,57 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 
 	//spawn ufo
 	if (level->spawnUfo) {
-		printf("curr: %d max: %d num: %d limit: %d\n", level->curr_ufo_count, level->maxUfoOnScreen, level->ufoNumSpawned, level->ufoSpawnLimit);
-		
-		if (level->curr_ufo_count < level->maxUfoOnScreen) 
-		{
-			if (level->ufoNumSpawned < level->ufoSpawnLimit) 
-			{
-				
+
+		if (level->curr_ufo_count < level->maxUfoOnScreen) {
+			if (level->ufoNumSpawned < level->ufoSpawnLimit) {
+
 				spawnTiming = rand() % level->ufoSpawnRate + 1;
 
-				if (spawnTiming > 0 && spawnTiming < 100) 
-				{
-		
-					for (i = 0; i < level->ufoSpawnLimit; i++) 
-					{
-						printf("Spawned: %d arrived: %d\n", ufo[i].spawned, ufo[i].arrived);
-						if (!ufo[i].spawned && !ufo[i].arrived) 
-						{
-							ufo[i].spawned = true;
+				if (spawnTiming == 100) {
 
-							if (i == 0) 
-								ufo[i].origin = level->ufoSpawnSide[rand() % 2]; //& 1
-							
-							else if (i > 0) {
-								if (ufo[i - 1].origin == 0 - level->ufoSize.x)
-									ufo[i].origin = 900;
-								else if (ufo[i - 1].origin == 900)
-									ufo[i].origin = 0 - level->ufoSize.x;
+					for (i = 0; i < level->ufoSpawnLimit; i++) {
+
+						if (!ufo[i].spawned) {
+							if (!ufo[i].arrived) {
+								ufo[i].spawned = true;
+
+								if (i == 0) {
+									ufo[i].origin = level->ufoSpawnSide[rand() % 2]; //& 1
+								}
+
+								else if (i > 0) {
+									if (ufo[i - 1].origin == 0 - level->ufoSize.x) {
+										ufo[i].origin = 900;
+									}
+									else if (ufo[i - 1].origin == 900) {
+										ufo[i].origin = 0 - level->ufoSize.x;
+									}
+								}
+
+								ufo[i].pos.x = ufo[i].origin;
+								ufo[i].pos.y = rand() % 100 + 50;
+
+								printf("ufo[%d].spawned: %d\n", i, ufo[i].spawned);
+								printf("ufo[%d].pos.x: %d\n", i, ufo[i].pos.x);
+
+								(level->ufoNumSpawned)++;
+								(level->curr_ufo_count)++;
+								break;
 							}
-
-							ufo[i].pos.x = ufo[i].origin;
-							ufo[i].pos.y = rand() % 100 + 50;
-							(level->ufoNumSpawned)++;
-							(level->curr_ufo_count)++;
-							printf("OK-200: %d\n", ufo[i].spawned);
-							break;
 						}
-
-					
 					}
-
 				}
 			}
 		}
-			
+
 	}
+
 
 
 	//spawn bomb
 	if (level->spawnBomb) {
 		if (level->curr_bomb_count < level->maxBombOnScreen && level->bombNumSpawned < level->bombSpawnLimit) {
-			
+
 			spawnTiming = rand() % level->bombSpawnRate + 1;
 
 			//if(spawnTiming == rand%level->bombSpawnRate + 1); 
@@ -120,7 +121,7 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 						bomb[i].pos.y = bomb[i].origin.y;
 						(level->curr_bomb_count)++;
 						(level->bombNumSpawned)++;
-						break; 
+						break;
 					}
 				}
 			}
@@ -128,6 +129,8 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 		}
 	}
 }
+
+
 
 void calcEnemyInc(Enemy * enemy) {
 	enemy->dx = fabs(enemy->dest_x - enemy->launch_x);
@@ -147,17 +150,18 @@ void calcEnemyInc(Enemy * enemy) {
 
 void updateBomb(Level * level, Bomb * bomb, Explosion * explosion) {
 
-	bool moveBombDown = true; 
-
 	for (int i = 0; i < level->bombSpawnLimit; i++) {
 
 		if (bomb[i].spawned) {	
 
-			if (moveBombDown) {
-				bomb[i].pos.y += 1;
-			}
-
-			moveBombDown = true;
+			bomb[i].pos.y += 2; 
+			//calculate bounds 
+			bomb[i].topLeft.x = bomb[i].pos.x;
+			bomb[i].topLeft.y = bomb[i].pos.y;
+			bomb[i].topRight.x = bomb[i].pos.x + level->bombSize.x;
+			bomb[i].topRight.y = bomb[i].pos.y;
+			bomb[i].bottomLeft.x = bomb[i].pos.x;
+			bomb[i].bottomLeft.y = bomb[i].pos.y + level->bombSize.y;
 
 			for (int j = 0; j < ABM_COUNT; j++) {
 				if (explosion[j].ongoing) {
@@ -191,8 +195,7 @@ void updateBomb(Level * level, Bomb * bomb, Explosion * explosion) {
 						//check if bomb and explosion are on same x plane
 						if ((explosion[j].center.x + explosion[j].radius >= bomb[i].pos.x && explosion[j].center.x + explosion[j].radius <= bomb[i].pos.x + level->bombSize.x) ||
 							(explosion[j].center.x - explosion[j].radius >= bomb[i].pos.x && explosion[j].center.x + explosion[j].radius <= bomb[i].pos.x + level->bombSize.x)) {
-
-							verticalEvasion(&(bomb[i]), &(explosion[j]), level, &moveBombDown); 
+							verticalEvasion(&(bomb[i]), &(explosion[j]), level);
 						}
 					}
 
@@ -202,21 +205,11 @@ void updateBomb(Level * level, Bomb * bomb, Explosion * explosion) {
 						//check if bomb and explosion are on same x plane
 						if ((bomb[i].pos.x >= explosion[j].center.x - explosion[j].radius && bomb[i].pos.x <= explosion[j].center.x + explosion[j].radius) ||
 							(bomb[i].pos.x + level->bombSize.x >= explosion[j].center.x - explosion[j].radius && bomb[i].pos.x <= explosion[j].center.x + explosion[j].radius)) {
-
-							verticalEvasion(&(bomb[i]), &(explosion[j]), level, &moveBombDown); 
+							verticalEvasion(&(bomb[i]), &(explosion[j]), level);
 
 						}
 					}
 				}
-
-
-				//calculate bounds 
-				bomb[i].topLeft.x = bomb[i].pos.x;
-				bomb[i].topLeft.y = bomb[i].pos.y;
-				bomb[i].topRight.x = bomb[i].pos.x + level->bombSize.x;
-				bomb[i].topRight.y = bomb[i].pos.y;
-				bomb[i].bottomLeft.x = bomb[i].pos.x;
-				bomb[i].bottomLeft.y = bomb[i].pos.y + level->bombSize.y;
 			}
 		}
 	}
@@ -226,25 +219,24 @@ void updateBomb(Level * level, Bomb * bomb, Explosion * explosion) {
 void horizontalEvasion(Bomb * bomb, Explosion * explosion, Level * level) {
 	//bomb is to left of explosion
 	if ((bomb->pos.x + 0.5*level->bombSize.x) < explosion->center.x) {
-		if (fabs((explosion->center.x - explosion->radius) - (bomb->pos.x + level->bombSize.x)) < 20) {   //move bomb if too close
-			bomb->pos.x -= 1;
+		if (fabs((explosion->center.x - explosion->radius) - (bomb->pos.x + level->bombSize.x)) < 50) {   //move bomb if too close
+			bomb->pos.x -= 3;
 		}
 	}
 
 	//bomb is to right of explosion	
 	else /*if ((bomb[i].pos.x + 0.5*level->bombSize.x) > explosion[j].center.x)*/ {
-		if (fabs((explosion->center.x + explosion->radius) - (bomb->pos.x)) < 20) {   //move bomb if too close
-			bomb->pos.x += 1;
+		if (fabs((explosion->center.x + explosion->radius) - (bomb->pos.x)) < 50) {   //move bomb if too close
+			bomb->pos.x += 3;
 		}
 	}
 }
 
 
-void verticalEvasion(Bomb * bomb, Explosion * explosion, Level * level, bool * moveBombDown) {
+void verticalEvasion(Bomb * bomb, Explosion * explosion, Level * level) {
 
 	if (fabs((explosion->center.y + explosion->radius) - (bomb->pos.y + level->bombSize.y)) < 100) {
-		bomb->pos.y -= 2;
-		*moveBombDown = false;
+		bomb->pos.y -= 3;
 	}
 }
 
@@ -281,12 +273,11 @@ void updateUfo(Ufo * ufo, Level * level) {
 
 	for (int i = 0; i < level->ufoSpawnLimit; i++) {
 
-		printf("OK-300: %d\n", ufo[i].spawned);
-
 		if (ufo[i].spawned) {
-			if (ufo[i].origin == 900)
+			if (ufo[i].origin == 900) {
 				ufo[i].pos.x -= 2;
-			else if (ufo[i].origin == -150) {
+			}
+			else if (ufo[i].origin == 0 - level->ufoSize.x) {
 				ufo[i].pos.x += 2;
 			}
 
@@ -300,7 +291,6 @@ void updateUfo(Ufo * ufo, Level * level) {
 
 		}
 	}
-
 }
 
 
@@ -308,30 +298,31 @@ void spawnUfoMissile(Ufo * ufo, Level * level) {
 	int spawnTiming;
 	int baseX[6] = { 145, 235, 325, 530, 630, 730 }; 
 
-	for (int i = 0; i < level->ufoSpawnLimit; i++) {
-		if (ufo[i].spawned) {
+	spawnTiming = rand() % level->ufoMissileSpawnRate + 1;
 
-			spawnTiming = rand() % level->ufoMissileSpawnRate + 1;
+	if (spawnTiming == 100) {
 
-			if (spawnTiming == 50) {
+		for (int i = 0; i < level->ufoSpawnLimit; i++) {
+
+			if (ufo[i].spawned) {
+
 				for (int j = 0; j < 2; j++) {
-					if (!ufo[i].missile[j].launched)
-					{
+					if (!ufo[i].missile[j].launched) {
+						if (!ufo[i].missile[j].arrived) {
+							ufo[i].missile[j].launched = true;
+							ufo[i].missile[j].launch_x = ufo[i].pos.x + 0.5 * level->ufoSize.x;
+							ufo[i].missile[j].launch_y = ufo[i].pos.y + level->ufoSize.y;
+							ufo[i].missile[j].dest_x = baseX[(rand() % 6)];
+							ufo[i].missile[j].x_pos = ufo[i].missile[j].launch_x;
+							ufo[i].missile[j].y_pos = ufo[i].missile[j].launch_y;
 
-						ufo[i].missile[j].launched = true;
-						ufo[i].missile[j].launch_x = ufo[i].pos.x + 0.5 * level->ufoSize.x;
-						ufo[i].missile[j].launch_y = ufo[i].pos.y + level->ufoSize.y;
-						ufo[i].missile[j].dest_x = baseX[(rand()%6)]; 
-						ufo[i].missile[j].x_pos = ufo[i].missile[j].launch_x;
-						ufo[i].missile[j].y_pos = ufo[i].missile[j].launch_y;
-
-						calcUfoMissileInc(&(ufo[i].missile[j]));
-						//break; 
+							calcUfoMissileInc(&(ufo[i].missile[j]));
+						}
 					}
 				}
-			}
 
-			//break; 
+				break;
+			}
 		}
 	}
 }
@@ -424,6 +415,7 @@ void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Uf
 void enemyArrival(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 	int i; 
 
+	//enemy missiles 
 	for (i = 0; i < level->spawnLimit; i++) {
 		for (int j = 0; j < SPLIT_COUNT; j++) {
 			if (enemy[i][j].launched) {
@@ -437,30 +429,35 @@ void enemyArrival(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 		}
 	}
 
+	//ufo
 	for (i = 0; i < level->ufoSpawnLimit; i++) {
 		if(ufo[i].spawned) {
-			if (ufo[i].origin == -150) {
+			if (ufo[i].origin == 0 - level->ufoSize.x) {
 				if (ufo[i].pos.x > 900) {
 					ufo[i].arrived = true; 
+					ufo[i].spawned = false; 
 					(level->curr_ufo_count)--; 
 				}
 			}
 			else if (ufo[i].origin == 900) {
-				if (ufo[i].pos.x < -150) {
+				if (ufo[i].pos.x < 0 - level->ufoSize.x) {
 					ufo[i].arrived = true;
+					ufo[i].spawned = false;
 					(level->curr_ufo_count)--; 
 				}
 
 			}
 
 		}
-
 	}
 
+	//bomb
 	for (i = 0; i < level->bombSpawnLimit; i++) {
 		if (bomb[i].spawned) {
-			if (bomb[i].pos.y >= 900)
+			if (bomb[i].pos.y >= 900) {
 				bomb[i].spawned = false;
+				bomb[i].arrived = true;
+			}
 		}
 	}
 }

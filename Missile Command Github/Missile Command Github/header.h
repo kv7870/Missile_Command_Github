@@ -240,7 +240,7 @@ void updateBomb(Level * level, Bomb * bomb, Explosion * explosion);
 void oneTimeInit(Level * level); 
 
 void horizontalEvasion(Bomb * bomb, Explosion * explosion, Level * level);
-void verticalEvasion(Bomb * bomb, Explosion * explosion, Level * level, bool * moveBombDown);
+void verticalEvasion(Bomb * bomb, Explosion * explosion, Level * level);
 
 void bombHitDetection(Bomb * bomb, Explosion * explosion, Level * level);
 void rotateBomb(Bomb * bomb, Explosion * explosion, Level * level, double alpha);

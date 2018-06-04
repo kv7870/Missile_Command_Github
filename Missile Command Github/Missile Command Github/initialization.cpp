@@ -195,8 +195,8 @@ void oneTimeInit(Level * level) {
 	level->spawnUfo = true;
 	level->ufoSpeed = 0.5;
 	level->ufoSpawnLimit = 3;  
-	level->ufoSpawnRate = 100;
-	level->ufoMissileSpawnRate = 100; 
+	level->ufoSpawnRate = 500;
+	level->ufoMissileSpawnRate = 500; 
 
 	//bomb
 	level->spawnBomb = true;
@@ -273,6 +273,8 @@ void initAbm(struct abmData * abm, Explosion * explosion) {
 		explosion[i].bottomLeft.y = 0;
 		explosion[i].center.x = 0;
 		explosion[i].center.y = 0;
+		explosion[i].xNew = 0;
+		explosion[i].yNew = 0; 
 	};
 
 	//1st battery (left)

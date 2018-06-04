@@ -97,8 +97,9 @@ void bombHitDetection(Bomb * bomb, Explosion * explosion, Level * level) {
 
 					clampBomb(&explosion[j], &bomb[i], &clamp);
 
-					distance.x = fabs(explosion[j].xNew - clamp.x);
-					distance.y = fabs(explosion[j].yNew - clamp.y);
+					//explosion[j].xNew
+					distance.x = fabs(explosion[j].center.x - clamp.x);
+					distance.y = fabs(explosion[j].center.y - clamp.y);
 
 					if (pow(distance.x, 2) + pow(distance.y, 2) <= pow(explosion[j].radius, 2)) {
 						bomb[i].spawned = false;
@@ -137,7 +138,30 @@ void rotateBomb(Bomb * bomb, Explosion * explosion, Level * level, double alpha)
 
 
 void clampBomb(Explosion * explosion, Bomb * bomb, Vector * clamp) {
+	
+	//clamp x (xNew = new rotated center.x)
+	if (explosion->center.x < bomb->topLeft.x) {
+		clamp->x = bomb->topLeft.x;
+	}
+	else if (explosion->center.x > bomb->topRight.x) {
+		clamp->x = bomb->topRight.x;
+	}
+	else {
+		clamp->x = explosion->center.x;
+	}
 
+	//clamp y
+	if (explosion->center.y < bomb->topLeft.y) {
+		clamp->x = bomb->topLeft.y;
+	}
+	else if (explosion->center.y > bomb->bottomLeft.y) {
+		clamp->y = bomb->bottomLeft.y;
+	}
+	else {
+		clamp->y = explosion->center.y;
+	}
+
+	/*
 	//clamp x (xNew = new rotated center.x)
 	if (explosion->xNew < bomb->topLeft.x) {
 		clamp->x = bomb->topLeft.x;
@@ -159,6 +183,7 @@ void clampBomb(Explosion * explosion, Bomb * bomb, Vector * clamp) {
 	else {
 		clamp->y = explosion->yNew;
 	}
+	*/
 }
 
 

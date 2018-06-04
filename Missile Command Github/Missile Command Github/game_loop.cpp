@@ -35,35 +35,26 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			spawnEnemy(enemy, level, ufo, bomb);
 
-			printf("OK-400: %d\n", ufo[0].spawned);
-
 			updateAbm(abm);
 		
-			printf("OK-500: %d\n", ufo[0].spawned);
-
 			updateEnemy(enemy, level);
-	
-			printf("OK-600: %d\n", ufo[0].spawned);
 
 			hitDetection(abm, enemy, explosion, level, ufo);
 			
-			printf("OK-700: %d\n", ufo[0].spawned);
 			abmArrival(abm, explosion);
-			printf("OK-800: %d\n", ufo[0].spawned);
+		
 			updateBomb(level, bomb, explosion);
 			
-
-			printf("OK-900: %d\n", ufo[0].spawned);
 			updateUfo(ufo, level);
-			printf("OK-1000: %d\n", ufo[0].spawned);
+			
 			updateUfoMissile(ufo, level);
-			printf("OK-1100: %d\n", ufo[0].spawned);
+			
 			spawnUfoMissile(ufo, level); 
-			printf("OK-1200: %d\n", ufo[0].spawned);
+			
 			enemyArrival(enemy, level, ufo, bomb);
-			printf("OK-1300: %d\n", ufo[0].spawned);
+			
 			baseCollision(base, enemy, 6, level);
-			printf("OK-1400: %d\n", ufo[0].spawned);
+			
 			bombHitDetection(bomb, explosion, level);
 			
  
@@ -85,8 +76,6 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 			if (ev.mouse.button & 1) {
 				crosshair.target_x = ev.mouse.x;   //get coordinate of target 
 				crosshair.target_y = ev.mouse.y;
-				printf("(%d, %d) ", ev.mouse.x, ev.mouse.y);
-				printf("fired");
 				fire(abm, crosshair, level);
 			}
 		}
@@ -156,8 +145,6 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			drawCrosshair(imageCrosshair, &crosshair);
 
-			printf("Level: %d Spawned: %d\n", level->round, level->num_spawned);
-
 			al_flip_display();
 
 			//game over 
@@ -186,6 +173,13 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 					if (ufo[i].spawned)
 						doneUpdate = false;
 				}
+
+				for (int i = 0; i < level->bombSpawnLimit; i++) {
+					if (bomb[i].spawned)
+						doneUpdate = false;
+				}
+
+
 				if (doneUpdate) {
 
 					al_stop_timer(timer);
