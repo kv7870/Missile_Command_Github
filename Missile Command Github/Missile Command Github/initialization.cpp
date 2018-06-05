@@ -11,7 +11,7 @@
 #include <stdlib.h>
 
 int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITMAP ** imageCrosshair, ALLEGRO_EVENT_QUEUE ** event_queue, ALLEGRO_FONT ** font, ALLEGRO_BITMAP ** background,
-	ALLEGRO_BITMAP ** imageUfo, Level * level, ALLEGRO_BITMAP ** imageBomb, ALLEGRO_BITMAP ** imageLauncher, ALLEGRO_BITMAP ** texture) {
+	ALLEGRO_BITMAP ** imageUfo, Level * level, ALLEGRO_BITMAP ** imageBomb, ALLEGRO_BITMAP ** imageLauncher, ALLEGRO_BITMAP ** ground) {
 
 	if (!al_init()) {
 		fprintf(stderr, "failed to initialize allegro!\n");
@@ -88,7 +88,7 @@ int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITM
 	}
 
 
-	*background = al_load_bitmap("2wuJNqK.jpg");
+	*background = al_load_bitmap("background.jpg");
 	if (!background) {
 		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
 			NULL, ALLEGRO_MESSAGEBOX_ERROR);
@@ -152,8 +152,8 @@ int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITM
 		return 0;
 	}
 
-	*texture = al_load_bitmap("texture.jpg");
-	if (!texture) {
+	*ground = al_load_bitmap("ground.png");
+	if (!ground) {
 		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
 			NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		al_destroy_display(*display);
@@ -194,9 +194,9 @@ void oneTimeInit(Level * level) {
 	//ufo
 	level->spawnUfo = true;
 	level->ufoSpeed = 0.5;
-	level->ufoSpawnLimit = 3;  
-	level->ufoSpawnRate = 500;
-	level->ufoMissileSpawnRate = 500; 
+	level->ufoSpawnLimit = 2;  
+	level->ufoSpawnRate = 100;
+	level->ufoMissileSpawnRate = 100; 
 
 	//bomb
 	level->spawnBomb = true;

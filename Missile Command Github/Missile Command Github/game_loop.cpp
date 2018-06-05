@@ -12,7 +12,7 @@
 
 void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair,
 	struct abmData * abm, Enemy ** enemy, ALLEGRO_FONT * font, Base * base, Explosion * explosion, int * theme, int colorMap[][3], Level * level, ALLEGRO_BITMAP * background,
-	ALLEGRO_BITMAP * imageUfo, Ufo * ufo, ALLEGRO_BITMAP ** imageBomb, Bomb * bomb, ALLEGRO_BITMAP * imageLauncher, ALLEGRO_BITMAP * texture) {
+	ALLEGRO_BITMAP * imageUfo, Ufo * ufo, ALLEGRO_BITMAP ** imageBomb, Bomb * bomb, ALLEGRO_BITMAP * imageLauncher, ALLEGRO_BITMAP * ground) {
 
 	bool done = false;
 	bool draw = true;
@@ -133,7 +133,9 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			al_draw_bitmap(background, 0, 0, 0);
 
-			drawObjects(base, 6, &(theme[2]), colorMap, imageLauncher, texture, abm);
+			al_draw_bitmap(ground, -100, 750, 0); 
+
+			drawObjects(base, 6, &(theme[2]), colorMap, imageLauncher, abm);
 
 			drawExplosion(abm, explosion, colorMap);
 		
@@ -305,13 +307,13 @@ void transition(ALLEGRO_FONT * font, ALLEGRO_TIMER * timer, Abm * abm, Level * l
 }
 
 
-void drawObjects(Base * base, int baseCount, int * theme, int colorMap[][3], ALLEGRO_BITMAP * imageLauncher, ALLEGRO_BITMAP * texture, Abm * abm) {
+void drawObjects(Base * base, int baseCount, int * theme, int colorMap[][3], ALLEGRO_BITMAP * imageLauncher, Abm * abm) {
 
 	int colorId2 = theme[0];
 	int colorId3 = theme[1];
 
 	//planet surface
-	al_draw_filled_ellipse(450, 900, 500, 60, al_map_rgb(69, 190, 247)); 
+	//al_draw_filled_ellipse(450, 900, 500, 60, al_map_rgb(69, 190, 247)); 
 	//69 190 247
 	//94, 242, 104
 
