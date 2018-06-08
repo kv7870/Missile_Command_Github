@@ -163,6 +163,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="draw.cpp" />
     <ClCompile Include="enemies.cpp" />
     <ClCompile Include="abm.cpp" />
     <ClCompile Include="hit_detection.cpp" />

@@ -33,7 +33,7 @@ const int SIZE = 1.5;  //3x3 square
 const int ABM_COUNT = 30;
 
 enum KEYS {
-	KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_SPACE  //by default member 1 = 0, member 2 = 1, member 3 = 2, member 4 = 3... 
+	ENTER, SPACE, ESCAPE 
 };
 
 enum COLORS {
@@ -190,19 +190,23 @@ typedef struct levelData {
 	int bombSpeed;
 	int bombSpawnRate; 
 	Vector bombSize;
+
+	Vector baseSize; 
 	
 } Level;
 
 //prototypes
 int initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP **imageCrosshair, ALLEGRO_EVENT_QUEUE **event_queue, ALLEGRO_FONT ** font, 
-	ALLEGRO_BITMAP ** background, ALLEGRO_BITMAP ** imageUfo, Level * level, ALLEGRO_BITMAP ** imageBomb, ALLEGRO_BITMAP ** imageLauncher, ALLEGRO_BITMAP ** ground);
+	ALLEGRO_BITMAP ** background, ALLEGRO_BITMAP ** imageUfo, Level * level, ALLEGRO_BITMAP ** imageBomb, ALLEGRO_BITMAP ** imageLauncher, ALLEGRO_BITMAP ** ground, 
+	ALLEGRO_BITMAP ** imageBase, ALLEGRO_FONT ** titleFont);
 
 void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair);
 void initAbm(struct abmData * abm, Explosion * explosion);
 
 void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair,
 	struct abmData * abm, Enemy ** enemy, ALLEGRO_FONT * font, Base * base, Explosion * explosion, int * theme, int colorMap[][3], Level * level, ALLEGRO_BITMAP * background,
-	ALLEGRO_BITMAP * imageUfo, Ufo * ufo, ALLEGRO_BITMAP ** imageBomb, Bomb * bomb, ALLEGRO_BITMAP * imageLauncher, ALLEGRO_BITMAP * ground);
+	ALLEGRO_BITMAP * imageUfo, Ufo * ufo, ALLEGRO_BITMAP ** imageBomb, Bomb * bomb, ALLEGRO_BITMAP * imageLauncher, ALLEGRO_BITMAP * ground, ALLEGRO_BITMAP * imageBase,
+	ALLEGRO_FONT * titleFont, FILE * fptr, int * highScore, int highScoreCount);
 
 void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, Crosshair * crosshair);
 
@@ -225,14 +229,16 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, L
 void drawInfo(ALLEGRO_FONT * font, Abm * abm, Level * level);
 void transition(ALLEGRO_FONT * font, ALLEGRO_TIMER * timer, Abm * abm, Level * level);
 
-void drawObjects(Base * base, int baseCount, int * theme, int colorMap[][3], ALLEGRO_BITMAP * imageLauncher, Abm * abm);
+void drawObjects(Base * base, int baseCount, int * theme, int colorMap[][3], ALLEGRO_BITMAP * imageLauncher, Abm * abm, ALLEGRO_BITMAP * imageBase, ALLEGRO_BITMAP * background,
+	ALLEGRO_BITMAP * ground);
 
-void initBase(Base * base, int baseCount);
-void baseCollision(Base * base, Enemy ** enemy, int baseCount, Level * level);
+void initBase(Base * base, int baseCount, Level level);
+void baseCollision(Base * base, Enemy ** enemy, int baseCount, Level * level, Ufo * ufo, Bomb * bomb);
 
 void initColorMap(int colorMap[][3]);
 void generateTheme(int * theme);
 void clampSquare(Explosion * explosion, Enemy * enemy, Vector * clamp);
+bool calcDistance(Vector distance, Explosion explosion, Vector clamp); 
 
 void initLevel(Level * level); 
 
@@ -251,3 +257,10 @@ void updateUfo(Ufo * ufo, Level * level);
 void spawnUfoMissile(Ufo * ufo, Level * level); 
 void updateUfoMissile(Ufo * ufo, Level * level);
 void calcUfoMissileInc(Enemy * missile); 
+
+void titleScreen(ALLEGRO_BITMAP * imageBase, ALLEGRO_BITMAP * background, ALLEGRO_BITMAP * imageLauncher, ALLEGRO_BITMAP * ground, ALLEGRO_EVENT_QUEUE * event_queue,
+	ALLEGRO_FONT * titleFont, ALLEGRO_FONT * font, FILE * fptr, int * highScore, int highScoreCount);
+
+void calcScore(FILE * fptr, int * highScore, int highScoreCount, Level * level);
+
+bool calcBoundingBox(Base base, Enemy enemy);

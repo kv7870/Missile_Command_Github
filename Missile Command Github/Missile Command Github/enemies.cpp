@@ -424,7 +424,7 @@ void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Uf
 
 
 void enemyArrival(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
-	int i; 
+	int i, j;
 
 	//enemy missiles 
 	for (i = 0; i < level->spawnLimit; i++) {
@@ -457,6 +457,14 @@ void enemyArrival(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 					(level->curr_ufo_count)--; 
 				}
 
+			}
+
+			//ufo missiles
+			for (j = 0; j < 2; j++) {
+				if (ufo[i].missile[j].y_pos >= 900) {
+					ufo[i].missile[j].arrived = true;
+					ufo[i].missile[j].launched = false; 
+				}
 			}
 
 		}

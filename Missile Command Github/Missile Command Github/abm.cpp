@@ -177,13 +177,11 @@ void abmArrival(Abm * abm, Explosion * explosion) {
 
 void drawExplosion(Abm * abm, Explosion * explosion, int colorMap[][3]) {
 	
-	int r, g, b;
+	int palette[7][3] = { { 255, 0, 0 },{ 0, 255, 0 },{ 0, 0, 255 },{ 128, 128, 128 }, { 248, 6, 248 },{ 0, 255, 255 } };
 
 	int explosionColor = rand() % NUM_COLORS;
 	
-	r = rand() % 255 + 1;
-	g = rand() % 255 + 1;
-	b = rand() % 255 + 1;
+	int color = rand() % 6; 
 
 	for (int i = 0; i < ABM_COUNT; i++) {
 		if (explosion[i].ongoing) {
@@ -204,7 +202,7 @@ void drawExplosion(Abm * abm, Explosion * explosion, int colorMap[][3]) {
 				explosion[i].radius -= 1;
 			}
 
-			al_draw_filled_circle(abm[i].dest_x, abm[i].dest_y, explosion[i].radius, al_map_rgb(r, g, b));
+			al_draw_filled_circle(abm[i].dest_x, abm[i].dest_y, explosion[i].radius, al_map_rgb(palette[color][0], palette[color][1], palette[color][2]));
 
 			//calculate bounds of explosion 
 			explosion[i].topLeft.x = explosion[i].center.x - explosion[i].radius;

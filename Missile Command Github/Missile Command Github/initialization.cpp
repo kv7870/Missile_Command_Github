@@ -11,7 +11,8 @@
 #include <stdlib.h>
 
 int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITMAP ** imageCrosshair, ALLEGRO_EVENT_QUEUE ** event_queue, ALLEGRO_FONT ** font, ALLEGRO_BITMAP ** background,
-	ALLEGRO_BITMAP ** imageUfo, Level * level, ALLEGRO_BITMAP ** imageBomb, ALLEGRO_BITMAP ** imageLauncher, ALLEGRO_BITMAP ** ground) {
+	ALLEGRO_BITMAP ** imageUfo, Level * level, ALLEGRO_BITMAP ** imageBomb, ALLEGRO_BITMAP ** imageLauncher, ALLEGRO_BITMAP ** ground, ALLEGRO_BITMAP ** imageBase,
+	ALLEGRO_FONT ** titleFont) {
 
 	if (!al_init()) {
 		fprintf(stderr, "failed to initialize allegro!\n");
@@ -37,9 +38,14 @@ int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITM
 	}
 
 	*font = al_load_ttf_font("Roboto-Regular.ttf", 24, 0);
-	//load font
 	if (!font) {
 		fprintf(stderr, "Could not load 'Roboto-Regular.ttf'.\n");
+		return -1;
+	}
+
+	*titleFont = al_load_ttf_font("DAYPBL__.ttf", 64, 0);
+	if (!titleFont) {
+		fprintf(stderr, "Could not load DAYPBL__.ttf'.\n");
 		return -1;
 	}
 
@@ -78,7 +84,6 @@ int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITM
 		return -1;
 	}
 
-	//create ship image
 	*imageCrosshair = al_load_bitmap("crosshair.png");
 	if (!imageCrosshair) {
 		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
@@ -96,7 +101,7 @@ int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITM
 		return 0;
 	}
 
-	*imageUfo = al_load_bitmap("ufoSmall.png");
+	*imageUfo = al_load_bitmap("ufoBlue.png");
 	if (!background) {
 		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
 			NULL, ALLEGRO_MESSAGEBOX_ERROR);
@@ -160,12 +165,24 @@ int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITM
 		return 0;
 	}
 
+	*imageBase = al_load_bitmap("imageBase.png");
+	if (!ground) {
+		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
+			NULL, ALLEGRO_MESSAGEBOX_ERROR);
+		al_destroy_display(*display);
+		return 0;
+	}
+
+
 
 	level->ufoSize.x = al_get_bitmap_width(*imageUfo);
 	level->ufoSize.y = al_get_bitmap_height(*imageUfo); 
 
 	level->bombSize.x = al_get_bitmap_width(*imageBomb); 
 	level->bombSize.y = al_get_bitmap_height(*imageBomb);
+
+	level->baseSize.x = al_get_bitmap_width(*imageBase);
+	level->baseSize.y = al_get_bitmap_width(*imageBase);
 
 	//register 
 	al_register_event_source(*event_queue, al_get_display_event_source(*display));
@@ -208,6 +225,7 @@ void oneTimeInit(Level * level) {
 	level->maxEnemyOnScreen = 5;
 	level->maxUfoOnScreen = 3;
 	level->maxBombOnScreen = 3;
+	//malloc for max enemy on screen; remove arrived
 }
 
  
@@ -249,7 +267,7 @@ void initAbm(struct abmData * abm, Explosion * explosion) {
 	for (i = 0; i < ABM_COUNT; i++) {
 		abm[i].dest_x = 0;
 		abm[i].dest_y = 0;
-		abm[i].launch_y = 850;
+		abm[i].launch_y = 800;
 		abm[i].launched = false;
 		abm[i].dx = 0;
 		abm[i].dy = 0;
@@ -285,13 +303,13 @@ void initAbm(struct abmData * abm, Explosion * explosion) {
 
 	//2nd battery (center)
 	for (i = 10; i < 20; i++) {
-		abm[i].launch_x = 425;
+		abm[i].launch_x = 450;
 		abm[i].speed = 14;
 	}
 
 	//3rd battery (right)
 	for (i = 20; i < 30; i++) {
-		abm[i].launch_x = 855;
+		abm[i].launch_x = 850;
 		abm[i].speed = 7;
 	}
 }
@@ -352,7 +370,7 @@ void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 			ufo[i].missile[j].launch_x = 0;
 			ufo[i].missile[j].launch_y = 0;
 			ufo[i].missile[j].dest_x = 0; 
-			ufo[i].missile[j].dest_y = 900;
+			ufo[i].missile[j].dest_y = 810;
 			ufo[i].missile[j].topRight.x = 0;
 			ufo[i].missile[j].topRight.y = 0;
 			ufo[i].missile[j].topLeft.x = 0;
@@ -383,17 +401,17 @@ void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 }
 
 
-void initBase(Base * base, int baseCount) {
+void initBase(Base * base, int baseCount, Level level) {
 	int i, j;
 
-	for (i = 0, j = 120; i < baseCount / 2; i++, j += 90) {
+	for (i = 0, j = 90; i < baseCount / 2; i++, j += 100) {
 		base[i].pos.x = j;
-		base[i].pos.y = 870;
+		base[i].pos.y = 810;
 	}
 
 	for (i = 3, j = 505; i < 6; i++, j += 100) {
 		base[i].pos.x = j;
-		base[i].pos.y = 870;
+		base[i].pos.y = 810; 
 	}
 
 	//bounds
@@ -401,10 +419,10 @@ void initBase(Base * base, int baseCount) {
 		base[i].destroyed = false;
 		base[i].topLeft.x = base[i].pos.x;
 		base[i].topLeft.y = base[i].pos.y;
-		base[i].topRight.x = base[i].pos.x + 50;
+		base[i].topRight.x = base[i].pos.x + level.baseSize.x;
 		base[i].topRight.y = base[i].pos.y;
 		base[i].bottomLeft.x = base[i].pos.x;
-		base[i].bottomLeft.y = base[i].pos.y + 30;
+		base[i].bottomLeft.y = base[i].pos.y + level.baseSize.y; 
 	}
 }
 

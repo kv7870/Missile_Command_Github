@@ -47,6 +47,9 @@
     <ClCompile Include="game_loop.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="draw.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
