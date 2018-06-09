@@ -10,58 +10,63 @@
 #include "header.h"
 #include <time.h>
 #include <stdlib.h>
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
 
 
-void fire(Abm * abm, Crosshair crosshair, Level * level) {
+void fire(Abm * abm, Crosshair crosshair, Level * level, Audio * audio) {
 	int i;
 	bool closestLaunchSuccess = false;
 
-	if (crosshair.target_x <= 300) {
+	if (crosshair.target.x <= 300) {
 		for (i = 0; i < 10; i++) {
 			if (!abm[i].launched && !abm[i].arrived) {
-				abm[i].x_pos = abm[i].launch_x;
-				abm[i].y_pos = abm[i].launch_y;
-				abm[i].dest_x = crosshair.target_x;
-				abm[i].dest_y = crosshair.target_y;
+				abm[i].pos.x = abm[i].launch.x;
+				abm[i].pos.y = abm[i].launch.y;
+				abm[i].dest.x = crosshair.target.x;
+				abm[i].dest.y = crosshair.target.y;
 				abm[i].launched = true;
 				closestLaunchSuccess = true;
 				(level->abmLeft)--;
 				(level->batteryAbmLeft[0])--;
 				calcAbmInc(&(abm[i]));
+				al_play_sample(audio->missileLaunch, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 				break;
 			}
 		}
 	}
 
-	else if (crosshair.target_x > 300 && crosshair.x <= 600) {
+	else if (crosshair.target.x > 300 && crosshair.pos.x <= 600) {
 		for (i = 10; i < 20; i++) {
 			if (!abm[i].launched && !abm[i].arrived) {
-				abm[i].x_pos = abm[i].launch_x;
-				abm[i].y_pos = abm[i].launch_y;
-				abm[i].dest_x = crosshair.target_x;
-				abm[i].dest_y = crosshair.target_y;
+				abm[i].pos.x = abm[i].launch.x;
+				abm[i].pos.y = abm[i].launch.y;
+				abm[i].dest.x = crosshair.target.x;
+				abm[i].dest.y = crosshair.target.y;
 				abm[i].launched = true;
 				closestLaunchSuccess = true;
 				(level->abmLeft)--;
 				(level->batteryAbmLeft[1])--;
 				calcAbmInc(&(abm[i]));
+				al_play_sample(audio->missileLaunch, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 				break;
 			}
 		}
 	}
 
-	else if (crosshair.target_x > 600) {
+	else if (crosshair.target.x > 600) {
 		for (i = 20; i < 30; i++) {
 			if (!abm[i].launched && !abm[i].arrived) {
-				abm[i].x_pos = abm[i].launch_x;
-				abm[i].y_pos = abm[i].launch_y;
-				abm[i].dest_x = crosshair.target_x;
-				abm[i].dest_y = crosshair.target_y;
+				abm[i].pos.x = abm[i].launch.x;
+				abm[i].pos.y = abm[i].launch.y;
+				abm[i].dest.x = crosshair.target.x;
+				abm[i].dest.y = crosshair.target.y;
 				abm[i].launched = true;
 				closestLaunchSuccess = true;
 				(level->abmLeft)--;
 				(level->batteryAbmLeft[2])--;
 				calcAbmInc(&(abm[i]));
+				al_play_sample(audio->missileLaunch, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 				break;
 			}
 		}
@@ -72,10 +77,10 @@ void fire(Abm * abm, Crosshair crosshair, Level * level) {
 	if (!closestLaunchSuccess) {
 		for (i = 0; i < ABM_COUNT; i++) {
 			if (!abm[i].launched && !abm[i].arrived) {
-				abm[i].x_pos = abm[i].launch_x;
-				abm[i].y_pos = abm[i].launch_y;
-				abm[i].dest_x = crosshair.target_x;
-				abm[i].dest_y = crosshair.target_y;
+				abm[i].pos.x = abm[i].launch.x;
+				abm[i].pos.y = abm[i].launch.y;
+				abm[i].dest.x = crosshair.target.x;
+				abm[i].dest.y = crosshair.target.y;
 				abm[i].launched = true;
 				(level->abmLeft)--;
 
@@ -89,6 +94,7 @@ void fire(Abm * abm, Crosshair crosshair, Level * level) {
 					(level->batteryAbmLeft[2])--;
 
 				calcAbmInc(&(abm[i]));
+				al_play_sample(audio->missileLaunch, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 				break;
 			}
 		}
@@ -97,8 +103,8 @@ void fire(Abm * abm, Crosshair crosshair, Level * level) {
 
 
 void calcAbmInc(Abm * abm) {
-	abm->dx = fabs(abm->dest_x - abm->launch_x);
-	abm->dy = fabs(abm->dest_y - abm->launch_y);
+	abm->dx = fabs(abm->dest.x - abm->launch.x);
+	abm->dy = fabs(abm->dest.y - abm->launch.y);
 
 	if (abm->dx >= abm->dy) {
 		abm->step = abm->dx;
@@ -107,8 +113,8 @@ void calcAbmInc(Abm * abm) {
 		abm->step = abm->dy;
 	}
 
-	abm->x_inc = abm->dx / abm->step;
-	abm->y_inc = abm->dy / abm->step;
+	abm->inc.x = abm->dx / abm->step;
+	abm->inc.y = abm->dy / abm->step;
 }
 
 void drawAbm(struct abmData * abm, int * theme, int colorMap[][3]) {
@@ -124,13 +130,13 @@ void drawAbm(struct abmData * abm, int * theme, int colorMap[][3]) {
 	for (int i = 0; i < ABM_COUNT; i++) {
 		if (abm[i].launched) {
 
-			al_draw_filled_rectangle(abm[i].x_pos - 3, abm[i].y_pos - 3, abm[i].x_pos + 3, abm[i].y_pos + 3, 
+			al_draw_filled_rectangle(abm[i].pos.x - 3, abm[i].pos.y - 3, abm[i].pos.x + 3, abm[i].pos.y + 3,
 				al_map_rgb(colorMap[colorId][R], colorMap[colorId][G], colorMap[colorId][B]));
-			al_draw_line(abm[i].x_pos, abm[i].y_pos + 3, abm[i].launch_x, abm[i].launch_y, al_map_rgb(colorMap[colorId][R], colorMap[colorId][G], colorMap[colorId][B]), 4);
+			al_draw_line(abm[i].pos.x, abm[i].pos.y + 3, abm[i].launch.x, abm[i].launch.y, al_map_rgb(colorMap[colorId][R], colorMap[colorId][G], colorMap[colorId][B]), 4);
 
 			//hitmarkers
-			al_draw_line(abm[i].dest_x - 7, abm[i].dest_y + 7, abm[i].dest_x + 7, abm[i].dest_y - 7, al_map_rgb(r, g, b), 3);
-			al_draw_line(abm[i].dest_x - 7, abm[i].dest_y - 7, abm[i].dest_x + 7, abm[i].dest_y + 7, al_map_rgb(r, g, b), 3);
+			al_draw_line(abm[i].dest.x - 7, abm[i].dest.y + 7, abm[i].dest.x + 7, abm[i].dest.y - 7, al_map_rgb(r, g, b), 3);
+			al_draw_line(abm[i].dest.x - 7, abm[i].dest.y - 7, abm[i].dest.x + 7, abm[i].dest.y + 7, al_map_rgb(r, g, b), 3);
 		}
 	}
 }
@@ -144,16 +150,16 @@ void updateAbm(struct abmData * abm) {
 
 		if (abm[i].launched) {  //only update launched & alive abm's 
 
-			if (abm[i].dest_x > abm[i].launch_x) {
-				abm[i].x_pos += abm[i].speed * abm[i].x_inc;
+			if (abm[i].dest.x > abm[i].launch.x) {
+				abm[i].pos.x += abm[i].speed * abm[i].inc.x;
 				//abm[i].num_increment += 10; 
 			}
-			else if (abm[i].dest_x < abm[i].launch_x) {
-				abm[i].x_pos -= abm[i].speed * abm[i].x_inc;
+			else if (abm[i].dest.x < abm[i].launch.x) {
+				abm[i].pos.x -= abm[i].speed * abm[i].inc.x;
 				//abm[i].num_increment += 10; 
 			}
 
-			abm[i].y_pos -= abm[i].speed * abm[i].y_inc;
+			abm[i].pos.y -= abm[i].speed * abm[i].inc.y;
 			abm[i].num_increment += abm[i].speed;
 		}
 	}
@@ -166,9 +172,9 @@ void abmArrival(Abm * abm, Explosion * explosion) {
 			if (abm[i].num_increment > abm[i].step) {
 				abm[i].launched = false;
 				abm[i].arrived = true;
-				explosion[i].ongoing = true; 
-				explosion[i].center.x = abm[i].dest_x;
-				explosion[i].center.y = abm[i].dest_y; 
+				explosion[i].ongoing = true;
+				explosion[i].center.x = abm[i].dest.x;
+				explosion[i].center.y = abm[i].dest.y;
 			}
 		}
 	}
@@ -176,22 +182,22 @@ void abmArrival(Abm * abm, Explosion * explosion) {
 
 
 void drawExplosion(Abm * abm, Explosion * explosion, int colorMap[][3]) {
-	
-	int palette[7][3] = { { 255, 0, 0 },{ 0, 255, 0 },{ 0, 0, 255 },{ 128, 128, 128 }, { 248, 6, 248 },{ 0, 255, 255 } };
+
+	int palette[7][3] = { { 255, 0, 0 },{ 0, 255, 0 },{ 0, 0, 255 },{ 128, 128, 128 },{ 248, 6, 248 },{ 0, 255, 255 } };
 
 	int explosionColor = rand() % NUM_COLORS;
-	
-	int color = rand() % 6; 
+
+	int color = rand() % 6;
 
 	for (int i = 0; i < ABM_COUNT; i++) {
 		if (explosion[i].ongoing) {
 
-			//printf("Destination: (%d, %d): arrive: %d\n", abm[i].dest_x, abm[i].dest_y, abm[i].arrived); 
+			//printf("Destination: (%d, %d): arrive: %d\n", abm[i].dest.x, abm[i].dest.y, abm[i].arrived); 
 			if (explosion[i].radius >= 40 && !explosion[i].expandedRadius) {
-				explosion [i].increaseRadius = false;
+				explosion[i].increaseRadius = false;
 			}
 			else if (explosion[i].radius >= 80 && explosion[i].expandedRadius) {
-				explosion[i].increaseRadius = false; 
+				explosion[i].increaseRadius = false;
 			}
 
 			if (explosion[i].increaseRadius) {
@@ -202,7 +208,7 @@ void drawExplosion(Abm * abm, Explosion * explosion, int colorMap[][3]) {
 				explosion[i].radius -= 1;
 			}
 
-			al_draw_filled_circle(abm[i].dest_x, abm[i].dest_y, explosion[i].radius, al_map_rgb(palette[color][0], palette[color][1], palette[color][2]));
+			al_draw_filled_circle(abm[i].dest.x, abm[i].dest.y, explosion[i].radius, al_map_rgb(palette[color][0], palette[color][1], palette[color][2]));
 
 			//calculate bounds of explosion 
 			explosion[i].topLeft.x = explosion[i].center.x - explosion[i].radius;
@@ -213,8 +219,9 @@ void drawExplosion(Abm * abm, Explosion * explosion, int colorMap[][3]) {
 			explosion[i].bottomLeft.y = explosion[i].center.y + explosion[i].radius;
 
 			if (explosion[i].radius < 0) {
-				explosion[i].ongoing = false; 
+				explosion[i].ongoing = false;
 			}
 		}
 	}
 }
+

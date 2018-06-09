@@ -10,9 +10,13 @@
 #include "header.h"
 #include <time.h>
 #include <stdlib.h>
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
 
 void titleScreen(ALLEGRO_BITMAP * imageBase, ALLEGRO_BITMAP * background, ALLEGRO_BITMAP * imageLauncher, ALLEGRO_BITMAP * ground, ALLEGRO_EVENT_QUEUE * event_queue,
-	ALLEGRO_FONT * titleFont, ALLEGRO_FONT * font, FILE * fptr, int * highScore, int highScoreCount) {
+	ALLEGRO_FONT * titleFont, ALLEGRO_FONT * font, Audio audio, Level level) {
+	
+	ALLEGRO_SAMPLE_ID siren_id;
 	bool start = false;
 	int key[3] = { false, false, false };
 	int color;
@@ -20,17 +24,10 @@ void titleScreen(ALLEGRO_BITMAP * imageBase, ALLEGRO_BITMAP * background, ALLEGR
 	ALLEGRO_EVENT ev;
 	int palette[7][3] = { { 255, 0, 0 }, { 0, 255, 0 }, { 0, 0, 255 }, { 128, 128, 128 }, { 255, 255, 255 }, { 248, 6, 248 }, { 0, 255, 255 } };
 	
-	if ((fptr = fopen("highScore.txt", "r")) == NULL) {
-		printf("Cant open highScore.txt.");
-		exit(-1);
-	}
-
-	for (int i = 0; i < highScoreCount; i++) 
-		fscanf(fptr, "%d", &highScore[i]);
-
-	fclose(fptr); 
+	al_play_sample(audio.siren, 1.5, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &siren_id);
 
 	do {
+
 		color = rand() % 7;
 
 		al_wait_for_event(event_queue, &ev);
@@ -96,19 +93,21 @@ void titleScreen(ALLEGRO_BITMAP * imageBase, ALLEGRO_BITMAP * background, ALLEGR
 
 
 		for (int i = 0, y = 450; i < 5; i++, y += 25) {
-			al_draw_textf(font, al_map_rgb(255, 0, 0), 450, y, ALLEGRO_ALIGN_CENTRE, "%d", highScore[i]);
+			al_draw_textf(font, al_map_rgb(255, 0, 0), 450, y, ALLEGRO_ALIGN_CENTRE, "%d", level.highScores[i]);
 		}
 
 		al_flip_display();
 	}
 
 	while (ev.type != ALLEGRO_EVENT_KEY_DOWN && ev.type != ALLEGRO_EVENT_MOUSE_BUTTON_DOWN);
+
+	al_stop_sample(&siren_id);
 }
 
 
 
 void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, Crosshair * crosshair) {
-	al_draw_bitmap(imageCrosshair, crosshair->x - 27, crosshair->y - 23, 0);
+	al_draw_bitmap(imageCrosshair, crosshair->pos.x - 27, crosshair->pos.y - 23, 0);
 }
 
 
@@ -121,7 +120,7 @@ void drawInfo(ALLEGRO_FONT * font, Abm * abm, Level * level) {
 	al_draw_textf(font, al_map_rgb(255, 0, 0), 165, 10, 0, "Missiles: %d", level->abmLeft);
 	al_draw_textf(font, al_map_rgb(255, 0, 0), 360, 10, 0, "Score: %d", level->score);
 	al_draw_textf(font, al_map_rgb(255, 0, 0), 525, 10, 0, "Round: %d", level->round);
-	al_draw_textf(font, al_map_rgb(255, 0, 0), 675, 10, 0, "Enemy missiles: %d", level->spawnLimit - level->num_spawned + 1);
+	al_draw_textf(font, al_map_rgb(255, 0, 0), 675, 10, 0, "Enemy missiles: %d", level->spawnLimit - level->num_spawned);
 }
 
 void transition(ALLEGRO_FONT * font, ALLEGRO_TIMER * timer, Abm * abm, Level * level) {
