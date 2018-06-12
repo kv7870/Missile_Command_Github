@@ -42,12 +42,13 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb, Base * ba
 
 			for (j = 1; j < SPLIT_COUNT; j++) {
 				if (level->num_spawned < level->spawnLimit) {
-					if ((rand() % level->splitRate) == 50) {
+					spawnTiming = rand() % level->splitRate;
+					if (spawnTiming > level->splitRangeMin && spawnTiming <level->splitRangeMax) {
 
 						if (enemy[i][j - 1].launched && !enemy[i][j].launched) {
 							enemy[i][j].launch.x = enemy[i][j - 1].pos.x;
 							enemy[i][j].launch.y = enemy[i][j - 1].pos.y;
-							enemy[i][j].dest.x = enemy[i][j - 1].dest.x + level->splitAngle;
+							enemy[i][j].dest.x = enemy[i][j - 1].dest.x + (rand () % level->splitAngle + 50);
 							enemy[i][j].pos.x = enemy[i][j].launch.x;
 							enemy[i][j].pos.y = enemy[i][j].launch.y;
 							enemy[i][j].launched = true;
@@ -68,7 +69,7 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb, Base * ba
 
 			spawnTiming = rand() % level->ufoSpawnRate + 1;
 
-			if (spawnTiming == 50) {
+			if (spawnTiming > level->ufoSpawnRangeMin && spawnTiming < level->ufoSpawnRangeMax) {
 
 				for (i = 0; i < level->maxUfoOnScreen; i++) {
 
@@ -400,52 +401,51 @@ void calcUfoMissileInc(Enemy * missile) {
 void updateUfoMissile(Ufo * ufo, Level * level) {
 
 	for (int i = 0; i < level->maxUfoOnScreen; i++) {
-		if (ufo[i].spawned) {
-			for (int j = 0; j < 2; j++) {
-				if (ufo[i].missile[j].launched) {
+		for (int j = 0; j < 2; j++) {
+			if (ufo[i].missile[j].launched) {
 
-					if (ufo[i].missile[j].dest.x > ufo[i].missile[j].launch.x) {
-						if (level->abmLeft == 0)
-							ufo[i].missile[j].pos.x += 6 * ufo[i].missile[j].inc.x;
-						else
-							ufo[i].missile[j].pos.x += (level->enemySpeed) * ufo[i].missile[j].inc.x;
-					}
-					else if (ufo[i].missile[j].dest.x < ufo[i].missile[j].launch.x) {
-						if (level->abmLeft == 0)
-							ufo[i].missile[j].pos.x -= 6 * ufo[i].missile[j].inc.x;
-						else
-							ufo[i].missile[j].pos.x -= (level->enemySpeed) * ufo[i].missile[j].inc.x;
-					}
-
+				if (ufo[i].missile[j].dest.x > ufo[i].missile[j].launch.x) {
 					if (level->abmLeft == 0)
-						ufo[i].missile[j].pos.y += 6 * ufo[i].missile[j].inc.y;
+						ufo[i].missile[j].pos.x += 6 * ufo[i].missile[j].inc.x;
 					else
-						ufo[i].missile[j].pos.y += (level->enemySpeed) * ufo[i].missile[j].inc.y;
-
-					//calculate bounds
-					ufo[i].missile[j].topLeft.x = ufo[i].missile[j].pos.x - SIZE;
-					ufo[i].missile[j].topLeft.y = ufo[i].missile[j].pos.y - SIZE;
-					ufo[i].missile[j].topRight.x = ufo[i].missile[j].pos.x + SIZE;
-					ufo[i].missile[j].topRight.y = ufo[i].missile[j].pos.y - SIZE;
-					ufo[i].missile[j].bottomLeft.x = ufo[i].missile[j].pos.x - SIZE;
-					ufo[i].missile[j].bottomLeft.y = ufo[i].missile[j].pos.y + SIZE;
+						ufo[i].missile[j].pos.x += (level->enemySpeed) * ufo[i].missile[j].inc.x;
 				}
+				else if (ufo[i].missile[j].dest.x < ufo[i].missile[j].launch.x) {
+					if (level->abmLeft == 0)
+						ufo[i].missile[j].pos.x -= 6 * ufo[i].missile[j].inc.x;
+					else
+						ufo[i].missile[j].pos.x -= (level->enemySpeed) * ufo[i].missile[j].inc.x;
+				}
+
+				if (level->abmLeft == 0)
+					ufo[i].missile[j].pos.y += 6 * ufo[i].missile[j].inc.y;
+				else
+					ufo[i].missile[j].pos.y += (level->enemySpeed) * ufo[i].missile[j].inc.y;
+
+				//calculate bounds
+				ufo[i].missile[j].topLeft.x = ufo[i].missile[j].pos.x - SIZE;
+				ufo[i].missile[j].topLeft.y = ufo[i].missile[j].pos.y - SIZE;
+				ufo[i].missile[j].topRight.x = ufo[i].missile[j].pos.x + SIZE;
+				ufo[i].missile[j].topRight.y = ufo[i].missile[j].pos.y - SIZE;
+				ufo[i].missile[j].bottomLeft.x = ufo[i].missile[j].pos.x - SIZE;
+				ufo[i].missile[j].bottomLeft.y = ufo[i].missile[j].pos.y + SIZE;
 			}
 		}
 	}
-
 }
 
 void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Ufo * ufo, ALLEGRO_BITMAP * imageUfo, ALLEGRO_BITMAP ** imageBomb, Bomb * bomb)
 {
-	int colorId = *theme;  //theme[0] 
+	int enemyColour= theme[1]; 
+	int ufoMissileColour = theme[2];
+
 	int i, j;
 
 	for (i = 0; i < level->maxEnemyOnScreen; i++) {
 		for (int j = 0; j < SPLIT_COUNT; j++) {
 			if (enemy[i][j].launched) {
-				al_draw_filled_rectangle(enemy[i][j].pos.x - 3, enemy[i][j].pos.y - 3, enemy[i][j].pos.x + 3, enemy[i][j].pos.y + 3, al_map_rgb(colorMap[colorId][R], colorMap[colorId][G], colorMap[colorId][B]));
-				al_draw_line(enemy[i][j].pos.x, enemy[i][j].pos.y - 3, enemy[i][j].launch.x, enemy[i][j].launch.y, al_map_rgb(colorMap[colorId][R], colorMap[colorId][G], colorMap[colorId][B]), 4);
+				al_draw_filled_rectangle(enemy[i][j].pos.x - 3, enemy[i][j].pos.y - 3, enemy[i][j].pos.x + 3, enemy[i][j].pos.y + 3, al_map_rgb(colorMap[enemyColour][R], colorMap[enemyColour][G], colorMap[enemyColour][B]));
+				al_draw_line(enemy[i][j].pos.x, enemy[i][j].pos.y - 3, enemy[i][j].launch.x, enemy[i][j].launch.y, al_map_rgb(colorMap[enemyColour][R], colorMap[enemyColour][G], colorMap[enemyColour][B]), 4);
 			}
 		}
 	}
@@ -453,12 +453,12 @@ void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Uf
 	for (i = 0; i < level->maxUfoOnScreen; i++) {
 		if (ufo[i].spawned) {
 			al_draw_bitmap(imageUfo, ufo[i].pos.x, ufo[i].pos.y, 0);
+		}
 
-			for (j = 0; j < 2; j++) {
-				if (ufo[i].missile[j].launched) {
-					al_draw_filled_rectangle(ufo[i].missile[j].pos.x - 3, ufo[i].missile[j].pos.y - 3, ufo[i].missile[j].pos.x + 3, ufo[i].missile[j].pos.y + 3, al_map_rgb(colorMap[colorId][R], colorMap[colorId][G], colorMap[colorId][B]));
-					al_draw_line(ufo[i].missile[j].pos.x, ufo[i].missile[j].pos.y - 3, ufo[i].missile[j].launch.x, ufo[i].missile[j].launch.y, al_map_rgb(colorMap[colorId][R], colorMap[colorId][G], colorMap[colorId][B]), 4);
-				}
+		for (j = 0; j < 2; j++) {
+			if (ufo[i].missile[j].launched) {
+				al_draw_filled_rectangle(ufo[i].missile[j].pos.x - 3, ufo[i].missile[j].pos.y - 3, ufo[i].missile[j].pos.x + 3, ufo[i].missile[j].pos.y + 3, al_map_rgb(colorMap[ufoMissileColour][R], colorMap[ufoMissileColour][G], colorMap[ufoMissileColour][B]));
+				al_draw_line(ufo[i].missile[j].pos.x, ufo[i].missile[j].pos.y - 3, ufo[i].missile[j].launch.x, ufo[i].missile[j].launch.y, al_map_rgb(colorMap[ufoMissileColour][R], colorMap[ufoMissileColour][G], colorMap[ufoMissileColour][B]), 4);
 			}
 		}
 	}
@@ -466,10 +466,8 @@ void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Uf
 	for (i = 0; i < level->maxBombOnScreen; i++) {
 		if (bomb[i].spawned) {
 			al_draw_bitmap(imageBomb[rand() % 5], bomb[i].pos.x, bomb[i].pos.y, 0);
-			//al_draw_circle(bomb[i].pos.x, bomb[i].pos.y, 50, al_map_rgb(255, 255, 255), 5); 
 		}
 	}
-
 }
 
 

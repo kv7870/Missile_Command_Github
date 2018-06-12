@@ -150,13 +150,13 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			al_clear_to_color(al_map_rgb(0, 0, 0));  //clear screen to black to create illusion of animation; draw & clear screen, draw & clear screen... 
 
-			drawObjects(base, 6, &(theme[2]), colorMap, imageLauncher, abm, imageBase, background, ground);
+			drawObjects(base, 6, imageLauncher, abm, imageBase, background, ground);
 
 			drawExplosion(abm, explosion, colorMap);
 
-			drawAbm(abm, &(theme[0]), colorMap);
+			drawAbm(abm, theme[0], colorMap);
 
-			drawEnemy(enemy, &(theme[1]), colorMap, level, ufo, imageUfo, imageBomb, bomb);
+			drawEnemy(enemy, theme, colorMap, level, ufo, imageUfo, imageBomb, bomb);
 
 			drawInfo(font, abm, level);
 
@@ -275,15 +275,24 @@ void loadNextLevel(Level * level, Abm * abm, Base * base) {
 
 	//if (level->spawnRate > 100)
 	//level->spawnRate -= 100;
+	
+	if(level->spawnRangeMin > 0)
+		level->spawnRangeMin -= 5;
+	if (level->spawnRangeMax < 1000)
+		level->spawnRangeMax += 5;
 
-	level->spawnRangeMin -= 5;
-	level->spawnRangeMax += 5;
+	if(level->splitRangeMin > 0)
+		level->splitRangeMin -= 3;
+	if(level->splitRangeMax < 1000)
+		level->splitRangeMax += 3; 
 
-	if (level->splitRate > 100)
-		level->splitRate -= 100;
+	
 
-	if (level->splitAngle <= 90)
-		level->splitAngle += 10;
+	/*if (level->splitRate > 100)
+		level->splitRate -= 100;*/
+
+	if (level->splitAngle <= 600)
+		level->splitAngle += 50;
 
 
 	//ufo 
@@ -292,10 +301,11 @@ void loadNextLevel(Level * level, Abm * abm, Base * base) {
 	level->ufoSpawnLimit += 1;
 	(level->maxUfoOnScreen)++;
 	(level->ufoSpawnLimit)++;
+	if (level->ufoSpawnRangeMin > 0)
+		level->ufoSpawnRangeMin -= 10;
+	if (level->ufoSpawnRangeMax < 1000)
+		level->ufoSpawnRangeMax += 10;
 
-
-	if (level->ufoSpawnRate > 100)
-		level->ufoSpawnRate -= 100;
 
 	//bomb
 	(level->bombSpawnLimit)++;

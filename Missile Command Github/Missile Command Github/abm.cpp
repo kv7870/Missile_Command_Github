@@ -117,21 +117,18 @@ void calcAbmInc(Abm * abm) {
 	abm->inc.y = abm->dy / abm->step;
 }
 
-void drawAbm(struct abmData * abm, int * theme, int colorMap[][3]) {
+void drawAbm(struct abmData * abm, int abmColour, int colorMap[][3]) {
 	int r, g, b;
 
 	r = rand() % 255 + 1;
 	g = rand() % 255 + 1;
 	b = rand() % 255 + 1;
 
-	int colorId = *theme;  //theme[0] 
-
-
 	for (int i = 0; i < ABM_COUNT; i++) {
 		if (abm[i].launched) {
 
-			al_draw_filled_rectangle(abm[i].pos.x - 3, abm[i].pos.y - 3, abm[i].pos.x + 3, abm[i].pos.y + 3, al_map_rgb(colorMap[colorId][R], colorMap[colorId][G], colorMap[colorId][B]));
-			al_draw_line(abm[i].pos.x, abm[i].pos.y + 3, abm[i].launch.x, abm[i].launch.y, al_map_rgb(colorMap[colorId][R], colorMap[colorId][G], colorMap[colorId][B]), 4);
+			al_draw_filled_rectangle(abm[i].pos.x - 3, abm[i].pos.y - 3, abm[i].pos.x + 3, abm[i].pos.y + 3, al_map_rgb(colorMap[abmColour][R], colorMap[abmColour][G], colorMap[abmColour][B]));
+			al_draw_line(abm[i].pos.x, abm[i].pos.y + 3, abm[i].launch.x, abm[i].launch.y, al_map_rgb(colorMap[abmColour][R], colorMap[abmColour][G], colorMap[abmColour][B]), 4);
 
 			//hitmarkers
 			al_draw_line(abm[i].dest.x - 7, abm[i].dest.y + 7, abm[i].dest.x + 7, abm[i].dest.y - 7, al_map_rgb(r, g, b), 3);

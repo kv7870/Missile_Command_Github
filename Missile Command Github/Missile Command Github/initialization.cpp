@@ -237,19 +237,24 @@ void oneTimeInit(Level * level) {
 	level->lives = 6;
 	level->spawnLimit = 10;
 	level->spawnRate = 1000;
-	level->splitRate = 1000;
-	level->splitAngle = 50;
+	level->splitRate = 2000; 
+	level->splitAngle = 200;
 	level->score = 0;
 	level->round = 1;
 	level->spawnRangeMin = 498;
 	level->spawnRangeMax = 502;
+	level->splitRangeMin = 498;
+	level->splitRangeMax = 502; 
+	
 
 	//ufo
 	level->spawnUfo = true;
 	level->ufoSpeed = 0.5;
 	level->ufoSpawnLimit = 2;
 	level->ufoSpawnRate = 500;
-	level->ufoMissileSpawnRate = 100;
+	level->ufoMissileSpawnRate = 2000;
+	level->ufoSpawnRangeMin = 499;
+	level->ufoSpawnRangeMax = 501;
 
 	//bomb
 	level->spawnBomb = true;
@@ -470,43 +475,47 @@ void initBase(Base * base, int baseCount, Level level) {
 
 void initColorMap(int colorMap[][3]) {
 
-	colorMap[NEON_RED][R] = 255;
-	colorMap[NEON_RED][G] = 10;
-	colorMap[NEON_RED][B] = 71;
+	//154, 240, 0
+	//0, 171, 56
+	//0, 149, 67
+	colorMap[GREEN][R] = 24;
+	colorMap[GREEN][G] = 221;
+	colorMap[GREEN][B] = 0;
 
-	colorMap[NEON_GREEN][R] = 71;
-	colorMap[NEON_GREEN][G] = 255;
-	colorMap[NEON_GREEN][B] = 10;
+	//0, 71, 189
+	//2, 136, 217
+	//7, 185, 252
+	colorMap[LIGHT_BLUE][R] = 7;
+	colorMap[LIGHT_BLUE][G] = 185;
+	colorMap[LIGHT_BLUE][B] = 252;
 
-	colorMap[NEON_YELLOW][R] = 194;
-	colorMap[NEON_YELLOW][G] = 255;
-	colorMap[NEON_YELLOW][B] = 10;
+	colorMap[BLUE][R] = 0; 
+	colorMap[BLUE][G] = 0;
+	colorMap[BLUE][B] = 255;
 
-	colorMap[NEON_BLUE][R] = 10;
-	colorMap[NEON_BLUE][G] = 194;
-	colorMap[NEON_BLUE][B] = 255;
-
-	colorMap[LIME][R] = 121;
-	colorMap[LIME][G] = 255;
-	colorMap[LIME][B] = 3;
-
-	colorMap[NEON_PINK][R] = 255;
-	colorMap[NEON_PINK][G] = 10;
-	colorMap[NEON_PINK][B] = 194;
-
-	colorMap[RED][R] = 255;
-	colorMap[RED][G] = 0;
-	colorMap[RED][B] = 25;
-
-	colorMap[RED][R] = 255;
-	colorMap[RED][G] = 0;
-	colorMap[RED][B] = 25;
-
+	//255, 200, 41
+	//255, 255, 0
+	//BRIGHTEST: 255, 230, 50
+	//255, 206, 0
 	colorMap[YELLOW][R] = 255;
-	colorMap[YELLOW][G] = 222;
+	colorMap[YELLOW][G] = 255;
 	colorMap[YELLOW][B] = 0;
 
-	colorMap[TEAL][R] = 0;
-	colorMap[TEAL][G] = 255;
-	colorMap[TEAL][B] = 187;
+	//lighter pink: 252, 130, 195
+	//255, 89, 143
+	colorMap[PINK][R] = 252;
+	colorMap[PINK][G] = 89;
+	colorMap[PINK][B] = 143;
+
+	colorMap[RED][R] = 255;
+	colorMap[RED][G] = 0;
+	colorMap[RED][B] = 0;
+
+	colorMap[ORANGE][R] = 253;
+	colorMap[ORANGE][G] = 71;
+	colorMap[ORANGE][B] = 3;
+
+	colorMap[MAGENTA][R] = 182;
+	colorMap[MAGENTA][G] = 16;
+	colorMap[MAGENTA][B] = 191;
 }

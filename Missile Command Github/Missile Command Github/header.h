@@ -4,8 +4,9 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 
-#define NUM_COLORS 9
-#define COLORS_PER_THEME 4
+#define NUM_COLORS 8
+#define COLORS_PER_THEME 3  //3 colours generated per level; one for enemy missiles, one for player missiles, one for enemy ufo missiles 
+
 /*#define RED		  al_map_rgb(230, 25, 75)
 #define GREEN	  al_map_rgb(60, 180, 75)
 #define YELLOW	  al_map_rgb(255, 225, 25)
@@ -40,7 +41,7 @@ enum KEYS {
 };
 
 enum COLORS {
-	NEON_RED, NEON_GREEN, NEON_YELLOW, NEON_BLUE, LIME, NEON_PINK, RED, TEAL, YELLOW
+	BLUE, GREEN, RED, YELLOW, PINK, ORANGE, LIGHT_BLUE, MAGENTA
 };
 
 enum RGB {
@@ -163,6 +164,13 @@ typedef struct levelData {
 	int spawnRangeMin;
 	int spawnRangeMax;
 
+	int splitRangeMin;
+	int splitRangeMax;
+
+	int ufoSpawnRangeMin;
+	int ufoSpawnRangeMax; 
+
+
 	int maxEnemyOnScreen;
 	int maxUfoOnScreen;
 	int maxBombOnScreen;
@@ -205,7 +213,7 @@ typedef struct audio {
 
 //prototypes
 int initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP **imageCrosshair, ALLEGRO_EVENT_QUEUE **event_queue, ALLEGRO_FONT ** font,
-	ALLEGRO_BITMAP ** background, ALLEGRO_BITMAP ** imageUfo, Level * level, ALLEGRO_BITMAP ** imageBomb, ALLEGRO_BITMAP ** imageLauncher, ALLEGRO_BITMAP ** ground,
+	ALLEGRO_BITMAP ** background, ALLEGRO_BITMAP ** imageUfo, Level * level, ALLEGRO_BITMAP ** imageBomb, ALLEGRO_BITMAP ** imageMissile, ALLEGRO_BITMAP ** ground,
 	ALLEGRO_BITMAP ** imageBase, ALLEGRO_FONT ** titleFont, Audio * audio);
 
 void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair);
@@ -213,7 +221,7 @@ void initAbm(struct abmData * abm, Explosion * explosion);
 
 void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair,
 	struct abmData * abm, Enemy ** enemy, ALLEGRO_FONT * font, Base * base, Explosion * explosion, int * theme, int colorMap[][3], Level * level, ALLEGRO_BITMAP * background,
-	ALLEGRO_BITMAP * imageUfo, Ufo * ufo, ALLEGRO_BITMAP ** imageBomb, Bomb * bomb, ALLEGRO_BITMAP * imageLauncher, ALLEGRO_BITMAP * ground, ALLEGRO_BITMAP * imageBase,
+	ALLEGRO_BITMAP * imageUfo, Ufo * ufo, ALLEGRO_BITMAP ** imageBomb, Bomb * bomb, ALLEGRO_BITMAP * imageMissile, ALLEGRO_BITMAP * ground, ALLEGRO_BITMAP * imageBase,
 	ALLEGRO_FONT * titleFont, FILE * fptr, Audio * audio);
 
 void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, Crosshair * crosshair);
@@ -221,7 +229,7 @@ void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, Crosshair * crosshair);
 void fire(Abm * abm, Crosshair crosshair, Level * level, Audio * audio);
 void calcAbmInc(Abm * abm);
 void updateAbm(struct abmData * abm);
-void drawAbm(struct abmData * abm, int * theme, int colorMap[][3]);
+void drawAbm(struct abmData * abm, int abmColour, int colorMap[][3]);
 void abmArrival(Abm * abm, Explosion * explosion);  //check if abm arrived
 void drawExplosion(Abm * abm, Explosion * explosion, int colorMap[][3]);
 
@@ -237,7 +245,7 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, L
 void drawInfo(ALLEGRO_FONT * font, Abm * abm, Level * level);
 void transition(ALLEGRO_FONT * font, ALLEGRO_TIMER * timer, Abm * abm, Level * level);
 
-void drawObjects(Base * base, int baseCount, int * theme, int colorMap[][3], ALLEGRO_BITMAP * imageLauncher, Abm * abm, ALLEGRO_BITMAP * imageBase, ALLEGRO_BITMAP * background,
+void drawObjects(Base * base, int baseCount, ALLEGRO_BITMAP * imageMissile, Abm * abm, ALLEGRO_BITMAP * imageBase, ALLEGRO_BITMAP * background,
 	ALLEGRO_BITMAP * ground);
 
 void initBase(Base * base, int baseCount, Level level);
@@ -266,7 +274,7 @@ void spawnUfoMissile(Ufo * ufo, Level * level);
 void updateUfoMissile(Ufo * ufo, Level * level);
 void calcUfoMissileInc(Enemy * missile);
 
-void titleScreen(ALLEGRO_BITMAP * imageBase, ALLEGRO_BITMAP * background, ALLEGRO_BITMAP * imageLauncher, ALLEGRO_BITMAP * ground, ALLEGRO_EVENT_QUEUE * event_queue,
+void titleScreen(ALLEGRO_BITMAP * imageBase, ALLEGRO_BITMAP * background, ALLEGRO_BITMAP * imageMissile, ALLEGRO_BITMAP * ground, ALLEGRO_EVENT_QUEUE * event_queue,
 	ALLEGRO_FONT * titleFont, ALLEGRO_FONT * font, Audio audio, Level level);
 
 bool calcBoundingBox(Base base, Enemy enemy);
