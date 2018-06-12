@@ -130,8 +130,7 @@ void drawAbm(struct abmData * abm, int * theme, int colorMap[][3]) {
 	for (int i = 0; i < ABM_COUNT; i++) {
 		if (abm[i].launched) {
 
-			al_draw_filled_rectangle(abm[i].pos.x - 3, abm[i].pos.y - 3, abm[i].pos.x + 3, abm[i].pos.y + 3,
-				al_map_rgb(colorMap[colorId][R], colorMap[colorId][G], colorMap[colorId][B]));
+			al_draw_filled_rectangle(abm[i].pos.x - 3, abm[i].pos.y - 3, abm[i].pos.x + 3, abm[i].pos.y + 3, al_map_rgb(colorMap[colorId][R], colorMap[colorId][G], colorMap[colorId][B]));
 			al_draw_line(abm[i].pos.x, abm[i].pos.y + 3, abm[i].launch.x, abm[i].launch.y, al_map_rgb(colorMap[colorId][R], colorMap[colorId][G], colorMap[colorId][B]), 4);
 
 			//hitmarkers
@@ -224,4 +223,3 @@ void drawExplosion(Abm * abm, Explosion * explosion, int colorMap[][3]) {
 		}
 	}
 }
-

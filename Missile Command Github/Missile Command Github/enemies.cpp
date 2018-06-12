@@ -18,13 +18,15 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb, Base * ba
 	int spawnTiming = 0;
 	int ufoSpawnTiming = 0;
 	int i, j;
-	
+
 	//spawn enemy missile
 	for (i = 0; i < level->maxEnemyOnScreen; i++) {
 		if (level->num_spawned < level->spawnLimit) {
 			if (!enemy[i][0].launched) {  //original missile 
-				spawnTiming = rand() % level->spawnRate + 1;
-				if (spawnTiming == 5) {
+
+				spawnTiming = rand() % level->spawnRate;
+				//(rand()%level->spawnRate) > 14 && rand()%level->spawnRate < 20)
+				if ((spawnTiming > level->spawnRangeMin && spawnTiming < level->spawnRangeMax) || (level->abmLeft == 0)) {
 					enemy[i][0].launch.x = rand() % 861 + 20;
 					enemy[i][0].launch.y = 50;
 					enemy[i][0].dest.x = rand() % 801 + 50;
@@ -33,27 +35,25 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb, Base * ba
 					enemy[i][0].launched = true;
 					(level->num_spawned)++;
 					calcEnemyInc(&(enemy[i][0]));
-					break;  //prevents all enemies spawning at once
+					break;  //prevents all enemies from spawning at once
 				}
 			}
 
-			
-				for (j = 1; j < SPLIT_COUNT; j++) {
-					if (level->num_spawned < level->spawnLimit) {
 
-						spawnTiming = rand() % level->splitRate + 1;
-						if (spawnTiming == 50) {
+			for (j = 1; j < SPLIT_COUNT; j++) {
+				if (level->num_spawned < level->spawnLimit) {
+					if ((rand() % level->splitRate) == 50) {
 
-							if (enemy[i][j - 1].launched && !enemy[i][j].launched) {
-								enemy[i][j].launch.x = enemy[i][j - 1].pos.x;
-								enemy[i][j].launch.y = enemy[i][j - 1].pos.y;
-								enemy[i][j].dest.x = enemy[i][j - 1].dest.x + level->splitAngle;
-								enemy[i][j].pos.x = enemy[i][j].launch.x;
-								enemy[i][j].pos.y = enemy[i][j].launch.y;
-								enemy[i][j].launched = true;
-								(level->num_spawned)++;
-								calcEnemyInc(&(enemy[i][j]));
-								break;
+						if (enemy[i][j - 1].launched && !enemy[i][j].launched) {
+							enemy[i][j].launch.x = enemy[i][j - 1].pos.x;
+							enemy[i][j].launch.y = enemy[i][j - 1].pos.y;
+							enemy[i][j].dest.x = enemy[i][j - 1].dest.x + level->splitAngle;
+							enemy[i][j].pos.x = enemy[i][j].launch.x;
+							enemy[i][j].pos.y = enemy[i][j].launch.y;
+							enemy[i][j].launched = true;
+							(level->num_spawned)++;
+							calcEnemyInc(&(enemy[i][j]));
+							break;
 						}
 					}
 				}
@@ -129,7 +129,7 @@ int pickTarget(Base * base) {
 		pickTarget(base);
 
 	else
-		return target; 
+		return target;
 }
 
 
@@ -154,8 +154,32 @@ void updateBomb(Level * level, Bomb * bomb, Explosion * explosion) {
 	for (int i = 0; i < level->bombSpawnLimit; i++) {
 
 		if (bomb[i].spawned) {
+			bomb[i].timerCount++; 
 
-			bomb[i].pos.y += 2;
+			if (level->abmLeft == 0)
+				bomb[i].pos.y += 6;
+			else 
+				bomb[i].pos.y += 2;
+
+			if (bomb[i].timerCount <= 5) {
+				if (bomb[i].moveLeft) {
+					bomb[i].pos.x -= 2.5;
+				}
+				else {
+					bomb[i].pos.x += 2.5;
+			
+				}
+
+				if (bomb[i].timerCount == 5) {
+					bomb[i].timerCount = 0;
+					if (bomb[i].moveLeft)
+						bomb[i].moveLeft = false;
+					else
+						bomb[i].moveLeft = true;
+				}
+			}
+				
+
 			//calculate bounds 
 			bomb[i].topLeft.x = bomb[i].pos.x;
 			bomb[i].topLeft.y = bomb[i].pos.y;
@@ -248,13 +272,23 @@ void updateEnemy(Enemy ** enemy, Level * level) {
 
 			if (enemy[i][j].launched) {
 				if (enemy[i][j].dest.x > enemy[i][j].launch.x) {
-					enemy[i][j].pos.x += (level->enemySpeed) * enemy[i][j].inc.x;
+					if (level->abmLeft == 0)
+						enemy[i][j].pos.x += 6 * enemy[i][j].inc.x;
+					else
+						enemy[i][j].pos.x += (level->enemySpeed) * enemy[i][j].inc.x;
 				}
 				else if (enemy[i][j].dest.x < enemy[i][j].launch.x) {
-					enemy[i][j].pos.x -= (level->enemySpeed) * enemy[i][j].inc.x;
+					if (level->abmLeft == 0)
+						enemy[i][j].pos.x -= 6 * enemy[i][j].inc.x;
+					else
+						enemy[i][j].pos.x -= (level->enemySpeed) * enemy[i][j].inc.x;
 				}
 
-				enemy[i][j].pos.y += (level->enemySpeed) * enemy[i][j].inc.y;
+
+				if (level->abmLeft == 0)
+					enemy[i][j].pos.y += 6 * enemy[i][j].inc.y;
+				else
+					enemy[i][j].pos.y += (level->enemySpeed) * enemy[i][j].inc.y;
 
 				//calculate bounds
 				enemy[i][j].topLeft.x = enemy[i][j].pos.x - SIZE;
@@ -275,11 +309,19 @@ void updateUfo(Ufo * ufo, Level * level) {
 
 		if (ufo[i].spawned) {
 			if (ufo[i].origin == 900) {
-				ufo[i].pos.x -= 2;
+				if (level->abmLeft == 0)
+					ufo[i].pos.x -= 6;
+				else
+					ufo[i].pos.x -= 2;
 			}
+
 			else if (ufo[i].origin == 0 - level->ufoSize.x) {
-				ufo[i].pos.x += 2;
+				if (level->abmLeft == 0)
+					ufo[i].pos.x += 6;
+				else
+					ufo[i].pos.x += 2;
 			}
+
 
 			//calculate bounds
 			ufo[i].topLeft.x = ufo[i].pos.x;
@@ -300,29 +342,30 @@ void spawnUfoMissile(Ufo * ufo, Level * level) {
 
 	for (int i = 0; i < level->maxUfoOnScreen; i++) {
 		if (ufo[i].spawned) {
-		
+
 			spawnTiming = rand() % level->ufoMissileSpawnRate + 1;
 			if (spawnTiming > 50 && spawnTiming < 70) {
 
 				for (int j = 0; j < 2; j++) {
 					if (!ufo[i].missile[j].launched) {
 						if (level->num_spawned < level->spawnLimit) {
-				
+
 							if (ufo[i].pos.x > 100 && ufo[i].pos.x < 800) {
 								ufo[i].missile[j].launched = true;
 
-								if (ufo[i].origin == level->ufoSpawnSide[LEFT]) 
-										ufo[i].missile[j].launch.x = ufo[i].pos.x + 0.6 * level->ufoSize.x;
-								else 
+
+								if (ufo[i].origin == level->ufoSpawnSide[LEFT])
+									ufo[i].missile[j].launch.x = ufo[i].pos.x + 0.6 * level->ufoSize.x;
+								else
 									ufo[i].missile[j].launch.x = 1.1 * ufo[i].pos.x;
-								
+
 								//ufo[i].missile[j].launch.x = ufo[i].pos.x + 0.5 * level->ufoSize.x;
 								ufo[i].missile[j].launch.y = ufo[i].pos.y + level->ufoSize.y;
 								ufo[i].missile[j].dest.x = baseX[(rand() % 6)];
 								ufo[i].missile[j].pos.x = ufo[i].missile[j].launch.x;
 								ufo[i].missile[j].pos.y = ufo[i].missile[j].launch.y;
 
-								level->num_spawned++; 
+								level->num_spawned++;
 
 								calcUfoMissileInc(&(ufo[i].missile[j]));
 							}
@@ -362,13 +405,22 @@ void updateUfoMissile(Ufo * ufo, Level * level) {
 				if (ufo[i].missile[j].launched) {
 
 					if (ufo[i].missile[j].dest.x > ufo[i].missile[j].launch.x) {
-						ufo[i].missile[j].pos.x += (level->enemySpeed) * ufo[i].missile[j].inc.x;
+						if (level->abmLeft == 0)
+							ufo[i].missile[j].pos.x += 6 * ufo[i].missile[j].inc.x;
+						else
+							ufo[i].missile[j].pos.x += (level->enemySpeed) * ufo[i].missile[j].inc.x;
 					}
 					else if (ufo[i].missile[j].dest.x < ufo[i].missile[j].launch.x) {
-						ufo[i].missile[j].pos.x -= (level->enemySpeed) * ufo[i].missile[j].inc.x;
+						if (level->abmLeft == 0)
+							ufo[i].missile[j].pos.x -= 6 * ufo[i].missile[j].inc.x;
+						else
+							ufo[i].missile[j].pos.x -= (level->enemySpeed) * ufo[i].missile[j].inc.x;
 					}
 
-					ufo[i].missile[j].pos.y += (level->enemySpeed) * ufo[i].missile[j].inc.y;
+					if (level->abmLeft == 0)
+						ufo[i].missile[j].pos.y += 6 * ufo[i].missile[j].inc.y;
+					else
+						ufo[i].missile[j].pos.y += (level->enemySpeed) * ufo[i].missile[j].inc.y;
 
 					//calculate bounds
 					ufo[i].missile[j].topLeft.x = ufo[i].missile[j].pos.x - SIZE;

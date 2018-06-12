@@ -15,15 +15,15 @@
 
 void titleScreen(ALLEGRO_BITMAP * imageBase, ALLEGRO_BITMAP * background, ALLEGRO_BITMAP * imageLauncher, ALLEGRO_BITMAP * ground, ALLEGRO_EVENT_QUEUE * event_queue,
 	ALLEGRO_FONT * titleFont, ALLEGRO_FONT * font, Audio audio, Level level) {
-	
+
 	ALLEGRO_SAMPLE_ID siren_id;
 	bool start = false;
 	int key[3] = { false, false, false };
 	int color;
-	
+
 	ALLEGRO_EVENT ev;
-	int palette[7][3] = { { 255, 0, 0 }, { 0, 255, 0 }, { 0, 0, 255 }, { 128, 128, 128 }, { 255, 255, 255 }, { 248, 6, 248 }, { 0, 255, 255 } };
-	
+	int palette[7][3] = { { 255, 0, 0 },{ 0, 255, 0 },{ 0, 0, 255 },{ 128, 128, 128 },{ 255, 255, 255 },{ 248, 6, 248 },{ 0, 255, 255 } };
+
 	al_play_sample(audio.siren, 1.5, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &siren_id);
 
 	do {
@@ -89,7 +89,7 @@ void titleScreen(ALLEGRO_BITMAP * imageBase, ALLEGRO_BITMAP * background, ALLEGR
 
 		al_draw_text(titleFont, al_map_rgb(255, 0, 0), 110, 200, 0, "MISSILE COMMAND");
 		al_draw_text(font, al_map_rgb(255, 0, 0), 450, 400, ALLEGRO_ALIGN_CENTRE, "HIGH SCORES");
-		al_draw_text(font, al_map_rgb(palette[color][0], palette[color][1], palette[color][2]), 450, 650, ALLEGRO_ALIGN_CENTER, "PRESS ANY KEY TO PLAY"); 
+		al_draw_text(font, al_map_rgb(palette[color][0], palette[color][1], palette[color][2]), 450, 650, ALLEGRO_ALIGN_CENTER, "PRESS ANY KEY TO PLAY");
 
 
 		for (int i = 0, y = 450; i < 5; i++, y += 25) {
@@ -173,7 +173,7 @@ void drawObjects(Base * base, int baseCount, int * theme, int colorMap[][3], ALL
 	if (!abm[9].launched && !abm[9].arrived)
 		al_draw_bitmap(imageLauncher, 30, 800, 0);
 
-	
+
 
 	//second battery (center)
 	if (!abm[10].launched && !abm[10].arrived)
@@ -231,24 +231,24 @@ void drawObjects(Base * base, int baseCount, int * theme, int colorMap[][3], ALL
 	//left
 	if (!base[0].destroyed)
 		al_draw_bitmap(imageBase, 90, 810, 0);
-		
+
 	if (!base[1].destroyed)
 		al_draw_bitmap(imageBase, 190, 810, 0);
 
 	if (!base[2].destroyed)
 		al_draw_bitmap(imageBase, 290, 810, 0);
-	
+
 
 	//right
 	if (!base[3].destroyed)
 		al_draw_bitmap(imageBase, 505, 810, 0);
-	
+
 	if (!base[4].destroyed)
 		al_draw_bitmap(imageBase, 605, 810, 0);
-	
+
 	if (!base[5].destroyed)
 		al_draw_bitmap(imageBase, 705, 810, 0);
-		
+
 
 }
 

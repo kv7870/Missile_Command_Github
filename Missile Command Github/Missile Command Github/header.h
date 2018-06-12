@@ -71,7 +71,7 @@ typedef struct abmData {
 	float dx;
 	float dy;
 
-	Vector inc; 
+	Vector inc;
 	Vector pos;
 
 	/*float x_inc;
@@ -102,12 +102,12 @@ typedef struct explosionData {
 } Explosion;
 
 typedef struct enemyData {
-	Vector dest; 
-	Vector launch; 
+	Vector dest;
+	Vector launch;
 	float dx;
 	float dy;
 	Vector inc;
-	Vector pos; 
+	Vector pos;
 	float step;
 	bool launched;
 	Vector topRight;
@@ -131,6 +131,8 @@ typedef struct ufoData {
 
 typedef struct bombData {
 	bool spawned;
+	bool moveLeft; 
+	int timerCount; 
 	Vector origin;
 	Vector target;
 	Vector pos;
@@ -153,8 +155,13 @@ typedef struct levelData {
 	int score;
 	int abmLeft;
 	int batteryAbmLeft[3];
-	int highScores[5]; 
-	int highScoreCount; 
+	int highScores[5];
+	int highScoreCount;
+	bool newHighScore;
+	bool initialSort;
+
+	int spawnRangeMin;
+	int spawnRangeMax;
 
 	int maxEnemyOnScreen;
 	int maxUfoOnScreen;
@@ -163,7 +170,7 @@ typedef struct levelData {
 	int spawnRate;
 	int splitRate;
 	int splitAngle;
-	int enemySpeed;
+	float enemySpeed;
 	int num_spawned;
 	int spawnLimit;
 
@@ -184,18 +191,17 @@ typedef struct levelData {
 	int bombSpeed;
 	int bombSpawnRate;
 	Vector bombSize;
-	
+
 	//base
 	Vector baseSize;
 	int baseX[6];
-
 } Level;
 
 typedef struct audio {
 	ALLEGRO_SAMPLE * siren;
 	ALLEGRO_SAMPLE * missileLaunch;
-	ALLEGRO_SAMPLE * explosion[6]; 
-} Audio; 
+	ALLEGRO_SAMPLE * explosion[6];
+} Audio;
 
 //prototypes
 int initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP **imageCrosshair, ALLEGRO_EVENT_QUEUE **event_queue, ALLEGRO_FONT ** font,
@@ -265,13 +271,11 @@ void titleScreen(ALLEGRO_BITMAP * imageBase, ALLEGRO_BITMAP * background, ALLEGR
 
 bool calcBoundingBox(Base base, Enemy enemy);
 
-void readScore(FILE * fptr, Level * level); 
+void readScore(FILE * fptr, Level * level);
 void calcScore(Level * level);
 void sortScore(FILE * fptr, Level * level);
 
-int pickTarget(Base * base); 
+int pickTarget(Base * base);
 
-
-
-
-
+bool levelProceed(Level * level, Explosion * explosion, Enemy ** enemy, Ufo * ufo, Bomb * bomb);
+void loadNextLevel(Level * level, Abm * abm, Base * base);

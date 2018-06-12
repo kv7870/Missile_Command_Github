@@ -205,9 +205,6 @@ int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITM
 	}
 
 
-
-
-
 	level->ufoSize.x = al_get_bitmap_width(*imageUfo);
 	level->ufoSize.y = al_get_bitmap_height(*imageUfo);
 
@@ -230,10 +227,13 @@ int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITM
 
 
 void oneTimeInit(Level * level) {
-	int i, j; 
+	int i, j;
+
+	level->newHighScore = false;
+	level->initialSort = true;
 
 	//enemy missile 
-	level->enemySpeed = 2;
+	level->enemySpeed = 1.5;
 	level->lives = 6;
 	level->spawnLimit = 10;
 	level->spawnRate = 1000;
@@ -241,6 +241,8 @@ void oneTimeInit(Level * level) {
 	level->splitAngle = 50;
 	level->score = 0;
 	level->round = 1;
+	level->spawnRangeMin = 498;
+	level->spawnRangeMax = 502;
 
 	//ufo
 	level->spawnUfo = true;
@@ -265,9 +267,9 @@ void oneTimeInit(Level * level) {
 	for (i = 0, j = 145; i < 3; i++, j += 90)
 		level->baseX[i] = j;
 	for (i = 3, j = 530; i < 6; i++, j += 100)
-		level->baseX[i] = j; 
+		level->baseX[i] = j;
 
-	level->highScoreCount = 5; 
+	level->highScoreCount = 5;
 	for (i = 0; i < level->highScoreCount; i++)
 		level->highScores[i] = 0;
 }
@@ -333,7 +335,7 @@ void initAbm(struct abmData * abm, Explosion * explosion) {
 		explosion[i].center.x = 0;
 		explosion[i].center.y = 0;
 		explosion[i].xNew = 0;
-		explosion[i].yNew = 0;	
+		explosion[i].yNew = 0;
 	};
 
 	//1st battery (left)
@@ -426,6 +428,8 @@ void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 		bomb[i].origin.y = 0;
 		bomb[i].target.x = 0;
 		bomb[i].target.y = 0;
+		bomb[i].moveLeft = true;
+		bomb[i].timerCount = 0; 
 
 		//bounds
 		bomb[i].topRight.x = 0;

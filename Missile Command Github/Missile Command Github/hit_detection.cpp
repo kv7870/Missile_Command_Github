@@ -1,5 +1,3 @@
-
-//hit detection
 #include "stdafx.h"
 #include <stdio.h>
 #include <math.h>
@@ -24,7 +22,7 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, L
 	bool above = false;
 	Vector distance = { 0, 0 };
 	Vector clamp = { 0, 0 };
-	int selection = 0; 
+	int selection = 0;
 
 	//distance.x = 900;
 	//distance.y = 900;
@@ -151,7 +149,7 @@ void clampSquare(Explosion * explosion, Enemy * enemy, Vector * clamp) {
 void bombHitDetection(Bomb * bomb, Explosion * explosion, Level * level, Audio * audio) {
 	int i, j;
 	const double alpha = 0.25* 3.14159265359;
-	int selection; 
+	int selection;
 
 	Vector clamp = { 0, 0 };
 	Vector distance = { 0, 0 };
@@ -328,5 +326,3 @@ bool calcBoundingBox(Base base, Enemy enemy) {
 
 	return collided;
 }
-
-
