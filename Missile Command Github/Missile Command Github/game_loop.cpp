@@ -273,18 +273,15 @@ void loadNextLevel(Level * level, Abm * abm, Base * base) {
 	if (level->round % 5 == 0)
 		level->maxEnemyOnScreen += 5;
 
-	//if (level->spawnRate > 100)
-	//level->spawnRate -= 100;
-	
 	if(level->spawnRangeMin > 0)
-		level->spawnRangeMin -= 5;
-	if (level->spawnRangeMax < 1000)
-		level->spawnRangeMax += 5;
+		level->spawnRangeMin -= 2;
+	if (level->spawnRangeMax < 2000)
+		level->spawnRangeMax += 2;
 
 	if(level->splitRangeMin > 0)
-		level->splitRangeMin -= 3;
-	if(level->splitRangeMax < 1000)
-		level->splitRangeMax += 3; 
+		level->splitRangeMin -= 2;
+	if(level->splitRangeMax < 2000)
+		level->splitRangeMax += 2; 
 
 	
 

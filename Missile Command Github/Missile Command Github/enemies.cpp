@@ -101,7 +101,6 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb, Base * ba
 	}
 
 
-
 	//spawn bomb
 	if (level->spawnBomb) {
 		if (level->bombNumSpawned < level->bombSpawnLimit) {
@@ -323,7 +322,6 @@ void updateUfo(Ufo * ufo, Level * level) {
 					ufo[i].pos.x += 2;
 			}
 
-
 			//calculate bounds
 			ufo[i].topLeft.x = ufo[i].pos.x;
 			ufo[i].topLeft.y = ufo[i].pos.y;
@@ -499,14 +497,13 @@ void enemyArrival(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 				}
 
 			}
+		}
 
-			//ufo missiles
-			for (j = 0; j < 2; j++) {
-				if (ufo[i].missile[j].pos.y >= 900) {
-					ufo[i].missile[j].launched = false;
-				}
+		//ufo missiles
+		for (j = 0; j < 2; j++) {
+			if (ufo[i].missile[j].pos.y >= 900) {
+				ufo[i].missile[j].launched = false;
 			}
-
 		}
 	}
 

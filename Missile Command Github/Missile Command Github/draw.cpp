@@ -259,8 +259,7 @@ void generateOneColor(int * theme, int i)
 	}
 }
 
-void generateTheme(int * theme)
-{
+void generateTheme(int * theme) {
 	for (int i = 0; i < COLORS_PER_THEME; i++) {
 		generateOneColor(theme, i);
 	}
