@@ -39,13 +39,16 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, L
 
 						//check bounds
 						//if (explosion[i].topRight.x >= enemy[j][k].topLeft.x &&
-						//	explosion[i].topLeft.x <= enemy[j][k].topRight.x &&
-						//	explosion[i].bottomLeft.y >= enemy[j][k].topLeft.y &&
-						//	explosion[i].topLeft.y <= enemy[j][k].bottomLeft.y) {
+							//explosion[i].topLeft.x <= enemy[j][k].topRight.x &&
+							//explosion[i].bottomLeft.y >= enemy[j][k].topLeft.y &&
+							//explosion[i].topLeft.y <= enemy[j][k].bottomLeft.y) {
 
-						clampSquare(&(explosion[i]), &(enemy[j][k]), &clamp);
+							//enemy[j][k].launched = false;
+							//explosion[i].expandedRadius = true;
+							
+						//}
 
-						calcDistance(distance, explosion[i], clamp);
+						clampSquare(&(explosion[i]), enemy[j][k], &clamp);
 
 						if ((calcDistance(distance, explosion[i], clamp)) == true) {
 							enemy[j][k].launched = false;
@@ -54,7 +57,7 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, L
 							audioSelection = rand() % 6;
 							al_play_sample(audio->explosion[audioSelection], 2.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 
-							//explosion[i].increaseRadius = true;
+							explosion[i].increaseRadius = true;
 							explosion[i].center.x = enemy[j][k].pos.x;
 							explosion[i].center.y = enemy[j][k].pos.y;
 
@@ -86,7 +89,7 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, L
 				for (int k = 0; k < 2; k++) {
 					if (ufo[j].missile[k].launched) {
 
-						clampSquare(&(explosion[i]), &(ufo[j].missile[k]), &clamp);
+						clampSquare(&(explosion[i]), ufo[j].missile[k], &clamp);
 
 						if ((calcDistance(distance, explosion[i], clamp)) == true) {
 							ufo[j].missile[k].launched = false;
@@ -94,7 +97,7 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, L
 
 							audioSelection = rand() % 6;
 							al_play_sample(audio->explosion[audioSelection], 2.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
-							//explosion[i].increaseRadius = true;
+							explosion[i].increaseRadius = true;
 							explosion[i].center.x = enemy[j][k].pos.x;
 							explosion[i].center.y = enemy[j][k].pos.y;
 
@@ -108,43 +111,44 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, L
 }
 
 
+void clampSquare(Explosion * explosion, Enemy enemy, Vector * clamp) {
+
+	//clamp x
+	if (explosion->center.x < enemy.topLeft.x) 
+		clamp->x = enemy.topLeft.x;
+
+	else if (explosion->center.x > enemy.topRight.x) 
+		clamp->x = enemy.topRight.x;
+	
+	else 
+		clamp->x = explosion->center.x;
+	
+
+	//clamp y
+	if (explosion->center.y < enemy.topLeft.y) 
+		clamp->x = enemy.topLeft.y;
+	
+	else if (explosion->center.y > enemy.bottomLeft.y) 
+		clamp->y = enemy.bottomLeft.y;
+	
+	else 
+		clamp->y = explosion->center.y;
+}
+
+
 bool calcDistance(Vector distance, Explosion explosion, Vector clamp) {
 	bool collided = false;
 
 	distance.x = fabs(explosion.center.x - clamp.x);
 	distance.y = fabs(explosion.center.y - clamp.y);
 
+	printf("%d\n", explosion.radius);
+
 	if (pow(distance.x, 2) + pow(distance.y, 2) <= pow(explosion.radius, 2))
 		collided = true;
 
 	return collided;
 }
-
-void clampSquare(Explosion * explosion, Enemy * enemy, Vector * clamp) {
-
-	//clamp x
-	if (explosion->center.x < enemy->topLeft.x) {
-		clamp->x = enemy->topLeft.x;
-	}
-	else if (explosion->center.x > enemy->topRight.x) {
-		clamp->x = enemy->topRight.x;
-	}
-	else {
-		clamp->x = explosion->center.x;
-	}
-
-	//clamp y
-	if (explosion->center.y < enemy->topLeft.y) {
-		clamp->x = enemy->topLeft.y;
-	}
-	else if (explosion->center.y > enemy->bottomLeft.y) {
-		clamp->y = enemy->bottomLeft.y;
-	}
-	else {
-		clamp->y = explosion->center.y;
-	}
-}
-
 
 void bombHitDetection(Bomb * bomb, Explosion * explosion, Level * level, Audio * audio) {
 	int i, j;
@@ -159,7 +163,7 @@ void bombHitDetection(Bomb * bomb, Explosion * explosion, Level * level, Audio *
 			for (j = 0; j < ABM_COUNT; j++) {
 				if (explosion[j].ongoing) {
 
-					rotateBomb(&bomb[i], &explosion[j], level, alpha);
+					//rotateBomb(&bomb[i], &explosion[j], level, alpha);
 
 					clampBomb(&explosion[j], &bomb[i], &clamp);
 
@@ -186,7 +190,7 @@ void bombHitDetection(Bomb * bomb, Explosion * explosion, Level * level, Audio *
 }
 
 
-void rotateBomb(Bomb * bomb, Explosion * explosion, Level * level, double alpha)
+/*void rotateBomb(Bomb * bomb, Explosion * explosion, Level * level, double alpha)
 {
 	double xe = explosion->center.x;
 	double ye = explosion->center.y;
@@ -203,31 +207,31 @@ void rotateBomb(Bomb * bomb, Explosion * explosion, Level * level, double alpha)
 	explosion->xNew = xb - r * sin(theta + alpha);
 	explosion->yNew = yb - r * sin(theta + alpha);
 }
-
+*/
 
 void clampBomb(Explosion * explosion, Bomb * bomb, Vector * clamp) {
 
 	//clamp x (xNew = new rotated center.x)
-	if (explosion->center.x < bomb->topLeft.x) {
+	if (explosion->center.x < bomb->topLeft.x) 
 		clamp->x = bomb->topLeft.x;
-	}
-	else if (explosion->center.x > bomb->topRight.x) {
+	
+	else if (explosion->center.x > bomb->topRight.x) 
 		clamp->x = bomb->topRight.x;
-	}
-	else {
+	
+	else 
 		clamp->x = explosion->center.x;
-	}
+	
 
 	//clamp y
-	if (explosion->center.y < bomb->topLeft.y) {
+	if (explosion->center.y < bomb->topLeft.y) 
 		clamp->x = bomb->topLeft.y;
-	}
-	else if (explosion->center.y > bomb->bottomLeft.y) {
+	
+	else if (explosion->center.y > bomb->bottomLeft.y) 
 		clamp->y = bomb->bottomLeft.y;
-	}
-	else {
+	
+	else 
 		clamp->y = explosion->center.y;
-	}
+
 
 	/*
 	//clamp x (xNew = new rotated center.x)

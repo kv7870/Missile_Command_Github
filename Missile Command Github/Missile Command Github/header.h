@@ -212,7 +212,7 @@ typedef struct audio {
 } Audio;
 
 //prototypes
-int initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP **imageCrosshair, ALLEGRO_EVENT_QUEUE **event_queue, ALLEGRO_FONT ** font,
+void initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP **imageCrosshair, ALLEGRO_EVENT_QUEUE **event_queue, ALLEGRO_FONT ** font,
 	ALLEGRO_BITMAP ** background, ALLEGRO_BITMAP ** imageUfo, Level * level, ALLEGRO_BITMAP ** imageBomb, ALLEGRO_BITMAP ** imageMissile, ALLEGRO_BITMAP ** ground,
 	ALLEGRO_BITMAP ** imageBase, ALLEGRO_FONT ** titleFont, Audio * audio);
 
@@ -253,7 +253,7 @@ void baseCollision(Base * base, Enemy ** enemy, int baseCount, Level * level, Uf
 
 void initColorMap(int colorMap[][3]);
 void generateTheme(int * theme);
-void clampSquare(Explosion * explosion, Enemy * enemy, Vector * clamp);
+void clampSquare(Explosion * explosion, Enemy enemy, Vector * clamp);
 bool calcDistance(Vector distance, Explosion explosion, Vector clamp);
 
 void initLevel(Level * level);
@@ -266,7 +266,7 @@ void horizontalEvasion(Bomb * bomb, Explosion * explosion, Level * level);
 void verticalEvasion(Bomb * bomb, Explosion * explosion, Level * level);
 
 void bombHitDetection(Bomb * bomb, Explosion * explosion, Level * level, Audio * audio);
-void rotateBomb(Bomb * bomb, Explosion * explosion, Level * level, double alpha);
+
 void clampBomb(Explosion * explosion, Bomb * bomb, Vector * clamp);
 
 void updateUfo(Ufo * ufo, Level * level);

@@ -12,40 +12,28 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 
-int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITMAP ** imageCrosshair, ALLEGRO_EVENT_QUEUE ** event_queue, ALLEGRO_FONT ** font, ALLEGRO_BITMAP ** background,
-	ALLEGRO_BITMAP ** imageUfo, Level * level, ALLEGRO_BITMAP ** imageBomb, ALLEGRO_BITMAP ** imageLauncher, ALLEGRO_BITMAP ** ground, ALLEGRO_BITMAP ** imageBase,
+void initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITMAP ** imageCrosshair, ALLEGRO_EVENT_QUEUE ** event_queue, ALLEGRO_FONT ** font, ALLEGRO_BITMAP ** background,
+	ALLEGRO_BITMAP ** imageUfo, Level * level, ALLEGRO_BITMAP ** imageBomb, ALLEGRO_BITMAP ** imageMissile, ALLEGRO_BITMAP ** ground, ALLEGRO_BITMAP ** imageBase,
 	ALLEGRO_FONT ** titleFont, Audio * audio) {
 
-	if (!al_init()) {
-		fprintf(stderr, "failed to initialize allegro!\n");
-		return -1;
-	}
 
+	al_init();
+
+	al_install_keyboard();
+	al_install_mouse();
+	al_install_audio();
+	al_init_acodec_addon();
+	al_reserve_samples(1000);
 	al_init_font_addon();
 	al_init_ttf_addon();
-
-
-	if (!al_install_audio()) {
-		fprintf(stderr, "failed to initialize audio!\n");
-		return -1;
-	}
-
-	if (!al_init_acodec_addon()) {
-		fprintf(stderr, "failed to initialize audio codecs!\n");
-		return -1;
-	}
-
-	if (!al_reserve_samples(300)) {
-		fprintf(stderr, "failed to reserve samples!\n");
-		return -1;
-	}
-
+	al_init_primitives_addon();
+	al_init_image_addon();
 	al_init_font_addon();
 	al_init_ttf_addon();
 
 	//load audio
 	audio->missileLaunch = al_load_sample("missileLaunch.wav");
-	audio->siren = al_load_sample("sirenLong.ogg");
+	audio->siren = al_load_sample("sirenShort.ogg");
 	audio->explosion[0] = al_load_sample("explosion1.wav");
 	audio->explosion[1] = al_load_sample("explosion2.wav");
 	audio->explosion[2] = al_load_sample("explosion3.wav");
@@ -55,155 +43,22 @@ int initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITM
 
 	//create display
 	*display = al_create_display(SCREEN_W, SCREEN_H);
-	if (!(*display)) {
-		fprintf(stderr, "failed to create display!\n");
-		al_destroy_timer(*timer);
-		return -1;
-	}
-
-	//create timer
 	*timer = al_create_timer(1.0 / FPS);   //1/60 seconds per frame, i.e. 60 fps
-	if (!(*timer)) {
-		fprintf(stderr, "failed to create timer!\n");
-		return -1;
-	}
-
 	*font = al_load_ttf_font("Roboto-Regular.ttf", 24, 0);
-	if (!font) {
-		fprintf(stderr, "Could not load 'Roboto-Regular.ttf'.\n");
-		return -1;
-	}
-
 	*titleFont = al_load_ttf_font("DAYPBL__.ttf", 64, 0);
-	if (!titleFont) {
-		fprintf(stderr, "Could not load DAYPBL__.ttf'.\n");
-		return -1;
-	}
-
-	//create event queue 
 	*event_queue = al_create_event_queue();
-	if (!(*event_queue)) {
-		fprintf(stderr, "failed to create event_queue!\n");
-		al_destroy_bitmap(*imageCrosshair);
-		al_destroy_display(*display);
-		al_destroy_timer(*timer);
-		return -1;
-	}
-
-	//install keyboard 
-	if (!al_install_keyboard()) {
-		fprintf(stderr, "failed to initialize the keyboard!\n");
-		return -1;
-	}
-
-	//install mouse 
-	if (!al_install_mouse()) {
-		fprintf(stderr, "failed to initialize the mouse!\n");
-		return -1;
-	}
-
-	if (!al_init_primitives_addon()) {
-		al_show_native_message_box(*display, "Error", "Error", "Failed to initialize image addon!",
-			nullptr, ALLEGRO_MESSAGEBOX_ERROR);
-		return -1;
-	}
-
-	//initialize image addon 
-	if (!al_init_image_addon()) {
-		al_show_native_message_box(*display, "Error", "Error", "Failed to initialize image addon!",
-			nullptr, ALLEGRO_MESSAGEBOX_ERROR);
-		return -1;
-	}
 
 	*imageCrosshair = al_load_bitmap("crosshair.png");
-	if (!imageCrosshair) {
-		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
-			NULL, ALLEGRO_MESSAGEBOX_ERROR);
-		al_destroy_display(*display);
-		return 0;
-	}
-
-
 	*background = al_load_bitmap("background.jpg");
-	if (!background) {
-		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
-			NULL, ALLEGRO_MESSAGEBOX_ERROR);
-		al_destroy_display(*display);
-		return 0;
-	}
-
 	*imageUfo = al_load_bitmap("ufoBlue.png");
-	if (!background) {
-		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
-			NULL, ALLEGRO_MESSAGEBOX_ERROR);
-		al_destroy_display(*display);
-		return 0;
-	}
-
 	imageBomb[0] = al_load_bitmap("greenBomb.png");
-	if (!imageBomb) {
-		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
-			NULL, ALLEGRO_MESSAGEBOX_ERROR);
-		al_destroy_display(*display);
-		return 0;
-	}
-
 	imageBomb[1] = al_load_bitmap("blueBomb.png");
-	if (!imageBomb) {
-		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
-			NULL, ALLEGRO_MESSAGEBOX_ERROR);
-		al_destroy_display(*display);
-		return 0;
-	}
-
 	imageBomb[2] = al_load_bitmap("pinkBomb.png");
-	if (!imageBomb) {
-		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
-			NULL, ALLEGRO_MESSAGEBOX_ERROR);
-		al_destroy_display(*display);
-		return 0;
-	}
-
 	imageBomb[3] = al_load_bitmap("yellowBomb.png");
-	if (!imageBomb) {
-		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
-			NULL, ALLEGRO_MESSAGEBOX_ERROR);
-		al_destroy_display(*display);
-		return 0;
-	}
-
 	imageBomb[4] = al_load_bitmap("whiteBomb.png");
-	if (!imageBomb) {
-		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
-			NULL, ALLEGRO_MESSAGEBOX_ERROR);
-		al_destroy_display(*display);
-		return 0;
-	}
-
-	*imageLauncher = al_load_bitmap("missile.png");
-	if (!imageLauncher) {
-		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
-			NULL, ALLEGRO_MESSAGEBOX_ERROR);
-		al_destroy_display(*display);
-		return 0;
-	}
-
+	*imageMissile = al_load_bitmap("missile.png");
 	*ground = al_load_bitmap("ground.png");
-	if (!ground) {
-		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
-			NULL, ALLEGRO_MESSAGEBOX_ERROR);
-		al_destroy_display(*display);
-		return 0;
-	}
-
 	*imageBase = al_load_bitmap("imageBase.png");
-	if (!ground) {
-		al_show_native_message_box(*display, "Error", "Error", "Failed to load image!",
-			NULL, ALLEGRO_MESSAGEBOX_ERROR);
-		al_destroy_display(*display);
-		return 0;
-	}
-
 
 	level->ufoSize.x = al_get_bitmap_width(*imageUfo);
 	level->ufoSize.y = al_get_bitmap_height(*imageUfo);
@@ -233,7 +88,7 @@ void oneTimeInit(Level * level) {
 	level->initialSort = true;
 
 	//enemy missile 
-	level->enemySpeed = 1.5;
+	level->enemySpeed = 1.25;
 	level->lives = 6;
 	level->spawnLimit = 10;
 	level->spawnRate = 1000;
@@ -250,7 +105,7 @@ void oneTimeInit(Level * level) {
 	//ufo
 	level->spawnUfo = true;
 	level->ufoSpeed = 0.5;
-	level->ufoSpawnLimit = 2;
+	level->ufoSpawnLimit = 1;
 	level->ufoSpawnRate = 500;
 	level->ufoMissileSpawnRate = 2000;
 	level->ufoSpawnRangeMin = 499;

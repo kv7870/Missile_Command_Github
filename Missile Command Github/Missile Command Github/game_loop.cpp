@@ -40,8 +40,6 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			updateEnemy(enemy, level);
 
-			hitDetection(abm, enemy, explosion, level, ufo, audio);
-
 			abmArrival(abm, explosion);
 
 			updateBomb(level, bomb, explosion);
@@ -55,6 +53,8 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 			enemyArrival(enemy, level, ufo, bomb);
 
 			baseCollision(base, enemy, 6, level, ufo, bomb);
+
+			hitDetection(abm, enemy, explosion, level, ufo, audio);
 
 			bombHitDetection(bomb, explosion, level, audio);
 
@@ -273,10 +273,12 @@ void loadNextLevel(Level * level, Abm * abm, Base * base) {
 	if (level->round % 5 == 0)
 		level->maxEnemyOnScreen += 5;
 
-	if(level->spawnRangeMin > 0)
-		level->spawnRangeMin -= 2;
-	if (level->spawnRangeMax < 2000)
-		level->spawnRangeMax += 2;
+	if (level->round % 3 == 0) {
+		if (level->spawnRangeMin > 0)
+			level->spawnRangeMin -= 10;
+		if (level->spawnRangeMax < 2000)
+			level->spawnRangeMax += 10;
+	}
 
 	if(level->splitRangeMin > 0)
 		level->splitRangeMin -= 2;

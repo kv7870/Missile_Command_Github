@@ -46,15 +46,17 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb, Base * ba
 					if (spawnTiming > level->splitRangeMin && spawnTiming <level->splitRangeMax) {
 
 						if (enemy[i][j - 1].launched && !enemy[i][j].launched) {
-							enemy[i][j].launch.x = enemy[i][j - 1].pos.x;
-							enemy[i][j].launch.y = enemy[i][j - 1].pos.y;
-							enemy[i][j].dest.x = enemy[i][j - 1].dest.x + (rand () % level->splitAngle + 50);
-							enemy[i][j].pos.x = enemy[i][j].launch.x;
-							enemy[i][j].pos.y = enemy[i][j].launch.y;
-							enemy[i][j].launched = true;
-							(level->num_spawned)++;
-							calcEnemyInc(&(enemy[i][j]));
-							break;
+							if (enemy[i][0].pos.y < 700) {
+								enemy[i][j].launch.x = enemy[i][j - 1].pos.x;
+								enemy[i][j].launch.y = enemy[i][j - 1].pos.y;
+								enemy[i][j].dest.x = enemy[i][j - 1].dest.x + (rand() % level->splitAngle + 50);
+								enemy[i][j].pos.x = enemy[i][j].launch.x;
+								enemy[i][j].pos.y = enemy[i][j].launch.y;
+								enemy[i][j].launched = true;
+								(level->num_spawned)++;
+								calcEnemyInc(&(enemy[i][j]));
+								break;
+							}
 						}
 					}
 				}
