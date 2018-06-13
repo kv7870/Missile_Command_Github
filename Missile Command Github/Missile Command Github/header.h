@@ -4,43 +4,21 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 
-#define NUM_COLORS 7
-#define COLORS_PER_THEME 3  //3 colours generated per level; one for enemy missiles, one for player missiles, one for enemy ufo missiles 
-
-/*#define RED		  al_map_rgb(230, 25, 75)
-#define GREEN	  al_map_rgb(60, 180, 75)
-#define YELLOW	  al_map_rgb(255, 225, 25)
-#define BLUE	  al_map_rgb(0, 130, 200)
-#define ORANGE    al_map_rgb(245, 130, 48)
-#define CYAN	  al_map_rgb(70, 240, 240)
-#define MAGENTA	  al_map_rgb(240, 50, 230)
-#define LIME	  al_map_rgb(210, 245, 60)
-#define PINK	  al_map_rgb(250, 190, 190)
-#define TEAL	  al_map_rgb(0, 128, 128)
-#define LAVENDER  al_map_rgb(230, 190, 255)
-#define BEIGE	  al_map_rgb(255, 250, 200)
-#define MINT	  al_map_rgb(170, 255, 195)
-#define CORAL	  al_map_rgb(255, 215, 180)
-#define WHITE	  al_map_rgb(255, 255, 255)
-#define TURQUOISE al_map_rgb(64, 224, 207)*/
+#define NUM_COLORS 7 //missile colours
+#define COLORS_PER_THEME 3  //3 colours generated each level; enemy missiles, player missiles, and ufo missiles have different colours
 
 const float FPS = 60;
 const int SCREEN_W = 900;
 const int SCREEN_H = 900;
-const int NUM_BULLETS = 100;
-const int ROWS = 5;   //rows of enemies
-const int COLS = 3;  //columns of enemies 
-const int frameCount = 33;
-const int MAX_SPLIT = 10;
-const int SPLIT_COUNT = 4;
-const int SIZE = 1.5;  //3x3 square
-const int ABM_COUNT = 30;
+const int ABM_COUNT = 30;  //player can fire 30 anti-ballistic missiles every level
+const int SPLIT_COUNT = 4; //each enemy missile can split into 4 
+const int SIZE = 1.5;  //half the size of a 3x3 missile 
 
 enum KEYS {
 	ENTER, SPACE, ESCAPE
 };
 
-enum COLORS {
+enum COLORS {  
 	BLUE, GREEN, RED, YELLOW, PINK, ORANGE, MAGENTA
 };
 
@@ -57,7 +35,8 @@ typedef struct vector {
 	float y;
 } Vector;
 
-//crosshair 
+
+//reticle for aiming
 typedef struct crosshairData {
 	float height;
 	float width;
@@ -65,24 +44,18 @@ typedef struct crosshairData {
 	Vector target;
 } Crosshair;
 
-//each individual ABM has these properties 
+
+//player anti-ballistic missiles
 typedef struct abmData {
-	Vector dest; //destination 
+	Vector dest;   //destination
 	Vector launch; //launch coordinate 
-	float dx;
-	float dy;
-
-	Vector inc;
-	Vector pos;
-
-	/*float x_inc;
-	float y_inc;
-	float x_pos;
-	float y_pos;*/
-
-	float step;
-	int speed;
-	bool launched;
+	float dx;   //delta x; for calculating linear trajectory
+	float dy;   //delta y; for calculating linear trajectory
+	Vector inc; //increment for calculating linear trajectory 
+	float step; //similar to increment
+	Vector pos; //current position (coordinates) 
+	int speed; 
+	bool launched;  
 	bool arrived;
 	int num_increment;
 } Abm;
@@ -92,9 +65,6 @@ typedef struct explosionData {
 	int radius;
 	bool increaseRadius;
 	bool expandedRadius;
-
-	double xNew;
-	double yNew;
 
 	Vector center;
 	Vector topRight;
@@ -155,7 +125,6 @@ typedef struct levelData {
 	int lives;
 	int score;
 	int abmLeft;
-	int batteryAbmLeft[3];
 	int highScores[5];
 	int highScoreCount;
 	bool newHighScore;
@@ -219,7 +188,7 @@ void initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMA
 void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair);
 void initAbm(struct abmData * abm, Explosion * explosion);
 
-void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair,
+void gameLoop(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair,
 	struct abmData * abm, Enemy ** enemy, ALLEGRO_FONT * font, Base * base, Explosion * explosion, int * theme, int colorMap[][3], Level * level, ALLEGRO_BITMAP * background,
 	ALLEGRO_BITMAP * imageUfo, Ufo * ufo, ALLEGRO_BITMAP ** imageBomb, Bomb * bomb, ALLEGRO_BITMAP * imageMissile, ALLEGRO_BITMAP * ground, ALLEGRO_BITMAP * imageBase,
 	ALLEGRO_FONT * titleFont, FILE * fptr, Audio * audio);

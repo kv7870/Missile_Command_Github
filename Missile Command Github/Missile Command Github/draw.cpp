@@ -27,7 +27,6 @@ void titleScreen(ALLEGRO_BITMAP * imageBase, ALLEGRO_BITMAP * background, ALLEGR
 	al_play_sample(audio.siren, 1.5, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &siren_id);
 
 	do {
-
 		color = rand() % 7;
 
 		al_wait_for_event(event_queue, &ev);

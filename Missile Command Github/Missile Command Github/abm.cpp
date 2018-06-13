@@ -14,10 +14,14 @@
 #include <allegro5/allegro_acodec.h>
 
 
+//launch an anti-ballistic missile when player left clicks mouse
 void fire(Abm * abm, Crosshair crosshair, Level * level, Audio * audio) {
 	int i;
-	bool closestLaunchSuccess = false;
+	bool closestLaunchSuccess = false;	//true if closest ABM battery is available to fire 
 
+	//if possible, only fire from the ABM battery closest to the coordinates of the mouse click 
+
+	//launch from left battery if target is closest to the left side of the screen (< 300 px) 
 	if (crosshair.target.x <= 300) {
 		for (i = 0; i < 10; i++) {
 			if (!abm[i].launched && !abm[i].arrived) {
@@ -28,7 +32,6 @@ void fire(Abm * abm, Crosshair crosshair, Level * level, Audio * audio) {
 				abm[i].launched = true;
 				closestLaunchSuccess = true;
 				(level->abmLeft)--;
-				(level->batteryAbmLeft[0])--;
 				calcAbmInc(&(abm[i]));
 				al_play_sample(audio->missileLaunch, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 				break;
@@ -36,6 +39,7 @@ void fire(Abm * abm, Crosshair crosshair, Level * level, Audio * audio) {
 		}
 	}
 
+	//launch from middle battery if target is closest to center portion of screen (between 300 and 600 px)
 	else if (crosshair.target.x > 300 && crosshair.pos.x <= 600) {
 		for (i = 10; i < 20; i++) {
 			if (!abm[i].launched && !abm[i].arrived) {
@@ -46,14 +50,13 @@ void fire(Abm * abm, Crosshair crosshair, Level * level, Audio * audio) {
 				abm[i].launched = true;
 				closestLaunchSuccess = true;
 				(level->abmLeft)--;
-				(level->batteryAbmLeft[1])--;
-				calcAbmInc(&(abm[i]));
 				al_play_sample(audio->missileLaunch, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 				break;
 			}
 		}
 	}
 
+	//launch from right battery if target is closest to right side of screen (>600 px)
 	else if (crosshair.target.x > 600) {
 		for (i = 20; i < 30; i++) {
 			if (!abm[i].launched && !abm[i].arrived) {
@@ -64,7 +67,6 @@ void fire(Abm * abm, Crosshair crosshair, Level * level, Audio * audio) {
 				abm[i].launched = true;
 				closestLaunchSuccess = true;
 				(level->abmLeft)--;
-				(level->batteryAbmLeft[2])--;
 				calcAbmInc(&(abm[i]));
 				al_play_sample(audio->missileLaunch, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 				break;
@@ -73,7 +75,7 @@ void fire(Abm * abm, Crosshair crosshair, Level * level, Audio * audio) {
 	}
 
 
-	//if cannot fire from nearest battery
+	//if closest battery has run out of ABMs
 	if (!closestLaunchSuccess) {
 		for (i = 0; i < ABM_COUNT; i++) {
 			if (!abm[i].launched && !abm[i].arrived) {
@@ -83,15 +85,6 @@ void fire(Abm * abm, Crosshair crosshair, Level * level, Audio * audio) {
 				abm[i].dest.y = crosshair.target.y;
 				abm[i].launched = true;
 				(level->abmLeft)--;
-
-				if (i < 10)
-					(level->batteryAbmLeft[0])--;
-
-				else if (i >= 10 && i < 20)
-					(level->batteryAbmLeft[1])--;
-
-				else if (i >= 20)
-					(level->batteryAbmLeft[2])--;
 
 				calcAbmInc(&(abm[i]));
 				al_play_sample(audio->missileLaunch, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
@@ -187,20 +180,20 @@ void drawExplosion(Abm * abm, Explosion * explosion, int colorMap[][3]) {
 		if (explosion[i].ongoing) {
 
 			//printf("Destination: (%d, %d): arrive: %d\n", abm[i].dest.x, abm[i].dest.y, abm[i].arrived); 
-			if (explosion[i].radius >= 40 && !explosion[i].expandedRadius) {
+			if (explosion[i].radius >= 40 && !explosion[i].expandedRadius) 
 				explosion[i].increaseRadius = false;
-			}
-			else if (explosion[i].radius >= 80 && explosion[i].expandedRadius) {
+			
+			else if (explosion[i].radius >= 80 && explosion[i].expandedRadius) 
 				explosion[i].increaseRadius = false;
-			}
+		
 
-			if (explosion[i].increaseRadius) {
+			if (explosion[i].increaseRadius) 
 				explosion[i].radius += 1;
-			}
+			
 
-			else if (!explosion[i].increaseRadius) {
+			else if (!explosion[i].increaseRadius) 
 				explosion[i].radius -= 1;
-			}
+			
 
 			al_draw_filled_circle(abm[i].dest.x, abm[i].dest.y, explosion[i].radius, al_map_rgb(palette[color][0], palette[color][1], palette[color][2]));
 

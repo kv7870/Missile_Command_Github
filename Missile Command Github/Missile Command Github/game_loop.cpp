@@ -12,18 +12,18 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 
-void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair,
+//actual game 
+void gameLoop(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair,
 	struct abmData * abm, Enemy ** enemy, ALLEGRO_FONT * font, Base * base, Explosion * explosion, int * theme, int colorMap[][3], Level * level, ALLEGRO_BITMAP * background,
 	ALLEGRO_BITMAP * imageUfo, Ufo * ufo, ALLEGRO_BITMAP ** imageBomb, Bomb * bomb, ALLEGRO_BITMAP * imageLauncher, ALLEGRO_BITMAP * ground, ALLEGRO_BITMAP * imageBase,
 	ALLEGRO_FONT * titleFont, FILE * fptr, Audio * audio) {
 
-	bool done = false;
-	bool draw = true;
-	int count = 0;
-	int i;
-	int round = 1;
-	bool proceedLevel = true;
+	bool done = false;  //exit game if true
+	bool draw = true;       
+
+	bool proceedLevel = true;  //proceed to next level if true
 	bool paused = false;
+	int i; 
 
 	al_hide_mouse_cursor(display);
 
@@ -31,56 +31,57 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 		ALLEGRO_EVENT ev;
 		al_wait_for_event(event_queue, &ev);
 
-		if (ev.type == ALLEGRO_EVENT_TIMER) {  //update every 1/60 of a second 
+		if (ev.type == ALLEGRO_EVENT_TIMER) {						//update game every 1/60 of a second 
 			draw = true;
 
 			spawnEnemy(enemy, level, ufo, bomb, base);
 
-			updateAbm(abm);
+			updateAbm(abm);							//update position of ABMs
 
-			updateEnemy(enemy, level);
+			updateEnemy(enemy, level);				//update position of enemy missiles
 
-			abmArrival(abm, explosion);
+			abmArrival(abm, explosion);				//check if ABMs arrive at target
 
-			updateBomb(level, bomb, explosion);
+			updateBomb(level, bomb, explosion);		//update position of bombs
 
-			updateUfo(ufo, level);
+			updateUfo(ufo, level);				    //update position of ufos
+			
+			spawnUfoMissile(ufo, level);			//ufos fire missiles
 
-			updateUfoMissile(ufo, level);
+			updateUfoMissile(ufo, level);			//update position of missiles fired by ufos
 
-			spawnUfoMissile(ufo, level);
+			enemyArrival(enemy, level, ufo, bomb);  //check if enemy arrives at bottom of screen 
 
-			enemyArrival(enemy, level, ufo, bomb);
+			baseCollision(base, enemy, 6, level, ufo, bomb);	//check if enemy missile or bomb hits base 
 
-			baseCollision(base, enemy, 6, level, ufo, bomb);
+			hitDetection(abm, enemy, explosion, level, ufo, audio); //check if player shot down enemies
 
-			hitDetection(abm, enemy, explosion, level, ufo, audio);
-
-			bombHitDetection(bomb, explosion, level, audio);
-
-
+			bombHitDetection(bomb, explosion, level, audio);		//check if enemy bomb is hit by player
 		}
 
-		else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
-			done = true; 
+		//quit if exit button clicked 
+		else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {  
+			exit(0);
 		}
 
+		//get coordinates of player's mouse cursor 
 		else if (ev.type == ALLEGRO_EVENT_MOUSE_AXES || ev.type == ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY) {
 			if (ev.mouse.x >= 4 && ev.mouse.x <= SCREEN_W - crosshair.width)
-				crosshair.pos.x = ev.mouse.x;
-			if (ev.mouse.y >= 4 && ev.mouse.y <= SCREEN_H - crosshair.height/*-150*/)
+				crosshair.pos.x = ev.mouse.x; 
+			if (ev.mouse.y >= 4 && ev.mouse.y <= SCREEN_H - crosshair.height)
 				crosshair.pos.y = ev.mouse.y;
 		}
 
 		else if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
 			if (ev.mouse.button & 1) {
-				crosshair.target.x = ev.mouse.x;   //get coordinate of target 
+				crosshair.target.x = ev.mouse.x;     //get coordinates of mouse cursor upon mouse click
 				crosshair.target.y = ev.mouse.y;
-				fire(abm, crosshair, level, audio);
+				fire(abm, crosshair, level, audio);  //fire ABM 
 			}
 		}
 
 
+		//pause game if escape key pressed
 		else if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
 			switch (ev.keyboard.keycode) {
 			case ALLEGRO_KEY_ESCAPE:
@@ -95,7 +96,6 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 					paused = false;
 					al_start_timer(timer);
 				}
-				break;
 			}
 
 		}
@@ -143,10 +143,9 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 		}
 		}*/
 
-		//must draw everything every tick of timer      
+		//draw everything every 1/60 of a second 
 		if (draw && al_is_event_queue_empty(event_queue)) {
 			draw = false;
-			round++;
 
 			al_clear_to_color(al_map_rgb(0, 0, 0));  //clear screen to black to create illusion of animation; draw & clear screen, draw & clear screen... 
 
@@ -297,11 +296,14 @@ void loadNextLevel(Level * level, Abm * abm, Base * base) {
 	//ufo 
 	level->spawnUfo = true;
 	level->ufoSpeed += 0.5;
-	level->ufoSpawnLimit += 1;
-	(level->maxUfoOnScreen)++;
 	(level->ufoSpawnLimit)++;
+
+	if((level->round % 3 )== 0)
+		(level->maxUfoOnScreen)++;
+
 	if (level->ufoSpawnRangeMin > 0)
 		level->ufoSpawnRangeMin -= 10;
+
 	if (level->ufoSpawnRangeMax < 1000)
 		level->ufoSpawnRangeMax += 10;
 
@@ -315,7 +317,6 @@ void loadNextLevel(Level * level, Abm * abm, Base * base) {
 		(level->maxBombOnScreen)++;
 	
 
-
 	//100 points for any remaining bases
 	for (i = 0; i < 6; i++) {
 		if (!base[i].destroyed)
@@ -327,7 +328,6 @@ void loadNextLevel(Level * level, Abm * abm, Base * base) {
 		if (!abm[i].launched && !abm[i].arrived)
 			(level->score) += 5;
 	}
-
 }
 
 void readScore(FILE * fptr, Level * level) {

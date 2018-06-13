@@ -46,7 +46,7 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb, Base * ba
 					if (spawnTiming > level->splitRangeMin && spawnTiming < level->splitRangeMax) {
 
 						if (enemy[i][j - 1].launched && !enemy[i][j].launched) {
-							if (enemy[i][0].pos.y < 500) {
+							if (enemy[i][j-1].pos.y < 500) {
 								enemy[i][j].launch.x = enemy[i][j - 1].pos.x;
 								enemy[i][j].launch.y = enemy[i][j - 1].pos.y;
 								enemy[i][j].dest.x = enemy[i][j - 1].dest.x + (rand() % level->splitAngle + 50);
