@@ -43,10 +43,10 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb, Base * ba
 			for (j = 1; j < SPLIT_COUNT; j++) {
 				if (level->num_spawned < level->spawnLimit) {
 					spawnTiming = rand() % level->splitRate;
-					if (spawnTiming > level->splitRangeMin && spawnTiming <level->splitRangeMax) {
+					if (spawnTiming > level->splitRangeMin && spawnTiming < level->splitRangeMax) {
 
 						if (enemy[i][j - 1].launched && !enemy[i][j].launched) {
-							if (enemy[i][0].pos.y < 700) {
+							if (enemy[i][0].pos.y < 500) {
 								enemy[i][j].launch.x = enemy[i][j - 1].pos.x;
 								enemy[i][j].launch.y = enemy[i][j - 1].pos.y;
 								enemy[i][j].dest.x = enemy[i][j - 1].dest.x + (rand() % level->splitAngle + 50);
@@ -106,7 +106,7 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb, Base * ba
 	//spawn bomb
 	if (level->spawnBomb) {
 		if (level->bombNumSpawned < level->bombSpawnLimit) {
-			for (i = 0; i < level->bombSpawnLimit; i++) {
+			for (i = 0; i < level->maxBombOnScreen; i++) {
 
 				if ((rand() % level->bombSpawnRate + 1) == 10) {
 					if (!bomb[i].spawned) {
@@ -153,7 +153,7 @@ void calcEnemyInc(Enemy * enemy) {
 
 void updateBomb(Level * level, Bomb * bomb, Explosion * explosion) {
 
-	for (int i = 0; i < level->bombSpawnLimit; i++) {
+	for (int i = 0; i < level->maxBombOnScreen; i++) {
 
 		if (bomb[i].spawned) {
 			bomb[i].timerCount++; 
@@ -307,7 +307,7 @@ void updateEnemy(Enemy ** enemy, Level * level) {
 
 void updateUfo(Ufo * ufo, Level * level) {
 
-	for (int i = 0; i < level->ufoSpawnLimit; i++) {
+	for (int i = 0; i < level->maxUfoOnScreen; i++) {
 
 		if (ufo[i].spawned) {
 			if (ufo[i].origin == 900) {

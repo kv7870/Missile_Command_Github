@@ -51,16 +51,15 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, L
 						clampSquare(&(explosion[i]), enemy[j][k], &clamp);
 
 						if ((calcDistance(distance, explosion[i], clamp)) == true) {
-							enemy[j][k].launched = false;
+						
 							explosion[i].expandedRadius = true;
+
+							explosion[i].increaseRadius = true;
 
 							audioSelection = rand() % 6;
 							al_play_sample(audio->explosion[audioSelection], 2.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
-
-							explosion[i].increaseRadius = true;
-							explosion[i].center.x = enemy[j][k].pos.x;
-							explosion[i].center.y = enemy[j][k].pos.y;
-
+							
+							enemy[j][k].launched = false;
 							level->score += 25;
 						}
 					}
@@ -75,13 +74,13 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, L
 						explosion[i].bottomLeft.y >= ufo[j].topLeft.y &&
 						explosion[i].topLeft.y <= ufo[j].bottomLeft.y) {
 
-						ufo[j].spawned = false;
-						ufo[j].arrived = true;
 						explosion[i].expandedRadius = true;
+						explosion[i].increaseRadius = true; 
 
 						audioSelection = rand() % 6;
 						al_play_sample(audio->explosion[audioSelection], 2.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 
+						ufo[j].spawned = false;
 						level->score += 100;
 					}
 				}
@@ -92,15 +91,15 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, L
 						clampSquare(&(explosion[i]), ufo[j].missile[k], &clamp);
 
 						if ((calcDistance(distance, explosion[i], clamp)) == true) {
-							ufo[j].missile[k].launched = false;
+						
 							explosion[i].expandedRadius = true;
+							explosion[i].increaseRadius = true;
 
 							audioSelection = rand() % 6;
 							al_play_sample(audio->explosion[audioSelection], 2.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
-							explosion[i].increaseRadius = true;
-							explosion[i].center.x = enemy[j][k].pos.x;
-							explosion[i].center.y = enemy[j][k].pos.y;
+						
 
+							ufo[j].missile[k].launched = false;
 							level->score += 25;
 						}
 					}
@@ -172,15 +171,14 @@ void bombHitDetection(Bomb * bomb, Explosion * explosion, Level * level, Audio *
 					distance.y = fabs(explosion[j].center.y - clamp.y);
 
 					if (pow(distance.x, 2) + pow(distance.y, 2) <= pow(explosion[j].radius, 2)) {
-						bomb[i].spawned = false;
+						
 						explosion[j].expandedRadius = true;
 						explosion[j].increaseRadius = true;
-						//explosion[i].center.x = enemy[j][k].x_pos;
-						//explosion[i].center.y = enemy[j][k].y_pos;
 
 						selection = rand() % 6;
 						al_play_sample(audio->explosion[selection], 2.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 
+						bomb[i].spawned = false;
 						level->score += 100;
 					}
 				}
@@ -271,8 +269,8 @@ void baseCollision(Base * base, Enemy ** enemy, int baseCount, Level * level, Uf
 
 					if (enemy[j][k].launched) {
 						if ((calcBoundingBox(base[i], enemy[j][k])) == true) {
-							base[i].destroyed = true;
 							(level->lives)--;
+							base[i].destroyed = true;
 							enemy[j][k].launched = false;
 						}
 					}
@@ -283,9 +281,8 @@ void baseCollision(Base * base, Enemy ** enemy, int baseCount, Level * level, Uf
 					if (ufo[j].missile[k].launched) {
 
 						if ((calcBoundingBox(base[i], ufo[j].missile[k])) == true) {
-
-							base[i].destroyed = true;
 							(level->lives)--;
+							base[i].destroyed = true;
 							ufo[j].missile[k].launched = false;
 					}
 				}
@@ -301,8 +298,8 @@ void baseCollision(Base * base, Enemy ** enemy, int baseCount, Level * level, Uf
 						bomb[j].bottomLeft.y >= base[i].topLeft.y &&
 						bomb[j].topLeft.y <= base[i].bottomLeft.y) {
 
-						base[i].destroyed = true;
 						(level->lives)--;
+						base[i].destroyed = true;
 						bomb[j].spawned = false;
 					}
 				}

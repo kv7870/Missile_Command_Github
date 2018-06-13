@@ -181,9 +181,7 @@ void drawExplosion(Abm * abm, Explosion * explosion, int colorMap[][3]) {
 
 	int palette[7][3] = { { 255, 0, 0 },{ 0, 255, 0 },{ 0, 0, 255 },{ 128, 128, 128 },{ 248, 6, 248 },{ 0, 255, 255 } };
 
-	int explosionColor = rand() % NUM_COLORS;
-
-	int color = rand() % 6;
+	int color = rand() % NUM_COLORS;
 
 	for (int i = 0; i < ABM_COUNT; i++) {
 		if (explosion[i].ongoing) {

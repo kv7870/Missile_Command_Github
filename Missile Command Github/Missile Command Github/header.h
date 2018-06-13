@@ -4,7 +4,7 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 
-#define NUM_COLORS 8
+#define NUM_COLORS 7
 #define COLORS_PER_THEME 3  //3 colours generated per level; one for enemy missiles, one for player missiles, one for enemy ufo missiles 
 
 /*#define RED		  al_map_rgb(230, 25, 75)
@@ -41,7 +41,7 @@ enum KEYS {
 };
 
 enum COLORS {
-	BLUE, GREEN, RED, YELLOW, PINK, ORANGE, LIGHT_BLUE, MAGENTA
+	BLUE, GREEN, RED, YELLOW, PINK, ORANGE, MAGENTA
 };
 
 enum RGB {
@@ -118,7 +118,7 @@ typedef struct enemyData {
 
 typedef struct ufoData {
 	bool spawned;
-	bool arrived;
+
 	//launch x
 	int origin;
 

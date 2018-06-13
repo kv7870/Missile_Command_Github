@@ -93,11 +93,11 @@ void oneTimeInit(Level * level) {
 	level->spawnLimit = 10;
 	level->spawnRate = 1000;
 	level->splitRate = 2000; 
-	level->splitAngle = 200;
+	level->splitAngle = 100;
 	level->score = 0;
 	level->round = 1;
-	level->spawnRangeMin = 498;
-	level->spawnRangeMax = 502;
+	level->spawnRangeMin = 499;
+	level->spawnRangeMax = 501;
 	level->splitRangeMin = 498;
 	level->splitRangeMax = 502; 
 	
@@ -245,7 +245,6 @@ void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 
 	for (int i = 0; i < level->maxUfoOnScreen; i++) {
 		ufo[i].spawned = false;
-		ufo[i].arrived = false;
 		ufo[i].pos.x = 0;
 		ufo[i].pos.y = 0;
 
@@ -340,13 +339,9 @@ void initColorMap(int colorMap[][3]) {
 	//0, 71, 189
 	//2, 136, 217
 	//7, 185, 252
-	colorMap[LIGHT_BLUE][R] = 7;
-	colorMap[LIGHT_BLUE][G] = 185;
-	colorMap[LIGHT_BLUE][B] = 252;
-
-	colorMap[BLUE][R] = 0; 
-	colorMap[BLUE][G] = 0;
-	colorMap[BLUE][B] = 255;
+	colorMap[BLUE][R] = 7;
+	colorMap[BLUE][G] = 185;
+	colorMap[BLUE][B] = 252;
 
 	//255, 200, 41
 	//255, 255, 0

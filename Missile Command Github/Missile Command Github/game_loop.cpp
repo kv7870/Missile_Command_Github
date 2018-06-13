@@ -266,14 +266,14 @@ void loadNextLevel(Level * level, Abm * abm, Base * base) {
 	int i;
 
 	//enemy missiles
-	level->enemySpeed += 0.25;
-	level->spawnLimit += 5;
+	level->enemySpeed += 0.1;
+	level->spawnLimit += 3;
 	level->round++;
 
-	if (level->round % 5 == 0)
+	if ((level->round % 5) == 0)
 		level->maxEnemyOnScreen += 5;
 
-	if (level->round % 3 == 0) {
+	if ((level->round % 3) == 0) {
 		if (level->spawnRangeMin > 0)
 			level->spawnRangeMin -= 10;
 		if (level->spawnRangeMax < 2000)
@@ -281,9 +281,9 @@ void loadNextLevel(Level * level, Abm * abm, Base * base) {
 	}
 
 	if(level->splitRangeMin > 0)
-		level->splitRangeMin -= 2;
+		level->splitRangeMin -= 1;
 	if(level->splitRangeMax < 2000)
-		level->splitRangeMax += 2; 
+		level->splitRangeMax += 1; 
 
 	
 
@@ -307,9 +307,13 @@ void loadNextLevel(Level * level, Abm * abm, Base * base) {
 
 
 	//bomb
-	(level->bombSpawnLimit)++;
-	(level->maxBombOnScreen)++;
-	(level->bombSpeed) += 1;
+	if ((level->round % 2) == 0) {
+		(level->bombSpawnLimit)++;
+		(level->bombSpeed) += 0.5;
+	}
+	if((level->round % 3) == 0)
+		(level->maxBombOnScreen)++;
+	
 
 
 	//100 points for any remaining bases
