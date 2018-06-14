@@ -39,26 +39,26 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, L
 
 						//check bounds
 						//if (explosion[i].topRight.x >= enemy[j][k].topLeft.x &&
-							//explosion[i].topLeft.x <= enemy[j][k].topRight.x &&
-							//explosion[i].bottomLeft.y >= enemy[j][k].topLeft.y &&
-							//explosion[i].topLeft.y <= enemy[j][k].bottomLeft.y) {
+						//explosion[i].topLeft.x <= enemy[j][k].topRight.x &&
+						//explosion[i].bottomLeft.y >= enemy[j][k].topLeft.y &&
+						//explosion[i].topLeft.y <= enemy[j][k].bottomLeft.y) {
 
-							//enemy[j][k].launched = false;
-							//explosion[i].expandedRadius = true;
-							
+						//enemy[j][k].launched = false;
+						//explosion[i].expandedRadius = true;
+
 						//}
 
 						clampSquare(&(explosion[i]), enemy[j][k], &clamp);
 
 						if ((calcDistance(distance, explosion[i], clamp)) == true) {
-						
+
 							explosion[i].expandedRadius = true;
 
 							explosion[i].increaseRadius = true;
 
 							audioSelection = rand() % 6;
 							al_play_sample(audio->explosion[audioSelection], 2.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
-							
+
 							enemy[j][k].launched = false;
 							level->score += 25;
 						}
@@ -75,7 +75,7 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, L
 						explosion[i].topLeft.y <= ufo[j].bottomLeft.y) {
 
 						explosion[i].expandedRadius = true;
-						explosion[i].increaseRadius = true; 
+						explosion[i].increaseRadius = true;
 
 						audioSelection = rand() % 6;
 						al_play_sample(audio->explosion[audioSelection], 2.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
@@ -91,13 +91,13 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, L
 						clampSquare(&(explosion[i]), ufo[j].missile[k], &clamp);
 
 						if ((calcDistance(distance, explosion[i], clamp)) == true) {
-						
+
 							explosion[i].expandedRadius = true;
 							explosion[i].increaseRadius = true;
 
 							audioSelection = rand() % 6;
 							al_play_sample(audio->explosion[audioSelection], 2.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
-						
+
 
 							ufo[j].missile[k].launched = false;
 							level->score += 25;
@@ -113,24 +113,24 @@ void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, L
 void clampSquare(Explosion * explosion, Enemy enemy, Vector * clamp) {
 
 	//clamp x
-	if (explosion->center.x < enemy.topLeft.x) 
+	if (explosion->center.x < enemy.topLeft.x)
 		clamp->x = enemy.topLeft.x;
 
-	else if (explosion->center.x > enemy.topRight.x) 
+	else if (explosion->center.x > enemy.topRight.x)
 		clamp->x = enemy.topRight.x;
-	
-	else 
+
+	else
 		clamp->x = explosion->center.x;
-	
+
 
 	//clamp y
-	if (explosion->center.y < enemy.topLeft.y) 
+	if (explosion->center.y < enemy.topLeft.y)
 		clamp->x = enemy.topLeft.y;
-	
-	else if (explosion->center.y > enemy.bottomLeft.y) 
+
+	else if (explosion->center.y > enemy.bottomLeft.y)
 		clamp->y = enemy.bottomLeft.y;
-	
-	else 
+
+	else
 		clamp->y = explosion->center.y;
 }
 
@@ -171,7 +171,7 @@ void bombHitDetection(Bomb * bomb, Explosion * explosion, Level * level, Audio *
 					distance.y = fabs(explosion[j].center.y - clamp.y);
 
 					if (pow(distance.x, 2) + pow(distance.y, 2) <= pow(explosion[j].radius, 2)) {
-						
+
 						explosion[j].expandedRadius = true;
 						explosion[j].increaseRadius = true;
 
@@ -190,44 +190,44 @@ void bombHitDetection(Bomb * bomb, Explosion * explosion, Level * level, Audio *
 
 /*void rotateBomb(Bomb * bomb, Explosion * explosion, Level * level, double alpha)
 {
-	double xe = explosion->center.x;
-	double ye = explosion->center.y;
+double xe = explosion->center.x;
+double ye = explosion->center.y;
 
-	double xb = bomb->pos.x + 0.5 * level->bombSize.x;
-	double yb = bomb->pos.y + 0.5 * level->bombSize.y;
+double xb = bomb->pos.x + 0.5 * level->bombSize.x;
+double yb = bomb->pos.y + 0.5 * level->bombSize.y;
 
-	double r = sqrt((xe - xb) * (xe - xb) + (ye - yb) * (ye - yb));
-	double theta = atan2(-(xe - xb), (ye - yb));
+double r = sqrt((xe - xb) * (xe - xb) + (ye - yb) * (ye - yb));
+double theta = atan2(-(xe - xb), (ye - yb));
 
-	if (theta < 0.)
-		theta += 2. * 3.14159265359;
+if (theta < 0.)
+theta += 2. * 3.14159265359;
 
-	explosion->xNew = xb - r * sin(theta + alpha);
-	explosion->yNew = yb - r * sin(theta + alpha);
+explosion->xNew = xb - r * sin(theta + alpha);
+explosion->yNew = yb - r * sin(theta + alpha);
 }
 */
 
 void clampBomb(Explosion * explosion, Bomb * bomb, Vector * clamp) {
 
 	//clamp x (xNew = new rotated center.x)
-	if (explosion->center.x < bomb->topLeft.x) 
+	if (explosion->center.x < bomb->topLeft.x)
 		clamp->x = bomb->topLeft.x;
-	
-	else if (explosion->center.x > bomb->topRight.x) 
+
+	else if (explosion->center.x > bomb->topRight.x)
 		clamp->x = bomb->topRight.x;
-	
-	else 
+
+	else
 		clamp->x = explosion->center.x;
-	
+
 
 	//clamp y
-	if (explosion->center.y < bomb->topLeft.y) 
+	if (explosion->center.y < bomb->topLeft.y)
 		clamp->x = bomb->topLeft.y;
-	
-	else if (explosion->center.y > bomb->bottomLeft.y) 
+
+	else if (explosion->center.y > bomb->bottomLeft.y)
 		clamp->y = bomb->bottomLeft.y;
-	
-	else 
+
+	else
 		clamp->y = explosion->center.y;
 
 
@@ -284,10 +284,10 @@ void baseCollision(Base * base, Enemy ** enemy, int baseCount, Level * level, Uf
 							(level->lives)--;
 							base[i].destroyed = true;
 							ufo[j].missile[k].launched = false;
+						}
 					}
 				}
 			}
-		}
 
 
 			for (j = 0; j < level->maxBombOnScreen; j++) {

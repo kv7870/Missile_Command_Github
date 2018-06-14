@@ -14,10 +14,10 @@
 #include <allegro5/allegro_acodec.h>
 
 
-//launch an anti-ballistic missile when player left clicks mouse
+//launch an anti-ballistic missile when left mouse button is pressed
 void fire(Abm * abm, Crosshair crosshair, Level * level, Audio * audio) {
 	int i;
-	bool closestLaunchSuccess = false;	//true if closest ABM battery is available to fire 
+	bool closestLaunchSuccess = false;
 
 	//if possible, only fire from the ABM battery closest to the coordinates of the mouse click 
 
@@ -50,6 +50,7 @@ void fire(Abm * abm, Crosshair crosshair, Level * level, Audio * audio) {
 				abm[i].launched = true;
 				closestLaunchSuccess = true;
 				(level->abmLeft)--;
+				calcAbmInc(&(abm[i]));
 				al_play_sample(audio->missileLaunch, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 				break;
 			}
@@ -95,21 +96,26 @@ void fire(Abm * abm, Crosshair crosshair, Level * level, Audio * audio) {
 }
 
 
+//calculate the trajectory of the ABM using the digital differential algorithm 
 void calcAbmInc(Abm * abm) {
+
 	abm->dx = fabs(abm->dest.x - abm->launch.x);
 	abm->dy = fabs(abm->dest.y - abm->launch.y);
-
-	if (abm->dx >= abm->dy) {
+	
+	//increase x coordinates 
+	if (abm->dx >= abm->dy) 
 		abm->step = abm->dx;
-	}
-	else {
+	
+	else 
 		abm->step = abm->dy;
-	}
-
+	
+	//the # of pixels which the x and y coordinates of the ABM must increase by (every 1/60 of a second) 
 	abm->inc.x = abm->dx / abm->step;
 	abm->inc.y = abm->dy / abm->step;
 }
 
+
+//draw abm and trailing smoke 
 void drawAbm(struct abmData * abm, int abmColour, int colorMap[][3]) {
 	int r, g, b;
 
@@ -180,20 +186,20 @@ void drawExplosion(Abm * abm, Explosion * explosion, int colorMap[][3]) {
 		if (explosion[i].ongoing) {
 
 			//printf("Destination: (%d, %d): arrive: %d\n", abm[i].dest.x, abm[i].dest.y, abm[i].arrived); 
-			if (explosion[i].radius >= 40 && !explosion[i].expandedRadius) 
+			if (explosion[i].radius >= 40 && !explosion[i].expandedRadius) {
 				explosion[i].increaseRadius = false;
-			
-			else if (explosion[i].radius >= 80 && explosion[i].expandedRadius) 
+			}
+			else if (explosion[i].radius >= 80 && explosion[i].expandedRadius) {
 				explosion[i].increaseRadius = false;
-		
+			}
 
-			if (explosion[i].increaseRadius) 
+			if (explosion[i].increaseRadius) {
 				explosion[i].radius += 1;
-			
+			}
 
-			else if (!explosion[i].increaseRadius) 
+			else if (!explosion[i].increaseRadius) {
 				explosion[i].radius -= 1;
-			
+			}
 
 			al_draw_filled_circle(abm[i].dest.x, abm[i].dest.y, explosion[i].radius, al_map_rgb(palette[color][0], palette[color][1], palette[color][2]));
 

@@ -13,10 +13,10 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 
-void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb, Base * base)
-{
-	int spawnTiming = 0;
-	int ufoSpawnTiming = 0;
+//spawn enemy missiles, ufos, and bombs
+void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb, Base * base) {
+	int spawnTiming = 0;	//determines whether to spawn enemy
+	int ufoSpawnTiming = 0;	
 	int i, j;
 
 	//spawn enemy missile
@@ -25,9 +25,10 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb, Base * ba
 			if (!enemy[i][0].launched) {  //original missile 
 
 				spawnTiming = rand() % level->spawnRate;
-				//(rand()%level->spawnRate) > 14 && rand()%level->spawnRate < 20)
-				if ((spawnTiming > level->spawnRangeMin && spawnTiming < level->spawnRangeMax) || (level->abmLeft == 0)) {
-					enemy[i][0].launch.x = rand() % 861 + 20;
+
+				//spawn enemy if the number generated falls within a certain range 
+				if ((spawnTiming > level->spawnRangeMin && spawnTiming < level->spawnRangeMax) || (level->abmLeft == 0)) {	
+					enemy[i][0].launch.x = rand() % 861 + 20;	//enemy[i][0] is the main missile from which 3 more can branch 
 					enemy[i][0].launch.y = 50;
 					enemy[i][0].dest.x = rand() % 801 + 50;
 					enemy[i][0].pos.x = enemy[i][0].launch.x;
@@ -39,22 +40,23 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb, Base * ba
 				}
 			}
 
-
+			//spawn branching missiles 
 			for (j = 1; j < SPLIT_COUNT; j++) {
 				if (level->num_spawned < level->spawnLimit) {
 					spawnTiming = rand() % level->splitRate;
 					if (spawnTiming > level->splitRangeMin && spawnTiming < level->splitRangeMax) {
 
+						//spawn new missile branch if previous missile is launched 
 						if (enemy[i][j - 1].launched && !enemy[i][j].launched) {
-							if (enemy[i][j-1].pos.y < 500) {
-								enemy[i][j].launch.x = enemy[i][j - 1].pos.x;
+							if (enemy[i][j - 1].pos.y < 500) {
+								enemy[i][j].launch.x = enemy[i][j - 1].pos.x;	//new missile branches off from the previous missile
 								enemy[i][j].launch.y = enemy[i][j - 1].pos.y;
 								enemy[i][j].dest.x = enemy[i][j - 1].dest.x + (rand() % level->splitAngle + 50);
 								enemy[i][j].pos.x = enemy[i][j].launch.x;
 								enemy[i][j].pos.y = enemy[i][j].launch.y;
 								enemy[i][j].launched = true;
 								(level->num_spawned)++;
-								calcEnemyInc(&(enemy[i][j]));
+								calcEnemyInc(&(enemy[i][j]));	//calculate trajectory 
 								break;
 							}
 						}
@@ -67,10 +69,12 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb, Base * ba
 
 	//spawn ufo
 	if (level->spawnUfo) {
+
 		if (level->ufoNumSpawned < level->ufoSpawnLimit) {
 
 			spawnTiming = rand() % level->ufoSpawnRate + 1;
 
+			//spawn ufo is random number generated falls within certain range 
 			if (spawnTiming > level->ufoSpawnRangeMin && spawnTiming < level->ufoSpawnRangeMax) {
 
 				for (i = 0; i < level->maxUfoOnScreen; i++) {
@@ -78,10 +82,12 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb, Base * ba
 					if (!ufo[i].spawned) {
 						ufo[i].spawned = true;
 
+						//the first ufo can spawn on the right or left side of the screen 
 						if (i == 0) {
 							ufo[i].origin = level->ufoSpawnSide[rand() % 2]; //& 1
 						}
 
+						//the next ufo spawns on the opposite side of the screen as the previous ufo 
 						else if (i > 0) {
 							if (ufo[i - 1].origin == level->ufoSpawnSide[LEFT]) {
 								ufo[i].origin = level->ufoSpawnSide[RIGHT];
@@ -92,7 +98,7 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb, Base * ba
 						}
 
 						ufo[i].pos.x = ufo[i].origin;
-						ufo[i].pos.y = rand() % 100 + 50;
+						ufo[i].pos.y = rand() % 100 + 50;	//random y-spawn 
 
 						(level->ufoNumSpawned)++;
 						break;
@@ -102,8 +108,7 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb, Base * ba
 		}
 	}
 
-
-	//spawn bomb
+	//spawn bomb	
 	if (level->spawnBomb) {
 		if (level->bombNumSpawned < level->bombSpawnLimit) {
 			for (i = 0; i < level->maxBombOnScreen; i++) {
@@ -111,7 +116,7 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb, Base * ba
 				if ((rand() % level->bombSpawnRate + 1) == 10) {
 					if (!bomb[i].spawned) {
 						bomb[i].spawned = true;
-						bomb[i].origin.x = level->baseX[pickTarget(base)];
+						bomb[i].origin.x = level->base_x[pickTarget(base)];	//bomb targets a randomly selected base; since bomb travels in straight line, its origin.x = its target.x
 						bomb[i].pos.x = bomb[i].origin.x;
 						bomb[i].pos.y = bomb[i].origin.y;
 						(level->bombNumSpawned)++;
@@ -123,55 +128,53 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb, Base * ba
 	}
 }
 
-//recursion
+//randomly select a standing base for bomb to target; if selected base is destroyed, the function calls itself until a standing base is picked 
 int pickTarget(Base * base) {
 	int target = rand() % 6;
 
 	if (base[target].destroyed)
-		pickTarget(base);
+		pickTarget(base);	//recursion
 
 	else
 		return target;
 }
 
-
+//calculate trajectory enemy missile must take using digital differential analyzer algorithm
 void calcEnemyInc(Enemy * enemy) {
 	enemy->dx = fabs(enemy->dest.x - enemy->launch.x);
 	enemy->dy = fabs(enemy->dest.y - enemy->launch.y);
 
-	if (enemy->dx >= enemy->dy) {
+	if (enemy->dx >= enemy->dy) 
 		enemy->step = enemy->dx;
-	}
-	else {
-		enemy->step = enemy->dy;
-	}
 
+	else 
+		enemy->step = enemy->dy;
+	
 	enemy->inc.x = enemy->dx / enemy->step;
 	enemy->inc.y = enemy->dy / enemy->step;
 }
 
 
+//update position of bomb
 void updateBomb(Level * level, Bomb * bomb, Explosion * explosion) {
 
 	for (int i = 0; i < level->maxBombOnScreen; i++) {
 
 		if (bomb[i].spawned) {
-			bomb[i].timerCount++; 
+			bomb[i].timerCount++;	//keeps track of how many timer ticks have elapsed (i.e. frames)
 
-			if (level->abmLeft == 0)
-				bomb[i].pos.y += 6;
-			else 
-				bomb[i].pos.y += 2;
+			if (level->abmLeft == 0)	//if ABMs are out, speed up bomb to finish level quicker 
+				bomb[i].pos.y += 6;	
+			else
+				bomb[i].pos.y += 2;	
 
-			if (bomb[i].timerCount <= 5) {
-				if (bomb[i].moveLeft) {
-					bomb[i].pos.x -= 2.5;
-				}
-				else {
+			if (bomb[i].timerCount <= 5) {	//bomb moves left or right for 5 frames to create zigzaing effect 
+				if (bomb[i].moveLeft) 
+					bomb[i].pos.x -= 2.5;	
+				
+				else 
 					bomb[i].pos.x += 2.5;
-			
-				}
-
+				
 				if (bomb[i].timerCount == 5) {
 					bomb[i].timerCount = 0;
 					if (bomb[i].moveLeft)
@@ -180,7 +183,7 @@ void updateBomb(Level * level, Bomb * bomb, Explosion * explosion) {
 						bomb[i].moveLeft = true;
 				}
 			}
-				
+
 
 			//calculate bounds 
 			bomb[i].topLeft.x = bomb[i].pos.x;
@@ -339,7 +342,7 @@ void updateUfo(Ufo * ufo, Level * level) {
 
 void spawnUfoMissile(Ufo * ufo, Level * level) {
 	int spawnTiming;
-	int baseX[6] = { 145, 235, 325, 530, 630, 730 };
+	int base_x[6] = { 145, 235, 325, 530, 630, 730 };
 
 	for (int i = 0; i < level->maxUfoOnScreen; i++) {
 		if (ufo[i].spawned) {
@@ -362,7 +365,7 @@ void spawnUfoMissile(Ufo * ufo, Level * level) {
 
 								//ufo[i].missile[j].launch.x = ufo[i].pos.x + 0.5 * level->ufoSize.x;
 								ufo[i].missile[j].launch.y = ufo[i].pos.y + level->ufoSize.y;
-								ufo[i].missile[j].dest.x = baseX[(rand() % 6)];
+								ufo[i].missile[j].dest.x = base_x[(rand() % 6)];
 								ufo[i].missile[j].pos.x = ufo[i].missile[j].launch.x;
 								ufo[i].missile[j].pos.y = ufo[i].missile[j].launch.y;
 
@@ -436,7 +439,7 @@ void updateUfoMissile(Ufo * ufo, Level * level) {
 
 void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Ufo * ufo, ALLEGRO_BITMAP * imageUfo, ALLEGRO_BITMAP ** imageBomb, Bomb * bomb)
 {
-	int enemyColour= theme[1]; 
+	int enemyColour = theme[1];
 	int ufoMissileColour = theme[2];
 
 	int i, j;

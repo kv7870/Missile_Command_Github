@@ -33,7 +33,7 @@ void initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BIT
 
 	//load audio
 	audio->missileLaunch = al_load_sample("missileLaunch.wav");
-	audio->siren = al_load_sample("sirenLong.ogg");
+	audio->siren = al_load_sample("sirenShort.ogg");
 	audio->explosion[0] = al_load_sample("explosion1.wav");
 	audio->explosion[1] = al_load_sample("explosion2.wav");
 	audio->explosion[2] = al_load_sample("explosion3.wav");
@@ -41,9 +41,9 @@ void initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BIT
 	audio->explosion[4] = al_load_sample("explosion5.wav");
 	audio->explosion[5] = al_load_sample("explosion6.wav");
 
-	//create Allegro variables
+	//create Allegro stuff 
 	*display = al_create_display(SCREEN_W, SCREEN_H);
-	*timer = al_create_timer(1.0 / FPS);   //timer ticks every 1/60 seconds, i.e. 60 fps
+	*timer = al_create_timer(1.0 / FPS);   //1/60 seconds per frame, i.e. 60 fps
 	*font = al_load_ttf_font("Roboto-Regular.ttf", 24, 0);
 	*titleFont = al_load_ttf_font("DAYPBL__.ttf", 64, 0);
 	*event_queue = al_create_event_queue();
@@ -61,13 +61,11 @@ void initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BIT
 	*ground = al_load_bitmap("ground.png");
 	*imageBase = al_load_bitmap("imageBase.png");
 
-	//get height of images 
+	//get height of images
 	level->ufoSize.x = al_get_bitmap_width(*imageUfo);
 	level->ufoSize.y = al_get_bitmap_height(*imageUfo);
-
 	level->bombSize.x = al_get_bitmap_width(*imageBomb);
 	level->bombSize.y = al_get_bitmap_height(*imageBomb);
-
 	level->baseSize.x = al_get_bitmap_width(*imageBase);
 	level->baseSize.y = al_get_bitmap_width(*imageBase);
 
@@ -83,7 +81,7 @@ void initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BIT
 }
 
 
-//initialize variables that don't need to be reset every level
+//initialize varialbes that don't need to be reset each level 
 void oneTimeInit(Level * level) {
 	int i, j;
 
@@ -95,19 +93,19 @@ void oneTimeInit(Level * level) {
 	level->lives = 6;
 	level->spawnLimit = 10;
 	level->spawnRate = 1000;
-	level->splitRate = 2000; 
+	level->splitRate = 2000;
 	level->splitAngle = 100;
 	level->score = 0;
 	level->round = 1;
 	level->spawnRangeMin = 499;
 	level->spawnRangeMax = 501;
 	level->splitRangeMin = 498;
-	level->splitRangeMax = 502; 
-	level->maxEnemyOnScreen = 5; //max # of enemy missiles on screen at once
-	
+	level->splitRangeMax = 502;
+	level->maxEnemyOnScreen = 5;  //max # of enemy missiles on screen at once
+
 
 	//ufo
-	level->spawnUfo = true;
+	level->spawnUfo = false;
 	level->ufoSpeed = 0.5;
 	level->ufoSpawnLimit = 1;
 	level->ufoSpawnRate = 500;
@@ -118,7 +116,6 @@ void oneTimeInit(Level * level) {
 	level->ufoSpawnSide[RIGHT] = 900;
 	level->maxUfoOnScreen = 1;  //max # of ufos on screen at once
 
-
 	//bomb
 	level->spawnBomb = true;
 	level->bombSpawnLimit = 1;
@@ -128,9 +125,9 @@ void oneTimeInit(Level * level) {
 
 	//base coordinates
 	for (i = 0, j = 145; i < 3; i++, j += 90)
-		level->baseX[i] = j;
+		level->base_x[i] = j;
 	for (i = 3, j = 530; i < 6; i++, j += 100)
-		level->baseX[i] = j;
+		level->base_x[i] = j;
 
 	level->highScoreCount = 5;
 	for (i = 0; i < level->highScoreCount; i++)
@@ -138,7 +135,7 @@ void oneTimeInit(Level * level) {
 }
 
 
-//spawn crosshair at center of screen 
+//spawn crosshair at center of screen y
 void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair) {
 	crosshair->pos.x = 450;
 	crosshair->pos.y = 450;
@@ -147,14 +144,13 @@ void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair) {
 }
 
 
-//initialize data that needs to be reset every round 
 void initLevel(Level * level) {
 	//enemy missile
 	level->num_spawned = 0;
 
 	//ufo
 	level->ufoNumSpawned = 0;
-	
+
 	//bomb
 	level->bombNumSpawned = 0;
 
@@ -162,12 +158,12 @@ void initLevel(Level * level) {
 	level->abmLeft = 30;
 }
 
+
 //reset player anti-ballistic missiles each level
 void initAbm(struct abmData * abm, Explosion * explosion) {
 	int i;
 
 	for (i = 0; i < ABM_COUNT; i++) {
-		//reset missiles
 		abm[i].dest.x = 0;
 		abm[i].dest.y = 0;
 		abm[i].launch.y = 800;
@@ -180,10 +176,8 @@ void initAbm(struct abmData * abm, Explosion * explosion) {
 		abm[i].pos.y = 0;
 		abm[i].step = 0;
 		abm[i].arrived = false;
-		//num_increment = 1?
-		abm[i].num_increment = 0;
+		abm[i].num_increment = 1;
 
-		//reset explosion
 		explosion[i].ongoing = false;
 		explosion[i].radius = 0;
 		explosion[i].increaseRadius = true;
@@ -196,6 +190,8 @@ void initAbm(struct abmData * abm, Explosion * explosion) {
 		explosion[i].bottomLeft.y = 0;
 		explosion[i].center.x = 0;
 		explosion[i].center.y = 0;
+		explosion[i].xNew = 0;
+		explosion[i].yNew = 0;
 	};
 
 	//initialize 1st ABM battery (left)
@@ -207,7 +203,6 @@ void initAbm(struct abmData * abm, Explosion * explosion) {
 	//initialize 2nd ABM battery (center)
 	for (i = 10; i < 20; i++) {
 		abm[i].launch.x = 450;
-		abm[i].launch.y = 800; 
 		abm[i].speed = 14;
 	}
 
@@ -218,7 +213,8 @@ void initAbm(struct abmData * abm, Explosion * explosion) {
 	}
 }
 
-//resetenemy missiles each level
+
+//reset enemy missiles each level
 void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 	for (int i = 0; i < level->maxEnemyOnScreen; i++) {
 		for (int j = 0; j < SPLIT_COUNT; j++) {
@@ -236,8 +232,6 @@ void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 			enemy[i][j].step = 0;
 			enemy[i][j].launch.y = 50;
 			enemy[i][j].dest.y = 900;
-
-			//bounds
 			enemy[i][j].topRight.x = 0;
 			enemy[i][j].topRight.y = 0;
 			enemy[i][j].topLeft.x = 0;
@@ -276,8 +270,6 @@ void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 			ufo[i].missile[j].launch.y = 0;
 			ufo[i].missile[j].dest.x = 0;
 			ufo[i].missile[j].dest.y = 810;
-
-			//bounds
 			ufo[i].missile[j].topRight.x = 0;
 			ufo[i].missile[j].topRight.y = 0;
 			ufo[i].missile[j].topLeft.x = 0;
@@ -297,7 +289,7 @@ void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 		bomb[i].target.x = 0;
 		bomb[i].target.y = 0;
 		bomb[i].moveLeft = true;
-		bomb[i].timerCount = 0;  //# of timer ticks to determine which direction bomb should waver 
+		bomb[i].timerCount = 0;
 
 		//bounds
 		bomb[i].topRight.x = 0;
@@ -310,7 +302,7 @@ void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 }
 
 
-//initialize coordinates for player bases
+//initialize coordinates for bases
 void initBase(Base * base, int baseCount, Level level) {
 	int i, j;
 
@@ -319,7 +311,7 @@ void initBase(Base * base, int baseCount, Level level) {
 		base[i].pos.y = 810;
 	}
 
-	for (i = 3, j = 505; i < baseCount; i++, j += 100) {
+	for (i = 3, j = 505; i < 6; i++, j += 100) {
 		base[i].pos.x = j;
 		base[i].pos.y = 810;
 	}
@@ -337,9 +329,8 @@ void initBase(Base * base, int baseCount, Level level) {
 }
 
 
-//initialize colours for missiles
+//initialize colour palette for missiles
 void initColorMap(int colorMap[][3]) {
-
 
 	colorMap[GREEN][R] = 24;
 	colorMap[GREEN][G] = 221;
@@ -348,6 +339,7 @@ void initColorMap(int colorMap[][3]) {
 	colorMap[BLUE][R] = 7;
 	colorMap[BLUE][G] = 185;
 	colorMap[BLUE][B] = 252;
+
 
 	colorMap[YELLOW][R] = 255;
 	colorMap[YELLOW][G] = 255;
