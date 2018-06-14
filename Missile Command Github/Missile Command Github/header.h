@@ -155,6 +155,7 @@ typedef struct levelData {
 	int lives;
 	int score;
 	int abmLeft;
+	int batteryAbmLeft[3];
 	int highScores[5];
 	int highScoreCount;
 	bool newHighScore;
@@ -201,7 +202,7 @@ typedef struct levelData {
 
 	//base
 	Vector baseSize;
-	int base_x[6];
+	int baseX[6];
 } Level;
 
 typedef struct audio {
@@ -218,7 +219,7 @@ void initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMA
 void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair);
 void initAbm(struct abmData * abm, Explosion * explosion);
 
-void gameLoop(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair,
+void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair,
 	struct abmData * abm, Enemy ** enemy, ALLEGRO_FONT * font, Base * base, Explosion * explosion, int * theme, int colorMap[][3], Level * level, ALLEGRO_BITMAP * background,
 	ALLEGRO_BITMAP * imageUfo, Ufo * ufo, ALLEGRO_BITMAP ** imageBomb, Bomb * bomb, ALLEGRO_BITMAP * imageMissile, ALLEGRO_BITMAP * ground, ALLEGRO_BITMAP * imageBase,
 	ALLEGRO_FONT * titleFont, FILE * fptr, Audio * audio);

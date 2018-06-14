@@ -13,29 +13,32 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 
+//draw title screen 
 void titleScreen(ALLEGRO_BITMAP * imageBase, ALLEGRO_BITMAP * background, ALLEGRO_BITMAP * imageMissile, ALLEGRO_BITMAP * ground, ALLEGRO_EVENT_QUEUE * event_queue,
 	ALLEGRO_FONT * titleFont, ALLEGRO_FONT * font, Audio audio, Level level) {
 
-	ALLEGRO_SAMPLE_ID siren_id;
+	ALLEGRO_SAMPLE_ID siren_id;		//for stopping title screen sound
 	bool start = false;
 	int key[3] = { false, false, false };
 	int color;
 
 	ALLEGRO_EVENT ev;
+
+	//colours for flashing letters 
 	int palette[7][3] = { { 255, 0, 0 },{ 0, 255, 0 },{ 0, 0, 255 },{ 128, 128, 128 },{ 255, 255, 255 },{ 248, 6, 248 },{ 0, 255, 255 } };
 
-	al_play_sample(audio.siren, 1.5, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &siren_id);
+	al_play_sample(audio.siren, 1.5, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &siren_id);	//play title screen "music" 
 
 	do {
+
 		color = rand() % 7;
 
-		al_wait_for_event(event_queue, &ev);
+		al_wait_for_event(event_queue, &ev);	
 
-		//ground
+		//draw planet surface
 		al_draw_bitmap(ground, -100, 750, 0);
 
-		//abms
-		//first battery
+		//draw first ABM battery
 		al_draw_bitmap(imageMissile, 0, 770, 0);
 		al_draw_bitmap(imageMissile, 10, 770, 0);
 		al_draw_bitmap(imageMissile, 20, 770, 0);
@@ -47,7 +50,7 @@ void titleScreen(ALLEGRO_BITMAP * imageBase, ALLEGRO_BITMAP * background, ALLEGR
 		al_draw_bitmap(imageMissile, 20, 800, 0);
 		al_draw_bitmap(imageMissile, 30, 800, 0);
 
-		//second battery
+		//draw second ABM battery
 		al_draw_bitmap(imageMissile, 400, 770, 0);
 		al_draw_bitmap(imageMissile, 410, 770, 0);
 		al_draw_bitmap(imageMissile, 420, 770, 0);
@@ -59,7 +62,7 @@ void titleScreen(ALLEGRO_BITMAP * imageBase, ALLEGRO_BITMAP * background, ALLEGR
 		al_draw_bitmap(imageMissile, 430, 800, 0);
 		al_draw_bitmap(imageMissile, 440, 800, 0);
 
-		//third battery
+		//draw third ABM battery
 		al_draw_bitmap(imageMissile, 800, 770, 0);
 		al_draw_bitmap(imageMissile, 810, 770, 0);
 		al_draw_bitmap(imageMissile, 820, 770, 0);
@@ -71,20 +74,16 @@ void titleScreen(ALLEGRO_BITMAP * imageBase, ALLEGRO_BITMAP * background, ALLEGR
 		al_draw_bitmap(imageMissile, 840, 800, 0);
 		al_draw_bitmap(imageMissile, 850, 800, 0);
 
-
-		//bases
-		//left
+		//draw leftmost bases
 		al_draw_bitmap(imageBase, 90, 810, 0);
 		al_draw_bitmap(imageBase, 190, 810, 0);
 		al_draw_bitmap(imageBase, 290, 810, 0);
 
 
-		//right
+		//draw rightmost bases
 		al_draw_bitmap(imageBase, 505, 810, 0);
 		al_draw_bitmap(imageBase, 605, 810, 0);
 		al_draw_bitmap(imageBase, 705, 810, 0);
-
-		//al_draw_text(font, al_map_rgb(palette[color][0], palette[color][1], palette[color][2]), 300, 300, 0, "MISSILE COMMAND");
 
 		al_draw_text(titleFont, al_map_rgb(255, 0, 0), 110, 200, 0, "MISSILE COMMAND");
 		al_draw_text(font, al_map_rgb(255, 0, 0), 450, 400, ALLEGRO_ALIGN_CENTRE, "HIGH SCORES");
@@ -92,7 +91,7 @@ void titleScreen(ALLEGRO_BITMAP * imageBase, ALLEGRO_BITMAP * background, ALLEGR
 
 
 		for (int i = 0, y = 450; i < 5; i++, y += 25) {
-			al_draw_textf(font, al_map_rgb(255, 0, 0), 450, y, ALLEGRO_ALIGN_CENTRE, "%d", level.highScores[i]);
+			al_draw_textf(font, al_map_rgb(255, 0, 0), 450, y, ALLEGRO_ALIGN_CENTRE, "%d", level.highScores[i]);	//draw high scores 
 		}
 
 		al_flip_display();
@@ -104,17 +103,13 @@ void titleScreen(ALLEGRO_BITMAP * imageBase, ALLEGRO_BITMAP * background, ALLEGR
 }
 
 
-
+//display the reticle 
 void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, Crosshair * crosshair) {
-	al_draw_bitmap(imageCrosshair, crosshair->pos.x - 27, crosshair->pos.y - 23, 0);
+	al_draw_bitmap(imageCrosshair, crosshair->pos.x - 30, crosshair->pos.y - 25, 0);
 }
 
-
-
+//draw level info at top of screen
 void drawInfo(ALLEGRO_FONT * font, Abm * abm, Level * level) {
-	//char printString[200];
-	//sprintf(printString, "%s", string); 
-	//al_draw_text(font, al_map_rgb(255, 255, 255), 10, 10, ALLEGRO_ALIGN_CENTRE, printString);
 	al_draw_textf(font, al_map_rgb(255, 0, 0), 10, 10, 0, "Bases: %d", level->lives);
 	al_draw_textf(font, al_map_rgb(255, 0, 0), 165, 10, 0, "Missiles: %d", level->abmLeft);
 	al_draw_textf(font, al_map_rgb(255, 0, 0), 360, 10, 0, "Score: %d", level->score);
@@ -122,6 +117,8 @@ void drawInfo(ALLEGRO_FONT * font, Abm * abm, Level * level) {
 	al_draw_textf(font, al_map_rgb(255, 0, 0), 675, 10, 0, "Enemy missiles: %d", level->spawnLimit - level->num_spawned);
 }
 
+
+//draw transition screen between levels 
 void transition(ALLEGRO_FONT * font, ALLEGRO_TIMER * timer, Abm * abm, Level * level) {
 
 	al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -137,13 +134,14 @@ void transition(ALLEGRO_FONT * font, ALLEGRO_TIMER * timer, Abm * abm, Level * l
 }
 
 
+//draw various objects
 void drawObjects(Base * base, int baseCount, ALLEGRO_BITMAP * imageMissile, Abm * abm, ALLEGRO_BITMAP * imageBase,
 	ALLEGRO_BITMAP * background, ALLEGRO_BITMAP * ground) {
 
-	al_draw_bitmap(background, 0, 0, 0);
-	al_draw_bitmap(ground, -100, 750, 0);
+	al_draw_bitmap(background, 0, 0, 0);	//draw spacebackground
+	al_draw_bitmap(ground, -100, 750, 0);	//draw planet surface
 
-	//first abm battery (left)
+	//draw first abm battery (left)
 	if (!abm[0].launched && !abm[0].arrived)
 		al_draw_bitmap(imageMissile, 0, 770, 0);
 	if (!abm[1].launched && !abm[1].arrived)
@@ -166,7 +164,7 @@ void drawObjects(Base * base, int baseCount, ALLEGRO_BITMAP * imageMissile, Abm 
 	if (!abm[9].launched && !abm[9].arrived)
 		al_draw_bitmap(imageMissile, 30, 800, 0);
 
-	//second abm battery (center)
+	//draw second abm battery (center)
 	if (!abm[10].launched && !abm[10].arrived)
 		al_draw_bitmap(imageMissile, 400, 770, 0);
 	if (!abm[11].launched && !abm[11].arrived)
@@ -189,7 +187,7 @@ void drawObjects(Base * base, int baseCount, ALLEGRO_BITMAP * imageMissile, Abm 
 	if (!abm[19].launched && !abm[19].arrived)
 		al_draw_bitmap(imageMissile, 440, 800, 0);
 
-	//third abm battery (right) 
+	//draw third abm battery (right) 
 	if (!abm[20].launched && !abm[20].arrived)
 		al_draw_bitmap(imageMissile, 800, 770, 0);
 	if (!abm[21].launched && !abm[21].arrived)
@@ -212,14 +210,7 @@ void drawObjects(Base * base, int baseCount, ALLEGRO_BITMAP * imageMissile, Abm 
 	if (!abm[29].launched && !abm[29].arrived)
 		al_draw_bitmap(imageMissile, 850, 800, 0);
 
-
-	//al_draw_filled_rectangle(10, 850, 80, 900, al_map_rgb(colorMap[colorId2][R], colorMap[colorId2][G], colorMap[colorId2][B]));
-	//al_draw_filled_rectangle(390, 850, 460, 900, al_map_rgb(colorMap[colorId2][R], colorMap[colorId2][G], colorMap[colorId2][B]));
-	//al_draw_filled_rectangle(820, 850, 890, 900, al_map_rgb(colorMap[colorId2][R], colorMap[colorId2][G], colorMap[colorId2][B]));
-
-	//bases
-
-	//left
+	//draw leftmost bases
 	if (!base[0].destroyed)
 		al_draw_bitmap(imageBase, 90, 810, 0);
 
@@ -230,7 +221,7 @@ void drawObjects(Base * base, int baseCount, ALLEGRO_BITMAP * imageMissile, Abm 
 		al_draw_bitmap(imageBase, 290, 810, 0);
 
 
-	//right
+	//draw rightmost bases
 	if (!base[3].destroyed)
 		al_draw_bitmap(imageBase, 505, 810, 0);
 
@@ -243,21 +234,22 @@ void drawObjects(Base * base, int baseCount, ALLEGRO_BITMAP * imageMissile, Abm 
 
 }
 
-//recursive function re-generates colour of enemy missiles if it is the same as player ABM missiles
+//recursive function; generates three different colours for ABM, regular enemy missile, and cruise missile
 void generateOneColor(int * theme, int i)
 {
 	theme[i] = rand() % NUM_COLORS;
 
 	if (i > 0) {
-		for (int j = i - 1; j >= 0; j--) {
+		for (int j = i - 1; j >= 0; j--) {	//compare the colour index generated with previous ones
 			if (theme[i] == theme[j]) {
-				generateOneColor(theme, i);
+				generateOneColor(theme, i); //re-generate the current colour if it is a duplicate of a previously generated colour 
 				break;
 			}
 		}
 	}
 }
 
+//calls another function to generate a colour index 
 void generateTheme(int * theme) {
 	for (int i = 0; i < COLORS_PER_THEME; i++) {
 		generateOneColor(theme, i);

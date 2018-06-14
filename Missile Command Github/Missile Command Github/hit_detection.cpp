@@ -1,3 +1,4 @@
+//hit.cpp
 #include "stdafx.h"
 #include <stdio.h>
 #include <math.h>
