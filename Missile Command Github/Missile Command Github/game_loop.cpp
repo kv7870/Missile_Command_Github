@@ -144,7 +144,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 		}
 		}*/
 
-		//must draw everything every tick of timer      
+	    
 		if (draw && al_is_event_queue_empty(event_queue)) {
 			draw = false;
 			round++;
@@ -166,8 +166,9 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 			al_flip_display();
 
 			//game over 
-			if (level->lives == 0) {
+			if (level->lives <= 0) {
 				done = true;
+				break; 
 			}
 
 			//next level 
@@ -235,9 +236,11 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 }
 
 
+//return whether ready to proceed to next level 
 bool levelProceed(Level * level, Explosion * explosion, Enemy ** enemy, Ufo * ufo, Bomb * bomb) {
 	bool proceed = true;
 
+	//cannot go to next level if a missile is still on screen
 	for (int i = 0; i < level->maxEnemyOnScreen; i++) {
 		for (int j = 0; j < SPLIT_COUNT; j++) {
 			if (enemy[i][j].launched)
@@ -245,16 +248,25 @@ bool levelProceed(Level * level, Explosion * explosion, Enemy ** enemy, Ufo * uf
 		}
 	}
 
+	//cannot go to next level if an explosion is ongoing
 	for (int i = 0; i < ABM_COUNT; i++) {
 		if (explosion[i].ongoing)
 			proceed = false;
 	}
 
+	//cannot go to next level if a ufo or cruise missile is still on screen
 	for (int i = 0; i < level->maxUfoOnScreen; i++) {
-		if (ufo[i].spawned)
+		if (ufo[i].spawned) {
 			proceed = false;
+		}
+		for (int j = 0; j < 2; j++) {
+			if (ufo[i].missile[j].launched)
+				proceed = false;
+		}
+
 	}
 
+	//cannot go to next level if a smart cruise missile is still on screen 
 	for (int i = 0; i < level->maxBombOnScreen; i++) {
 		if (bomb[i].spawned)
 			proceed = false;
@@ -263,6 +275,8 @@ bool levelProceed(Level * level, Explosion * explosion, Enemy ** enemy, Ufo * uf
 	return proceed;
 }
 
+
+//increase difficulty 
 void loadNextLevel(Level * level, Abm * abm, Base * base) {
 	int i;
 
@@ -307,7 +321,7 @@ void loadNextLevel(Level * level, Abm * abm, Base * base) {
 		level->ufoSpawnRangeMax += 10;
 
 
-	//bomb
+	//smart cruise missile
 	if ((level->round % 2) == 0) {
 		(level->bombSpawnLimit)++;
 		(level->bombSpeed) += 0.5;
@@ -331,6 +345,7 @@ void loadNextLevel(Level * level, Abm * abm, Base * base) {
 
 }
 
+//read top 5 highscores from text file
 void readScore(FILE * fptr, Level * level) {
 	if ((fptr = fopen("highScore.txt", "r")) == NULL)
 		printf("Can't open highScore.txt.");
@@ -344,6 +359,7 @@ void readScore(FILE * fptr, Level * level) {
 	fclose(fptr);
 }
 
+//calculate whether player's score is a new top 5 highscore
 void calcScore(Level * level) {
 	int lowest = 0;
 
@@ -354,12 +370,13 @@ void calcScore(Level * level) {
 	}
 
 	if (level->score > level->highScores[lowest]) {
-		level->highScores[lowest] = level->score;	//lowest high score overwritten by new high score
+		level->highScores[lowest] = level->score;	//player's score overwrites lowest highscore 
 		level->newHighScore = true;
 	}
 }
 
 
+//rank highscores from highest to lowest 
 void sortScore(FILE * fptr, Level * level) {
 	int i, j;
 	int lowest;
@@ -396,4 +413,6 @@ void sortScore(FILE * fptr, Level * level) {
 	}
 
 	level->initialSort = false;
+
+	fclose(fptr); 
 }
