@@ -186,7 +186,6 @@ void gameLoop(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *im
 
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 	al_draw_text(font[TITLE], al_map_rgb(255, 0, 0), 300, 400, 0, "THE END");
-	al_draw_textf(font[TEXT], al_map_rgb(255, 0, 0), 300, 500, ALLEGRO_ALIGN_CENTRE, "%d", level->score);
 	al_flip_display();
 	al_rest(5);
 
