@@ -102,7 +102,7 @@ void oneTimeInit(Level * level) {
 
 	//regular enemy missile 
 	level->enemySpeed = 1.25;
-	level->lives = 600;
+	level->lives = 6;
 	level->spawnLimit = 10;
 	level->spawnRate = 1000;
 	level->splitRate = 1000;
