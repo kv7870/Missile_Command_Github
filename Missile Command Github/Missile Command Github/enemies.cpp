@@ -77,41 +77,43 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Scm * scm, Base * base
 
 	//spawn ufo
 	if (level->spawnUfo) {
-		if (level->ufoNumSpawned < level->ufoSpawnLimit) {
 
-			spawnTiming = rand() % level->ufoSpawnRate + 1;
+		for (i = 0; i < level->maxUfoOnScreen; i++) {
+			if (level->ufoNumSpawned < level->ufoSpawnLimit) {
+				if(level->currUfoCount < level->maxUfoOnScreen) {
+					spawnTiming = rand() % level->ufoSpawnRate + 1;
 
-			//spawn ufo is random number generated falls within certain range 
-			if (spawnTiming > level->ufoSpawnRangeMin && spawnTiming < level->ufoSpawnRangeMax) {
+					//spawn ufo is random number generated falls within certain range 
+					if (spawnTiming > level->ufoSpawnRangeMin && spawnTiming < level->ufoSpawnRangeMax) {
 
-				//the first ufo can spawn on the right or left side of the screen 
-				for (i = 0; i < level->maxUfoOnScreen; i++) {
+						if (!ufo[i].spawned) {
+							ufo[i].spawned = true;
 
-					if (!ufo[i].spawned) {
-						ufo[i].spawned = true;
-
-						//the first ufo can spawn on the right or left side of the screen 
-						if (i == 0) {
-							ufo[i].origin = level->ufoSpawnSide[rand() % 2]; //& 1
-						}
-
-						//the next ufo spawns on the opposite side of the screen as the previous ufo 
-						else if (i > 0) {
-							if (ufo[i - 1].origin == level->ufoSpawnSide[LEFT]) {
-								ufo[i].origin = level->ufoSpawnSide[RIGHT];
+							//the first ufo can spawn on the right or left side of the screen 
+							if (i == 0) {
+								ufo[i].origin = level->ufoSpawnSide[rand() % 2]; //& 1
 							}
-							else if (ufo[i - 1].origin == level->ufoSpawnSide[RIGHT]) {
-								ufo[i].origin = level->ufoSpawnSide[LEFT];
+
+							//the next ufo spawns on the opposite side of the screen as the previous ufo 
+							else if (i > 0) {
+								if (ufo[i - 1].origin == level->ufoSpawnSide[LEFT]) {
+									ufo[i].origin = level->ufoSpawnSide[RIGHT];
+								}
+								else if (ufo[i - 1].origin == level->ufoSpawnSide[RIGHT]) {
+									ufo[i].origin = level->ufoSpawnSide[LEFT];
+								}
 							}
+
+							ufo[i].pos.x = ufo[i].origin;
+							ufo[i].pos.y = rand() % 100 + 50;	//random y-spawn 
+							ufo[i].colour = rand() % 2;	//red or blue 
+
+							level->ufoNumSpawned++;
+							level->currUfoCount++;
+							break;
 						}
-
-						ufo[i].pos.x = ufo[i].origin;
-						ufo[i].pos.y = rand() % 100 + 50;	//random y-spawn 
-						ufo[i].colour = rand() % 2;	//red or blue 
-
-						level->ufoNumSpawned++;
-						break;
 					}
+					
 				}
 			}
 		}
@@ -376,10 +378,9 @@ void updateUfo(Ufo * ufo, Level * level) {
 
 
 //spawn cruise missile (fired by flying saucer, aka ufo) 
-void spawnUfoMissile(Ufo * ufo, Level * level) {
+void spawnUfoMissile(Ufo * ufo, Level * level, Base * base) {
 	int spawnTiming;
-	int baseX[6] = { 145, 235, 325, 530, 630, 730 };	//x-coordinates of bases which cruise missiles target
-
+	
 	for (int i = 0; i < level->maxUfoOnScreen; i++) {
 		if (ufo[i].spawned) {	//cruise missile fired from ufo, so can't spawn it if ufo hasn't spawned 
 
@@ -407,7 +408,7 @@ void spawnUfoMissile(Ufo * ufo, Level * level) {
 
 									//ufo[i].missile[j].launch.x = ufo[i].pos.x + 0.5 * level->ufoSize.x;
 									ufo[i].missile[j].launch.y = ufo[i].pos.y + 0.9 * level->ufoSize.y;
-									ufo[i].missile[j].dest.x = baseX[(rand() % 6)];	//select a base for cruise missile to target
+									ufo[i].missile[j].dest.x = level->base_x[pickTarget(base)];	//select a base for cruise missile to target
 									ufo[i].missile[j].pos.x = ufo[i].missile[j].launch.x;
 									ufo[i].missile[j].pos.y = ufo[i].missile[j].launch.y;
 

@@ -50,7 +50,7 @@ void gameLoop(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *im
 
 			updateUfoMissile(ufo, level);
 
-			spawnUfoMissile(ufo, level);
+			spawnUfoMissile(ufo, level, base);
 
 			enemyArrival(enemy, level, ufo, scm);
 

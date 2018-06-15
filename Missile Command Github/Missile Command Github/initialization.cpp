@@ -160,9 +160,11 @@ void initLevel(Level * level) {
 	level->ufoNumSpawned = 0;
 	level->ufoSpawnSide[LEFT] = 0 - level->ufoSize.x;
 	level->ufoSpawnSide[RIGHT] = 900; 
+	level->currUfoCount = 0; 
 
 	//smart cruise missile
 	level->scmNumSpawned = 0;
+	level->currScmCount = 0; 
 
 	//reset abm count
 	level->abmLeft = 30;

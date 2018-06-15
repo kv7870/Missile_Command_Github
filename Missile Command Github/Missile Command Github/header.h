@@ -178,7 +178,10 @@ typedef struct levelData {
 	float enemySpeed;
 	int num_spawned;
 	int spawnLimit;
+
 	int currEnemyCount; 
+	int currUfoCount;
+	int currScmCount; 
 
 	//ufo
 	int ufoSpawnLimit;
@@ -268,7 +271,7 @@ void scmCollision(Scm * scm, Explosion * explosion, Level * level, Audio * audio
 void clampScm(Explosion * explosion, Scm * scm, Vector * clamp);
 
 void updateUfo(Ufo * ufo, Level * level);
-void spawnUfoMissile(Ufo * ufo, Level * level);
+void spawnUfoMissile(Ufo * ufo, Level * level, Base * base);
 void updateUfoMissile(Ufo * ufo, Level * level);
 void calcUfoMissileInc(Enemy * missile);
 
