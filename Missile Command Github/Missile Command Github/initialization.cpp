@@ -21,7 +21,6 @@ FINAL VERSION
 void initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BITMAP ** imageCrosshair, ALLEGRO_EVENT_QUEUE ** event_queue, ALLEGRO_FONT ** font, ALLEGRO_BITMAP ** background,
 	ALLEGRO_BITMAP ** imageUfo, Level * level, ALLEGRO_BITMAP ** imageScm, ALLEGRO_BITMAP ** imageMissile, ALLEGRO_BITMAP ** ground, ALLEGRO_BITMAP ** imageBase, Audio * audio) {
 
-
 	al_init();
 
 	al_install_keyboard();

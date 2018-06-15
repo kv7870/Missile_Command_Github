@@ -284,3 +284,4 @@ int pickTarget(Base * base);
 
 bool levelProceed(Level * level, Explosion * explosion, Enemy ** enemy, Ufo * ufo, Scm * scm);
 void loadNextLevel(Level * level, Abm * abm, Base * base);
+void instructionScreen(ALLEGRO_FONT ** font, ALLEGRO_EVENT_QUEUE * event_queue);

@@ -105,8 +105,33 @@ void titleScreen(ALLEGRO_BITMAP * imageBase, ALLEGRO_BITMAP * background, ALLEGR
 	while (ev.type != ALLEGRO_EVENT_KEY_DOWN && ev.type != ALLEGRO_EVENT_MOUSE_BUTTON_DOWN);	//start game if mouse or key pressed
 
 	al_stop_sample(&siren_id);	//stop title screen siren sound
+
+	al_clear_to_color(al_map_rgb(0, 0, 0));
 }
 
+
+void instructionScreen(ALLEGRO_FONT ** font, ALLEGRO_EVENT_QUEUE * event_queue) {
+
+	ALLEGRO_EVENT ev;
+
+	do {
+
+		al_wait_for_event(event_queue, &ev);
+
+		al_draw_text(font[HEADING], al_map_rgb(255, 0, 0), 450, 225, ALLEGRO_ALIGN_CENTER, "OBJECTIVE");
+		al_draw_text(font[TEXT], al_map_rgb(255, 0, 0), 450, 270, ALLEGRO_ALIGN_CENTER, "Shoot down enemy missiles");
+		al_draw_text(font[TEXT], al_map_rgb(255, 0, 0), 450, 310, ALLEGRO_ALIGN_CENTER, "before they reach your bases");
+
+		al_draw_text(font[HEADING], al_map_rgb(255, 0, 0), 450, 450, ALLEGRO_ALIGN_CENTER, "CONTROLS");
+		al_draw_text(font[TEXT], al_map_rgb(255, 0, 0), 450, 495, ALLEGRO_ALIGN_CENTER, "Fire: Left Mouse Button");
+		al_draw_text(font[TEXT], al_map_rgb(255, 0, 0), 450, 535, ALLEGRO_ALIGN_CENTER, "Aim: move mouse");
+		al_draw_text(font[TEXT], al_map_rgb(255, 0, 0), 450, 575, ALLEGRO_ALIGN_CENTER, "Pause: escape");
+		al_draw_text(font[HEADING], al_map_rgb(255, 0, 0), 450, 720, ALLEGRO_ALIGN_CENTER, "Press any key to continue");
+		al_flip_display();
+	}
+
+	while (ev.type != ALLEGRO_EVENT_KEY_DOWN && ev.type != ALLEGRO_EVENT_MOUSE_BUTTON_DOWN);
+}
 
 //draw reticle
 void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, Crosshair * crosshair) {
