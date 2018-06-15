@@ -166,7 +166,7 @@ void scmCollision(Scm * scm, Explosion * explosion, Level * level, Audio * audio
 					clampScm(&explosion[j], &scm[i], &clamp);
 
 					//scm is hit if its closest pixel is touching an explosion
-					if((calcDistance(distance, explosion[i], clamp)) == true) {
+					if((calcDistance(distance, explosion[j], clamp)) == true) {
 
 						explosion[j].expandedRadius = true;
 						explosion[j].increaseRadius = true;
