@@ -14,13 +14,12 @@
 #include <allegro5/allegro_acodec.h>
 
 
-
-//fire an anti-ballistic missile when left mouse button is pressed
+//fire an anti-ballistic missile when left mouse button pressed
 void fire(Abm * abm, Crosshair crosshair, Level * level, Audio * audio) {
 	int i;
-	bool closestLaunchSuccess = false;
+	bool closestLaunchSuccess = false;	//true if able to launch ABM from closest battery
 
-	//if possible, only fire from the ABM battery closest to the coordinates of the mouse click 
+	//if possible, fire from ABM battery that is closest to coordinates of mouse click 
 
 	//launch from left battery if target is in left side of the screen (< 300 px) 
 	if (crosshair.target.x <= 300) {
@@ -32,14 +31,13 @@ void fire(Abm * abm, Crosshair crosshair, Level * level, Audio * audio) {
 				abm[i].dest.y = crosshair.target.y;
 				abm[i].launched = true;
 				closestLaunchSuccess = true;
-				(level->abmLeft)--;
-				calcAbmInc(&(abm[i]));
+				(level->abmLeft)--;	
+				calcAbmInc(&(abm[i]));	//calculate trajectory
 				al_play_sample(audio->missileLaunch, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 				break;
 			}
 		}
 	}
-
 
 	//launch from middle battery if target is is in center portion of screen (between 300 and 600 px)
 	else if (crosshair.target.x > 300 && crosshair.pos.x <= 600) {
@@ -77,8 +75,7 @@ void fire(Abm * abm, Crosshair crosshair, Level * level, Audio * audio) {
 		}
 	}
 
-
-	//if battery closest to target has run out of ABMs, fire from an ABM from any unused battery 
+	//if battery closest to target has run out of ABMs, fire an unused ABM from any battery
 	if (!closestLaunchSuccess) {
 		for (i = 0; i < ABM_COUNT; i++) {
 			if (!abm[i].launched && !abm[i].arrived) {
@@ -102,18 +99,18 @@ void calcAbmInc(Abm * abm) {
 	abm->dx = fabs(abm->dest.x - abm->launch.x);
 	abm->dy = fabs(abm->dest.y - abm->launch.y);
 
-	//increase x coordinate more for every increase in y if delta x between launchpoint and target is greater than delta y 
+	//greater increase in x coordinate for every increase in y if delta x between launchpoint and target is greater than delta y 
 	if (abm->dx >= abm->dy) {
 		abm->step = abm->dx;
 	}
-	//increase y coordinate more for every increase in x if delta y between launchpoint and target is greater than delta x
+	//greater increase in y coordinate for every increase in x if delta y between launchpoint and target is greater than delta x
 	else {
 		abm->step = abm->dy;
 	}
 
 	//the # of pixels which the x and y coordinates of the ABM must increase by (every 1/60 of a second)
-	abm->inc.x = abm->dx / abm->step;	//either the x or y coordinate increases by 1
-	abm->inc.y = abm->dy / abm->step;	//either the x or y coordinate increases by 1
+	abm->inc.x = abm->dx / abm->step;	//either inc.x or inc.y is 1, i.e. either the x or y coordinate of the abm increases by 1 every every 1/60 s
+	abm->inc.y = abm->dy / abm->step;	
 }
 
 
@@ -141,7 +138,7 @@ void drawAbm(Abm * abm, int abmColour, int colorMap[][3]) {
 }
 
 
-//update in buffer 
+//update position of abm  
 void updateAbm(Abm * abm) {
 	int i;
 
@@ -151,11 +148,11 @@ void updateAbm(Abm * abm) {
 
 			if (abm[i].dest.x > abm[i].launch.x) {
 				abm[i].pos.x += abm[i].speed * abm[i].inc.x;	//move ABM right by predetermined increment if its destination is right of launch point
-																//abm[i].num_increment += 10; 
+																
 			}
 			else if (abm[i].dest.x < abm[i].launch.x) {
 				abm[i].pos.x -= abm[i].speed * abm[i].inc.x;	//move ABM left by predetermined increment if its destination is left of launch point 
-																//abm[i].num_increment += 10; 
+																
 			}
 
 			abm[i].pos.y -= abm[i].speed * abm[i].inc.y;	//increase y position by predetermined increment
@@ -165,7 +162,7 @@ void updateAbm(Abm * abm) {
 }
 
 
-//determine if ABM has arrived at its destination 
+//determine whether ABM has arrived at its destination 
 void abmArrival(Abm * abm, Explosion * explosion) {
 	for (int i = 0; i < ABM_COUNT; i++) {
 		if (abm[i].launched) {
@@ -174,7 +171,7 @@ void abmArrival(Abm * abm, Explosion * explosion) {
 			if (abm[i].num_increment > abm[i].step) {	
 				abm[i].launched = false;
 				abm[i].arrived = true;
-				explosion[i].ongoing = true;
+				explosion[i].ongoing = true;	//explosion occurs at destination of abm 
 				explosion[i].center.x = abm[i].dest.x;
 				explosion[i].center.y = abm[i].dest.y;
 			}
@@ -185,8 +182,8 @@ void abmArrival(Abm * abm, Explosion * explosion) {
 
 //draw explosion when an ABM arrives at target 
 void drawExplosion(Abm * abm, Explosion * explosion, int colorMap[][3], Level * level) {
-	if (level->abmLeft == 0)
-		level->speedUp = true; 
+	if (level->abmLeft == 0 )
+		level->speedUp = true;	//speed up enemy missiles if all abms used up 
 
 	//flashing colours for explosion 
 	int palette[7][3] = { { 255, 0, 0 },{ 0, 255, 0 },{ 0, 0, 255 },{ 128, 128, 128 },{ 248, 6, 248 },{ 0, 255, 255 } };
@@ -194,6 +191,10 @@ void drawExplosion(Abm * abm, Explosion * explosion, int colorMap[][3], Level * 
 	int color = rand() % NUM_COLORS;
 
 	for (int i = 0; i < ABM_COUNT; i++) {
+		if (abm[i].launched) {
+			level->speedUp = false;
+		}
+
 		if (explosion[i].ongoing) {
 			level->speedUp = false; 
 

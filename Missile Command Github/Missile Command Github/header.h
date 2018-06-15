@@ -1,40 +1,16 @@
-//#pragma once
-
 //globals 
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 
 #define NUM_COLORS 7
-#define COLORS_PER_THEME 3  //3 colours generated per level; one for enemy missiles, one for player missiles, one for enemy ufo missiles 
-
-/*#define RED		  al_map_rgb(230, 25, 75)
-#define GREEN	  al_map_rgb(60, 180, 75)
-#define YELLOW	  al_map_rgb(255, 225, 25)
-#define BLUE	  al_map_rgb(0, 130, 200)
-#define ORANGE    al_map_rgb(245, 130, 48)
-#define CYAN	  al_map_rgb(70, 240, 240)
-#define MAGENTA	  al_map_rgb(240, 50, 230)
-#define LIME	  al_map_rgb(210, 245, 60)
-#define PINK	  al_map_rgb(250, 190, 190)
-#define TEAL	  al_map_rgb(0, 128, 128)
-#define LAVENDER  al_map_rgb(230, 190, 255)
-#define BEIGE	  al_map_rgb(255, 250, 200)
-#define MINT	  al_map_rgb(170, 255, 195)
-#define CORAL	  al_map_rgb(255, 215, 180)
-#define WHITE	  al_map_rgb(255, 255, 255)
-#define TURQUOISE al_map_rgb(64, 224, 207)*/
+#define COLORS_PER_THEME 3  //3 colours generated per level; one for regular enemy missiles, one for player anti-ballistic missiles, one for enemy cruise missiles
 
 const float FPS = 60;
 const int SCREEN_W = 900;
 const int SCREEN_H = 900;
-const int NUM_BULLETS = 100;
-const int ROWS = 5;   //rows of enemies
-const int COLS = 3;  //columns of enemies 
-const int frameCount = 33;
-const int MAX_SPLIT = 10;
-const int SPLIT_COUNT = 4;
-const int SIZE = 1.5;  //3x3 square
-const int ABM_COUNT = 30;
+const int SPLIT_COUNT = 4;	//each enemy missile can split into four
+const int SIZE = 1.5;  //half the size of a 3x3 square
+const int ABM_COUNT = 30;	//player starts with 30 anti-ballistic missiles (abm) every level 
 
 enum KEYS {
 	ENTER, SPACE, ESCAPE
@@ -69,33 +45,40 @@ typedef struct crosshairData {
 	Vector target;
 } Crosshair;
 
-//each individual ABM has these properties 
+
+//player's anti-ballistic missiles
 typedef struct abmData {
 	Vector dest; //destination 
 	Vector launch; //launch coordinate 
-	Vector inc;
-	Vector pos;
-	float dx;
-	float dy;
-	float step;
-	int speed;
-	bool launched;
-	bool arrived;
-	int num_increment;
+	Vector inc;	//increment for trajectory
+	Vector pos;	//current position 
+	float dx;	//delta x between launchpoint and destination
+	float dy;	//delta y between launchpoint and destination
+	float step;	//same as inc
+	int speed;	
+	bool launched;	//abm is en route if true 
+	bool arrived;	//used up
+	int num_increment;	//number of increments in x or y required to reach destination
 } Abm;
 
+
+//abm explodes after reaching target
 typedef struct explosionData {
 	bool ongoing;
-	int radius;
-	bool increaseRadius;
-	bool expandedRadius;
+	int radius;	
+	bool increaseRadius;	//explosion expands and contracts
+	bool expandedRadius;	//explosion radius increases when it destroys an enemy
 
-	Vector center;
+	Vector center;	//center of explosion circle
+
+	//bounds
 	Vector topRight;
 	Vector topLeft;
 	Vector bottomLeft;
 } Explosion;
 
+
+//enemy missiles; same as Abm 
 typedef struct enemyData {
 	Vector dest;
 	Vector launch;
@@ -105,21 +88,21 @@ typedef struct enemyData {
 	Vector pos;
 	float step;
 	bool launched;
+	//bounds
 	Vector topRight;
 	Vector topLeft;
 	Vector bottomLeft;
 } Enemy;
 
+
+//enemy flying saucer
 typedef struct ufoData {
 	bool spawned;
-
-	//launch x
-	int origin;
+	int origin; //x-coordinate of spawn location
 	int colour; //red or blue 
-
-	Enemy missile[2];
-
-	Vector pos;
+	Enemy missile[2];	//each ufo can fire two cruise missiles that target bases
+	Vector pos;	//current position
+	//bounds
 	Vector topRight;
 	Vector topLeft;
 	Vector bottomLeft;
@@ -138,78 +121,88 @@ typedef struct smartCruiseData {
 	Vector bottomLeft;
 } Scm; 
 
+//player's bases to be defended
 typedef struct baseData {
-	bool destroyed;
-	Vector pos;
+	bool destroyed;	
+	Vector pos;	//location
+	//bounds
 	Vector topRight;
 	Vector topLeft;
 	Vector bottomLeft;
 } Base;
 
+
+//variables that change each level 
 typedef struct levelData {
-	int round; //round 1, round 2...
-	int lives;
-	int score;
-	int abmLeft;
-	int highScores[5];
-	int highScoreCount;
-	bool newHighScore;
-	bool initialSort;
-	bool speedUp; 
-	int multiplier; 
+	int round; //level 1, 2, etc.
+	int lives;	//number of bases remaining
+	int score;	
+	int abmLeft;	//number of anti-ballistic missiles remaining
+	int highScores[5];	//5 highscores displayed on title screen
+	int highScoreCount;	//5
+	bool newHighScore;	//true if player's current score is higher than the lowest highscore
+	bool initialSort;	//true at start of game to rank highscores in textfile  
+	bool speedUp;		//all enemies speed up if player ran out of ABMs to finish level quicker
+	int multiplier;		//score multiplier; see user guide
 
-	int spawnRangeMin;
-	int spawnRangeMax;
+	//spawn regular enemy missile if a random number is generated in this range
+	int spawnRangeMin;	//decreased in successive levels to increase probability of enemy spawning
+	int spawnRangeMax;	//increased in successive levels to increase probability of enemy spawning
 
+	//regular enemy missile splits up if a random number is generated in this range 
 	int splitRangeMin;
 	int splitRangeMax;
 
+	//range in which random number must fall for flying saucer to spawn 
 	int ufoSpawnRangeMin;
 	int ufoSpawnRangeMax;
 
-
+	//max # of enemies on screen at once 
 	int maxEnemyOnScreen;
 	int maxUfoOnScreen;
 	int maxScmOnScreen;
 
-	int spawnRate;
-	int splitRate;
-	int splitAngle;
-	float enemySpeed;
-	int num_spawned;
-	int spawnLimit;
-
-	int currUfoCount;
-	int currScmCount; 
+	int enemyLastSpawned;	//time since last enemy missile spawned; can only spawn 0.15 sec after each other
+	int spawnLimit;		//max # of enemy missiles that can spawn each level
+	int num_spawned;	//# of enemy missiles spawned for current level
+	float enemySpeed;	//speed of enemy missiles
+	int splitAngle;		//how far an enemy missile can split from the previous
+	int spawnRate;		//range for generating random number
+	int splitRate;		//range for generating random number
 
 	//ufo
 	int ufoSpawnLimit;
-	int ufoSpawnRate;
-	int ufoNumSpawned;
-	int ufoSpawnSide[2];
+	int ufoSpawnRate;	//range for generating random number
+	int ufoNumSpawned;	//# of ufos spawned for current level
+	int ufoSpawnSide[2];	//ufo can spawn on left or right of screen
 	int ufoMissileSpawnRate;
 	bool spawnUfo;
-	int ufoSpeed;
+	float ufoSpeed;
+	int ufoLastSpawned; //time since last ufo spawned
 	Vector ufoSize;
 
 	//smart cruise missile
-	bool spawnScm;
-	int scmSpawnLimit;
-	int scmNumSpawned;
-	int scmSpeed;
-	int scmSpawnRate;
-	Vector scmSize;
+	bool spawnScm;	//scm spawned from level 2 onwards
+	int scmSpawnLimit;	//max # of scms that can be spawned
+	int scmNumSpawned;	//# of scms spawned in current level
+	float scmSpeed;
+	int scmSpawnRate;	//range for generating random number
+	int scmLastSpawned;	//time since last scm spawned; prevent spawning mulitple at same time 
+	Vector scmSize;		//size of scm image
 
 	//base
-	Vector baseSize;
+	Vector baseSize;	//size of base image
 	float base_x[6];	//x-coordinate of bases
+
 } Level;
 
+//sound effects
 typedef struct audio {
 	ALLEGRO_SAMPLE * siren;
 	ALLEGRO_SAMPLE * missileLaunch;
 	ALLEGRO_SAMPLE * explosion[6];
 } Audio;
+
 
 //prototypes
 void initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP **imageCrosshair, ALLEGRO_EVENT_QUEUE **event_queue, ALLEGRO_FONT ** font,
@@ -234,7 +227,7 @@ void abmArrival(Abm * abm, Explosion * explosion);  //check if abm arrived
 void drawExplosion(Abm * abm, Explosion * explosion, int colorMap[][3], Level * level);
 
 void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Scm * scm);
-void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Scm * scm, Base * base);
+void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Scm * scm, Base * base, ALLEGRO_TIMER * timer);
 void calcEnemyInc(Enemy * enemy);
 void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Ufo * ufo, ALLEGRO_BITMAP ** imageUfo, ALLEGRO_BITMAP ** imageScm, Scm * scm);
 void updateEnemy(Enemy ** enemy, Level * level);

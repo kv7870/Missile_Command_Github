@@ -84,36 +84,38 @@ void titleScreen(ALLEGRO_BITMAP * imageBase, ALLEGRO_BITMAP * background, ALLEGR
 		al_draw_bitmap(imageBase, 605, 810, 0);
 		al_draw_bitmap(imageBase, 705, 810, 0);
 
+		//draw title screen letters
 		al_draw_text(font[TITLE], al_map_rgb(255, 0, 0), 110, 200, 0, "MISSILE COMMAND");
 		al_draw_text(font[TEXT], al_map_rgb(255, 0, 0), 450, 400, ALLEGRO_ALIGN_CENTRE, "HIGH SCORES");
 		al_draw_text(font[TEXT], al_map_rgb(palette[color][0], palette[color][1], palette[color][2]), 450, 650, ALLEGRO_ALIGN_CENTER, "PRESS ANY KEY TO PLAY");
 
-
+		//draw high scores
 		for (int i = 0, y = 450; i < 5; i++, y += 25) {
-			al_draw_textf(font[TEXT], al_map_rgb(255, 0, 0), 450, y, ALLEGRO_ALIGN_CENTRE, "%d", level.highScores[i]);	//draw high scores 
+			al_draw_textf(font[TEXT], al_map_rgb(255, 0, 0), 450, y, ALLEGRO_ALIGN_CENTRE, "%d", level.highScores[i]);
 		}
 
 		al_flip_display();
 	}
 
-	while (ev.type != ALLEGRO_EVENT_KEY_DOWN && ev.type != ALLEGRO_EVENT_MOUSE_BUTTON_DOWN);
+	while (ev.type != ALLEGRO_EVENT_KEY_DOWN && ev.type != ALLEGRO_EVENT_MOUSE_BUTTON_DOWN);	//start game if mouse or key pressed
 
-	al_stop_sample(&siren_id);
+	al_stop_sample(&siren_id);	//stop title screen siren sound
 }
 
 
-//display the reticle 
+//draw reticle
 void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, Crosshair * crosshair) {
 	al_draw_bitmap(imageCrosshair, crosshair->pos.x - 30, crosshair->pos.y - 25, 0);
 }
+
 
 //draw level info at top of screen
 void drawInfo(ALLEGRO_FONT ** font, Abm * abm, Level * level) {
 	al_draw_textf(font[TEXT], al_map_rgb(255, 0, 0), 15, 10, 0, "Bases: %d", level->lives);
 	al_draw_textf(font[TEXT], al_map_rgb(255, 0, 0), 150, 10, 0, "Missiles: %d", level->abmLeft);
-	al_draw_textf(font[TEXT], al_map_rgb(255, 0, 0), 325, 10, 0, "Score: %d", level->score);
-	al_draw_textf(font[TEXT], al_map_rgb(255, 0, 0), 525, 10, 0, "Level: %d", level->round);
-	al_draw_textf(font[TEXT], al_map_rgb(255, 0, 0), 650, 10, 0, "Enemy missiles: %d", level->spawnLimit - level->num_spawned);
+	al_draw_textf(font[TEXT], al_map_rgb(255, 0, 0), 315, 10, 0, "Score: %d", level->score);
+	al_draw_textf(font[TEXT], al_map_rgb(255, 0, 0), 530, 10, 0, "Level: %d", level->round);
+	al_draw_textf(font[TEXT], al_map_rgb(255, 0, 0), 655, 10, 0, "Enemy missiles: %d", level->spawnLimit - level->num_spawned);
 }
 
 
@@ -122,19 +124,21 @@ void transition(ALLEGRO_FONT ** font, ALLEGRO_TIMER * timer, Abm * abm, Level * 
 
 	al_clear_to_color(al_map_rgb(0, 0, 0));
 
-	al_draw_text(font[HEADING], al_map_rgb(255, 0, 0), 350, 250, 0, "BONUS POINTS");
-	al_draw_textf(font[TEXT], al_map_rgb(255, 0, 0), 400, 300, 0, "Bases: %d", level->lives * 100);
+	//award bonus points
+	al_draw_text(font[HEADING], al_map_rgb(255, 0, 0), 450, 250, ALLEGRO_ALIGN_CENTER, "BONUS POINTS");
+	al_draw_textf(font[TEXT], al_map_rgb(255, 0, 0), 450, 300, ALLEGRO_ALIGN_CENTER, "Bases: %d", level->lives * 100);
 
-	if (level->abmLeft > 0)
-		al_draw_textf(font[TEXT], al_map_rgb(255, 0, 0), 350, 350, 0, "Unused missiles: %d ", numUnusedAbm * 25);
+	if (numUnusedAbm > 0)
+		al_draw_textf(font[TEXT], al_map_rgb(255, 0, 0), 450, 350, ALLEGRO_ALIGN_CENTER, "Unused missiles: %d ", numUnusedAbm * 25);
 
-	al_draw_text(font[HEADING], al_map_rgb(255, 0, 0), 365, 500, 0, "TOTAL SCORE");
-	al_draw_textf(font[TEXT], al_map_rgb(255, 0, 0), 450, 545, 0, "%d", level->score);
+	al_draw_text(font[HEADING], al_map_rgb(255, 0, 0), 450, 500, ALLEGRO_ALIGN_CENTER, "TOTAL SCORE");  //365
+	al_draw_textf(font[TEXT], al_map_rgb(255, 0, 0), 450, 545, ALLEGRO_ALIGN_CENTER, "%d", level->score); //440
 
 	al_flip_display();
 	al_rest(3);
 	al_clear_to_color(al_map_rgb(0, 0, 0)); 
 
+	//info about next level
 	al_draw_textf(font[BOLD], al_map_rgb(255, 0, 0), 420, 300, 0, "Level %d", level->round);
 	al_draw_textf(font[BOLD], al_map_rgb(255, 0, 0), 400, 400, 0, "Bases left: %d", level->lives);
 	al_draw_textf(font[BOLD], al_map_rgb(255, 0, 0), 415, 500, 0, "%dx points", level->multiplier);
@@ -254,7 +258,7 @@ void generateOneColor(int * theme, int i)
 	if (i > 0) {
 		for (int j = i - 1; j >= 0; j--) {	//compare the colour index generated with previous ones
 			if (theme[i] == theme[j]) {
-				generateOneColor(theme, i); //re-generate the current colour if it is a duplicate of a previously generated colour 
+				generateOneColor(theme, i); //re-generate the current colour index if it is a duplicate of a previously generated one 
 				break;
 			}
 		}

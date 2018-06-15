@@ -36,7 +36,7 @@ void gameLoop(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *im
 		if (ev.type == ALLEGRO_EVENT_TIMER) {  //update every 1/60 of a second 
 			draw = true;
 
-			spawnEnemy(enemy, level, ufo, scm, base);
+			spawnEnemy(enemy, level, ufo, scm, base, timer);
 
 			updateAbm(abm);
 
@@ -241,14 +241,17 @@ void loadNextLevel(Level * level, Abm * abm, Base * base) {
 	int i;
 
 	//regular enemy missile
-	level->enemySpeed += 0.1;
+
 	level->spawnLimit += 5;
+	level->enemySpeed += 0.1;
+	level->spawnScm = true;
+
 
 	if (level->splitAngle <= 600)
 		level->splitAngle += 50;
-	
+
 	if (level->round % 2 == 0) {
-		level->maxEnemyOnScreen += 4;
+		//regular missile 
 		if (level->spawnRangeMin > 0)
 			level->spawnRangeMin -= 5;
 		if (level->spawnRangeMax < 1000)
@@ -257,77 +260,84 @@ void loadNextLevel(Level * level, Abm * abm, Base * base) {
 			level->splitRangeMin -= 2;
 		if (level->splitRangeMax < 1000)
 			level->splitRangeMax += 2;
+
+		//ufo
+		//level->ufoSpawnLimit += 1;
+		if (level->maxUfoOnScreen <= 3)
+			level->maxUfoOnScreen++;
+		
+		//smart cruise missile
+		(level->scmSpawnLimit)++;
+		(level->scmSpeed) += 0.5;
 	}
+
+	level->ufoSpawnLimit += 1;
+	if(level->round % 4 == 0)
+		level->maxEnemyOnScreen += 4;
+
+	if (level->scmSpawnRate > 100)
+		level->scmSpawnRate -= 100;
 
 
 	//ufo 
 	level->spawnUfo = true;
-	level->ufoSpeed += 0.5;
-	level->ufoSpawnLimit += 1;
-
-	if (level->round % 2 == 0) {
-		if (level->maxUfoOnScreen <= 3) {
-			level->maxUfoOnScreen++;
-		}
-	}
-
+	level->ufoSpeed += 0.25;
 	if (level->ufoSpawnRangeMin > 0)
 		level->ufoSpawnRangeMin -= 10;
 	if (level->ufoSpawnRangeMax < 1000)
 		level->ufoSpawnRangeMax += 10;
 
-	//smart cruise missile
-	if ((level->round % 2) == 0) {
-		(level->scmSpawnLimit)++;
-		(level->scmSpeed) += 0.5;
-	}
+	//scm
 	if ((level->round % 3) == 0)
 		(level->maxScmOnScreen)++;
 
-	//100 points for any remaining bases
+	//100 bonus points for any remaining bases
 	for (i = 0; i < 6; i++) {
 		if (!base[i].destroyed)
 			(level->score) += 100;
 	}
 
-	//5 points for any unused missile
+	//25 bonus points for any unused missile
 	for (i = 0; i < ABM_COUNT; i++) {
 		if (!abm[i].launched && !abm[i].arrived)
 			(level->score) += 5;
 	}
 
+	//increase level 
 	level->round++;
 
 	switch (level->round) {
 	case 1:
-	case 2:	
-		level->multiplier = 1; 
+	case 2:
+		level->multiplier = 1;
 		break;
 	case 3:
 	case 4:
-		level->multiplier = 2; 
-		break; 
+		level->multiplier = 2;
+		break;
 	case 5:
 	case 6:
 		level->multiplier = 3;
-		break; 
-	case 7: 
+		break;
+	case 7:
 	case 8:
 		level->multiplier = 4;
 		break;
 	case 9:
 	case 10:
 		level->multiplier = 5;
-		break; 
+		break;
 	case 11:
 		level->multiplier = 6;
 	}
 
 	if (level->round > 11)
-		level->multiplier = 6; 
+		level->multiplier = 6;
 
-	level->score *= level->multiplier; 
+	level->score *= level->multiplier;
 }
+
+
 
 //read top 5 highscores from text file
 void readScore(FILE * fptr, Level * level) {
@@ -338,7 +348,6 @@ void readScore(FILE * fptr, Level * level) {
 		fscanf(fptr, "%d", &(level->highScores[i]));
 		printf("%d\n", level->highScores[i]);
 	}
-
 
 	fclose(fptr);
 }

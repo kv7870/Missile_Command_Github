@@ -68,8 +68,8 @@ void initAllegro(ALLEGRO_DISPLAY ** display, ALLEGRO_TIMER ** timer, ALLEGRO_BIT
 
 
 	//get dimensions of images
-	level->ufoSize.x = al_get_bitmap_width(*imageUfo);
-	level->ufoSize.y = al_get_bitmap_height(*imageUfo);
+	level->ufoSize.x = al_get_bitmap_width(imageUfo[0]);
+	level->ufoSize.y = al_get_bitmap_height(imageUfo[0]);
 	level->scmSize.x = al_get_bitmap_width(*imageScm);
 	level->scmSize.y = al_get_bitmap_height(*imageScm);
 	level->baseSize.x = al_get_bitmap_width(*imageBase);
@@ -108,7 +108,7 @@ void oneTimeInit(Level * level) {
 	level->spawnRangeMax = 600;
 	level->splitRangeMin = 498;
 	level->splitRangeMax = 502;
-	level->maxEnemyOnScreen = 4;
+	level->maxEnemyOnScreen = 8;
 
 
 	//ufo (flying saucer)
@@ -122,10 +122,10 @@ void oneTimeInit(Level * level) {
 	level->maxUfoOnScreen = 1;
 
 	//cruise missile
-	level->spawnScm= true;
+	level->spawnScm = false; 
 	level->scmSpawnLimit = 1;
 	level->scmSpeed = 2;
-	level->scmSpawnRate = 500;
+	level->scmSpawnRate = 10;
 	level->maxScmOnScreen = 1;
 
 	//base x-coordinates (left)
@@ -159,17 +159,20 @@ void initLevel(Level * level) {
 	//ufo
 	level->ufoNumSpawned = 0;
 	level->ufoSpawnSide[LEFT] = 0 - level->ufoSize.x;
-	level->ufoSpawnSide[RIGHT] = 900; 
-	level->currUfoCount = 0; 
+	level->ufoSpawnSide[RIGHT] = 900; ; 
 
 	//smart cruise missile
 	level->scmNumSpawned = 0;
-	level->currScmCount = 0; 
 
 	//reset abm count
 	level->abmLeft = 30;
 
 	level->speedUp = false;
+
+	//time
+	level->enemyLastSpawned = 0;
+	level->ufoLastSpawned = 0;
+	level->scmLastSpawned = 0; 
 }
 
 //reset anti-ballistic missiles each level
@@ -342,30 +345,18 @@ void initBase(Base * base, int baseCount, Level level) {
 //initialize colour palette for missiles
 void initColorMap(int colorMap[][3]) {
 
-	//154, 240, 0
-	//0, 171, 56
-	//0, 149, 67
 	colorMap[GREEN][R] = 24;
 	colorMap[GREEN][G] = 221;
 	colorMap[GREEN][B] = 0;
 
-	//0, 71, 189
-	//2, 136, 217
-	//7, 185, 252
 	colorMap[BLUE][R] = 7;
 	colorMap[BLUE][G] = 185;
 	colorMap[BLUE][B] = 252;
 
-	//255, 200, 41
-	//255, 255, 0
-	//BRIGHTEST: 255, 230, 50
-	//255, 206, 0
 	colorMap[YELLOW][R] = 255;
 	colorMap[YELLOW][G] = 255;
 	colorMap[YELLOW][B] = 0;
 
-	//lighter pink: 252, 130, 195
-	//255, 89, 143
 	colorMap[PINK][R] = 252;
 	colorMap[PINK][G] = 89;
 	colorMap[PINK][B] = 143;

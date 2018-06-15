@@ -13,45 +13,52 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 
-//spawn enemy missiles, ufos, and bombs
-void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Scm * scm, Base * base) {
+//spawn enemy missiles, ufos, and scms
+void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Scm * scm, Base * base, ALLEGRO_TIMER * timer) {
 	int spawnTiming = 0;	//determines whether to spawn enemy
 	int ufoSpawnTiming = 0;
 	int i, j;
-
-	//spawn enemy missile
+	
+	//spawn regular enemy missile
 	for (i = 0; i < level->maxEnemyOnScreen / 4; i++) {
-		if (level->num_spawned < level->spawnLimit) {
-			//if (level->currEnemyCount < level->maxEnemyOnScreen) {
-			if (!enemy[i][0].launched) {  //original missile 
+		//can only spawn missile 0.15 sec after previous one to prevent spawning all at once
+		if ((al_get_timer_count(timer)) >= level->enemyLastSpawned + 15) {
+			if (level->num_spawned < level->spawnLimit) {
+				if (!enemy[i][0].launched) {  //enemy[i][0] = main missile 
 
-				spawnTiming = rand() % level->spawnRate;
+					spawnTiming = rand() % level->spawnRate;
 
-				//spawn main enemy missile
-				if ((spawnTiming > level->spawnRangeMin && spawnTiming < level->spawnRangeMax) || level->speedUp) {
-					enemy[i][0].launch.x = rand() % 861 + 20;	//enemy[i][0] is the main missile from which 3 more can branch 
-					enemy[i][0].launch.y = 50;
-					enemy[i][0].launch.y = 50;
-					enemy[i][0].dest.x = rand() % 801 + 50;
-					enemy[i][0].pos.x = enemy[i][0].launch.x;
-					enemy[i][0].pos.y = enemy[i][0].launch.y;
-					enemy[i][0].launched = true;
-					(level->num_spawned)++;
-					calcEnemyInc(&(enemy[i][0]));
-					//break;  //prevents all enemies from spawning at once
+					//spawn main enemy missile
+					if ((spawnTiming > level->spawnRangeMin && spawnTiming < level->spawnRangeMax) || level->speedUp) {
+						enemy[i][0].launch.x = rand() % 861 + 20;	//enemy[i][0] is the main missile from which 3 more can branch 
+						enemy[i][0].launch.y = 50;
+						enemy[i][0].launch.y = 50;
+						enemy[i][0].dest.x = rand() % 801 + 50;
+						enemy[i][0].pos.x = enemy[i][0].launch.x;
+						enemy[i][0].pos.y = enemy[i][0].launch.y;
+						enemy[i][0].launched = true;
+						(level->num_spawned)++;
+						calcEnemyInc(&(enemy[i][0]));
+						level->enemyLastSpawned = al_get_timer_count(timer);
+						break;	//(unnecessary)
+					}
 				}
-				//}
 			}
+		}
 
-			//spawn new missile branch if previous missile is launched
-			for (j = 1; j < SPLIT_COUNT; j++) {
+		//spawn new missile branch if previous missile is launched
+		for (j = 1; j < SPLIT_COUNT; j++) {
+
+			//can only spawn missile 0.15 sec after previous one to prevent spawning all at once
+			if ((al_get_timer_count(timer)) >= level->enemyLastSpawned + 15) {
+
 				if (level->num_spawned < level->spawnLimit) {
-					//if (level->currEnemyCount < level->maxEnemyOnScreen) {
 					spawnTiming = rand() % level->splitRate;
+
 					if (spawnTiming > level->splitRangeMin && spawnTiming < level->splitRangeMax) {
 						if (enemy[i][j - 1].launched && !enemy[i][j].launched) {
 							if (enemy[i][j - 1].pos.y < 450) {
-								enemy[i][j].launch.x = enemy[i][j - 1].pos.x;	//new missile branches off from the previous missile
+								enemy[i][j].launch.x = enemy[i][j - 1].pos.x;	//new missile branches off from previous missile
 								enemy[i][j].launch.y = enemy[i][j - 1].pos.y;
 								enemy[i][j].dest.x = enemy[i][j - 1].dest.x + (rand() % level->splitAngle + 50);
 								enemy[i][j].pos.x = enemy[i][j].launch.x;
@@ -59,88 +66,68 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Scm * scm, Base * base
 								enemy[i][j].launched = true;
 								(level->num_spawned)++;
 								calcEnemyInc(&(enemy[i][j]));	//calculate trajectory 
-							//	break;
-							}
+								level->enemyLastSpawned = al_get_timer_count(timer);
+								break;
 						}
-
 					}
+				}
+			}
+		}
+	}
+}
 
-					//	}
+	//spawn ufo (flying saucer)
+	if (level->spawnUfo) {
+		for (i = 0; i < level->maxUfoOnScreen; i++) {
+
+			//can only spawn ufo 2 seconds after previous one spawned 
+			if ((al_get_timer_count(timer)) > level->ufoLastSpawned + 120) {
+
+				if (level->ufoNumSpawned < level->ufoSpawnLimit) {
+
+				//spawn if random number falls within certain range 
+				spawnTiming = rand() % level->ufoSpawnRate + 1;			
+
+				if (spawnTiming > level->ufoSpawnRangeMin && spawnTiming < level->ufoSpawnRangeMax) {
+
+					if (!ufo[i].spawned) {
+						ufo[i].spawned = true; 
+
+						//ufo can spawn on the right or left side of the screen 
+						ufo[i].origin = level->ufoSpawnSide[rand() % 2]; //& 1
+						ufo[i].pos.x = ufo[i].origin;
+						ufo[i].pos.y = rand() % 100 + 50;	//random y-spawn 
+						ufo[i].colour = rand() % 2;			//red or blue 
+						level->ufoNumSpawned++;
+						level->ufoLastSpawned = al_get_timer_count(timer);
+						printf("spawned ufo[%d]\n", i);
+						break;
+					}
 				}
 			}
 		}
 	}
 
+		//spawn smart cruise missile (scm)
+		if (level->spawnScm) {
+			if((al_get_timer_count(timer)) > level->scmLastSpawned + 120) {
+				if (level->scmNumSpawned < level->scmSpawnLimit) {
 
-	//spawn ufo
-	if (level->spawnUfo) {
-		for (i = 0; i < level->maxUfoOnScreen; i++) {
-			if (level->ufoNumSpawned < level->ufoSpawnLimit) {
-				spawnTiming = rand() % level->ufoSpawnRate + 1;
+					for (i = 0; i < level->maxScmOnScreen; i++) {
 
-				//spawn ufo is random number generated falls within certain range 
-				if (spawnTiming > level->ufoSpawnRangeMin && spawnTiming < level->ufoSpawnRangeMax) {
-
-					if (!ufo[i].spawned) {
-						//spawn first ufo of level
-						if (i == 0) {
-							ufo[i].spawned = true;
-
-							//first ufo can spawn on the right or left side of the screen 
-							ufo[i].origin = level->ufoSpawnSide[rand() % 2]; //& 1
-							ufo[i].pos.x = ufo[i].origin;
-							ufo[i].pos.y = rand() % 100 + 50;	//random y-spawn 
-							ufo[i].colour = rand() % 2;	//red or blue 
-							level->ufoNumSpawned++;
-							level->currUfoCount++;
-							break;
-						}
-
-						else { //if not first ufo to spawn
-							if (ufo[i - 1].spawned && (ufo[i - 1].pos.x > 100 && ufo[i - 1].pos.x < 800)) {	//cannot spawn immediately after another ufo
-								ufo[i].spawned = true;
-
-								if (ufo[i - 1].origin == level->ufoSpawnSide[LEFT]) {
-									ufo[i].origin = level->ufoSpawnSide[RIGHT];
-								}
-								else if (ufo[i - 1].origin == level->ufoSpawnSide[RIGHT]) {
-									ufo[i].origin = level->ufoSpawnSide[LEFT];
-								}
-
-								ufo[i].pos.x = ufo[i].origin;
-								ufo[i].pos.y = rand() % 100 + 50;	//random y-spawn 
-								ufo[i].colour = rand() % 2;	//red or blue 
-								level->ufoNumSpawned++;
-								level->currUfoCount++;
+						if ((rand() % level->scmSpawnRate + 1) == 10) {
+							if (!scm[i].spawned) {
+								scm[i].spawned = true;
+								scm[i].origin.x = level->base_x[pickTarget(base)];	//bomb targets a randomly selected base; since bomb travels in straight line, its origin.x = its target.x
+								scm[i].pos.x = scm[i].origin.x;
+								scm[i].pos.y = scm[i].origin.y;
+								(level->scmNumSpawned)++;
+								level->scmLastSpawned = al_get_timer_count(timer); 
 								break;
 							}
 						}
 					}
 				}
-			}
-		}
-
-
-		//spawn smart cruise missile (scm)
-		if (level->spawnScm) {
-			if (level->scmNumSpawned < level->scmSpawnLimit) {
-				//if (level->currEnemyCount < level->maxEnemyOnScreen) {
-				for (i = 0; i < level->maxScmOnScreen; i++) {
-
-					if ((rand() % level->scmSpawnRate + 1) == 10) {
-						if (!scm[i].spawned) {
-							scm[i].spawned = true;
-							scm[i].origin.x = level->base_x[pickTarget(base)];	//bomb targets a randomly selected base; since bomb travels in straight line, its origin.x = its target.x
-							scm[i].pos.x = scm[i].origin.x;
-							scm[i].pos.y = scm[i].origin.y;
-							(level->scmNumSpawned)++;
-							printf("scm[%d] spawned (%f, %f)\n", i, scm[i].pos.x, scm[i].pos.y);
-							printf("width: %f, height: %f\n", level->baseSize.x, level->baseSize.y);
-							break;
-						}
-					}
-				}
-				//}
 			}
 		}
 	}

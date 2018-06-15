@@ -17,61 +17,43 @@
 
 void collision(Abm * abm, Enemy ** enemy, Explosion * explosion, Level * level, Ufo * ufo, Audio * audio) {
 
-	bool left = false;
-	bool right = false;
-	bool below = false;
-	bool above = false;
-	Vector distance = { 0, 0 };
-	Vector clamp = { 0, 0 };
+	Vector distance = { 0, 0 };	//distance between enemy missile and explosion
+	Vector clamp = { 0, 0 };	//pixel of enemy missile closest to explosion center
 	int audioSelection = 0;
-
-	//distance.x = 900;
-	//distance.y = 900;
-	//clamp.x = 0;
-	//clamp.y = 0; 
 
 	for (int i = 0; i < ABM_COUNT; i++) {
 
 		if (explosion[i].ongoing) {
 
-			//check for collision between explosion and regular enemy missile
+			//check for collision between regular enemy missile and explosion using clamp method
 			for (int j = 0; j < level->maxEnemyOnScreen/4; j++) {
 				for (int k = 0; k < SPLIT_COUNT; k++) {
 					if (enemy[j][k].launched) {
 
-						//check bounds
-						//if (explosion[i].topRight.x >= enemy[j][k].topLeft.x &&
-						//explosion[i].topLeft.x <= enemy[j][k].topRight.x &&
-						//explosion[i].bottomLeft.y >= enemy[j][k].topLeft.y &&
-						//explosion[i].topLeft.y <= enemy[j][k].bottomLeft.y) {
-
-						//enemy[j][k].launched = false;
-						//explosion[i].expandedRadius = true;
-
-						//}
-
+						//reduce enemy missile to a single pixel closest to the nearest explosion center
 						clampSquare(&(explosion[i]), enemy[j][k], &clamp);
 
+						//enemy missile is hit if its closest pixel lies within radius of nearby explosion 
 						if ((calcDistance(distance, explosion[i], clamp)) == true) {
 
-							explosion[i].expandedRadius = true;
+							explosion[i].expandedRadius = true;	//explosion grows bigger
 
-							explosion[i].increaseRadius = true;
+							explosion[i].increaseRadius = true;	//explosion grows bigger
 
-							audioSelection = rand() % 6;
+							audioSelection = rand() % 6;	//play random explosion sound 
 							al_play_sample(audio->explosion[audioSelection], 2.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 
-							enemy[j][k].launched = false;
-							level->score += 25;
+							enemy[j][k].launched = false;	//enemy missile is destroyed
+							level->score += 25;	
 						}
 					}
 				}
 			}
 
-
-			//check for collision between explosion and missile using bounding boxes
+			//check for collision between ufo and explosion using bounding boxes
 			for (int j = 0; j < level->maxUfoOnScreen; j++) {
 				if (ufo[j].spawned) {
+					//collided if bounding boxes are touching
 					if (explosion[i].topRight.x >= ufo[j].topLeft.x &&
 						explosion[i].topLeft.x <= ufo[j].topRight.x &&
 						explosion[i].bottomLeft.y >= ufo[j].topLeft.y &&
@@ -88,7 +70,7 @@ void collision(Abm * abm, Enemy ** enemy, Explosion * explosion, Level * level, 
 					}
 				}
 
-				//check for collision between explosion and cruise missile
+				//check for collision between cruise missile and explosion
 				for (int k = 0; k < 2; k++) {
 					if (ufo[j].missile[k].launched) {
 
@@ -103,7 +85,7 @@ void collision(Abm * abm, Enemy ** enemy, Explosion * explosion, Level * level, 
 							al_play_sample(audio->explosion[audioSelection], 2.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 
 							ufo[j].missile[k].launched = false;
-							level->score += 25;
+							level->score += 125;	//125 points for cruise missile
 						}
 					}
 				}
@@ -113,35 +95,45 @@ void collision(Abm * abm, Enemy ** enemy, Explosion * explosion, Level * level, 
 }
 
 
+//check for collision between enemy missile and explosion by reducing missile to a single pixel
 void clampSquare(Explosion * explosion, Enemy enemy, Vector * clamp) {
 
 	//clamp x
-	if (explosion->center.x < enemy.topLeft.x)
+	//if missile is to right of an explosion, left side of missile is closest to explosion center
+	if (explosion->center.x < enemy.topLeft.x)	
 		clamp->x = enemy.topLeft.x;
 
+	//if missile is to left of an explosion, right side of missile is closest to explosion
 	else if (explosion->center.x > enemy.topRight.x)
 		clamp->x = enemy.topRight.x;
 
+	//if missile is inside an explosion, x-coordinate of explosion center is closest to missile
 	else
 		clamp->x = explosion->center.x;
 
 
 	//clamp y
+	//if missile is below an explosion, top side of missile is closest to explosion center
 	if (explosion->center.y < enemy.topLeft.y)
 		clamp->x = enemy.topLeft.y;
 
+	//if missile is above an explosion, bottom side of missile is closest to explosion
 	else if (explosion->center.y > enemy.bottomLeft.y)
 		clamp->y = enemy.bottomLeft.y;
 
+	//if missile is inside an explosion, y-coordinate of explosion center is closest to missile
 	else
 		clamp->y = explosion->center.y;
+
+	//enemy missile is now reduced to a single pixel closest to the explosion center
 }
 
 
+//return whether enemy missile is touching an explosion 
 bool calcDistance(Vector distance, Explosion explosion, Vector clamp) {
 	bool collided = false;
 
-	distance.x = fabs(explosion.center.x - clamp.x);
+	distance.x = fabs(explosion.center.x - clamp.x);	//clamp = enemy missile reduced to closest pixel 
 	distance.y = fabs(explosion.center.y - clamp.y);
 
 	if (pow(distance.x, 2) + pow(distance.y, 2) <= pow(explosion.radius, 2))
@@ -150,10 +142,11 @@ bool calcDistance(Vector distance, Explosion explosion, Vector clamp) {
 	return collided;
 }
 
+
+//calculate if a smart cruise missile is touching explosion using clamp; same method as regular enemy missiles
 void scmCollision(Scm * scm, Explosion * explosion, Level * level, Audio * audio) {
 	int i, j;
-	const double alpha = 0.25* 3.14159265359;
-	int selection;
+	int selection;	//audio 
 
 	Vector clamp = { 0, 0 };
 	Vector distance = { 0, 0 };
@@ -198,7 +191,6 @@ void clampScm(Explosion * explosion, Scm * scm, Vector * clamp) {
 	else
 		clamp->x = explosion->center.x;
 
-
 	//clamp y
 	if (explosion->center.y < scm->topLeft.y)
 		clamp->x = scm->topLeft.y;
@@ -211,6 +203,7 @@ void clampScm(Explosion * explosion, Scm * scm, Vector * clamp) {
 }
 
 
+//determine if base is hit by enemy missile 
 void baseCollision(Base * base, Enemy ** enemy, int baseCount, Level * level, Ufo * ufo, Scm * scm){
 	int i, j, k;
 
@@ -218,6 +211,7 @@ void baseCollision(Base * base, Enemy ** enemy, int baseCount, Level * level, Uf
 	for (i = 0; i < baseCount; i++) {
 		if (!base[i].destroyed) {
 
+			//check collision with regular missiles
 			for (j = 0; j < level->maxEnemyOnScreen/4; j++)
 				for (k = 0; k < SPLIT_COUNT; k++) {
 
@@ -230,6 +224,7 @@ void baseCollision(Base * base, Enemy ** enemy, int baseCount, Level * level, Uf
 					}
 				}
 
+			//check collision with cruise missiles
 			for (j = 0; j < level->maxUfoOnScreen; j++) {
 				for (k = 0; k < 2; k++) {
 					if (ufo[j].missile[k].launched) {
@@ -244,6 +239,7 @@ void baseCollision(Base * base, Enemy ** enemy, int baseCount, Level * level, Uf
 			}
 
 
+			//check collision with smart cruise missiles
 			for (j = 0; j < level->maxScmOnScreen; j++) {
 				if (scm[j].spawned) {
 
@@ -263,7 +259,7 @@ void baseCollision(Base * base, Enemy ** enemy, int baseCount, Level * level, Uf
 }
 
 
-
+//return whether a base is hit by enemy missile using bounding boxes
 bool calcBoundingBox(Base base, Enemy enemy) {
 	bool collided = false;
 
