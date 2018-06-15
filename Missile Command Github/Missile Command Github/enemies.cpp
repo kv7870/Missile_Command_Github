@@ -14,52 +14,60 @@
 #include <allegro5/allegro_acodec.h>
 
 //spawn enemy missiles, ufos, and bombs
-void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb, Base * base) {
+void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Scm * scm, Base * base) {
 	int spawnTiming = 0;	//determines whether to spawn enemy
 	int ufoSpawnTiming = 0;
 	int i, j;
 
 	//spawn enemy missile
+
 	for (i = 0; i < level->maxEnemyOnScreen; i++) {
 		if (level->num_spawned < level->spawnLimit) {
-			if (!enemy[i][0].launched) {  //original missile 
+			if (level->currEnemyCount < level->maxEnemyOnScreen) {
+				if (!enemy[i][0].launched) {  //original missile 
 
-				spawnTiming = rand() % level->spawnRate;
+					spawnTiming = rand() % level->spawnRate;
 
-				//spawn new missile branch if previous missile is launched 
-				if ((spawnTiming > level->spawnRangeMin && spawnTiming < level->spawnRangeMax) || (level->abmLeft == 0)) {
-					enemy[i][0].launch.x = rand() % 861 + 20;	//enemy[i][0] is the main missile from which 3 more can branch 
-					enemy[i][0].launch.y = 50;
-					enemy[i][0].launch.y = 50;
-					enemy[i][0].dest.x = rand() % 801 + 50;
-					enemy[i][0].pos.x = enemy[i][0].launch.x;
-					enemy[i][0].pos.y = enemy[i][0].launch.y;
-					enemy[i][0].launched = true;
-					(level->num_spawned)++;
-					calcEnemyInc(&(enemy[i][0]));
-					break;  //prevents all enemies from spawning at once
+					//spawn main enemy missile
+					if ((spawnTiming > level->spawnRangeMin && spawnTiming < level->spawnRangeMax) || level->speedUp) {
+						enemy[i][0].launch.x = rand() % 861 + 20;	//enemy[i][0] is the main missile from which 3 more can branch 
+						enemy[i][0].launch.y = 50;
+						enemy[i][0].launch.y = 50;
+						enemy[i][0].dest.x = rand() % 801 + 50;
+						enemy[i][0].pos.x = enemy[i][0].launch.x;
+						enemy[i][0].pos.y = enemy[i][0].launch.y;
+						enemy[i][0].launched = true;
+						(level->num_spawned)++;
+						(level->currEnemyCount)++;
+						calcEnemyInc(&(enemy[i][0]));
+						//break;  //prevents all enemies from spawning at once
+					}
 				}
 			}
 
-			//spawn branching missiles 
+		//spawn new missile branch if previous missile is launched
 			for (j = 1; j < SPLIT_COUNT; j++) {
 				if (level->num_spawned < level->spawnLimit) {
-					spawnTiming = rand() % level->splitRate;
-					if (spawnTiming > level->splitRangeMin && spawnTiming < level->splitRangeMax) {
-
-						if (enemy[i][j - 1].launched && !enemy[i][j].launched) {
-							if (enemy[i][j - 1].pos.y < 500) {
-								enemy[i][j].launch.x = enemy[i][j - 1].pos.x;	//new missile branches off from the previous missile
-								enemy[i][j].launch.y = enemy[i][j - 1].pos.y;
-								enemy[i][j].dest.x = enemy[i][j - 1].dest.x + (rand() % level->splitAngle + 50);
-								enemy[i][j].pos.x = enemy[i][j].launch.x;
-								enemy[i][j].pos.y = enemy[i][j].launch.y;
-								enemy[i][j].launched = true;
-								(level->num_spawned)++;
-								calcEnemyInc(&(enemy[i][j]));	//calculate trajectory 
-								break;
+					if (level->currEnemyCount < level->maxEnemyOnScreen) {
+						spawnTiming = rand() % level->splitRate;
+						if (spawnTiming > level->splitRangeMin && spawnTiming < level->splitRangeMax) {
+							if (enemy[i][j - 1].launched && !enemy[i][j].launched) {
+								if (enemy[i][j - 1].pos.y < 450) {
+									enemy[i][j].launch.x = enemy[i][j - 1].pos.x;	//new missile branches off from the previous missile
+									enemy[i][j].launch.y = enemy[i][j - 1].pos.y;
+									enemy[i][j].dest.x = enemy[i][j - 1].dest.x + (rand() % level->splitAngle + 50);
+									enemy[i][j].pos.x = enemy[i][j].launch.x;
+									enemy[i][j].pos.y = enemy[i][j].launch.y;
+									enemy[i][j].launched = true;
+									(level->num_spawned)++;
+									(level->currEnemyCount)++;
+									calcEnemyInc(&(enemy[i][j]));	//calculate trajectory 
+								//	break;
+								}
 							}
+
 						}
+
 					}
 				}
 			}
@@ -99,8 +107,9 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb, Base * ba
 
 						ufo[i].pos.x = ufo[i].origin;
 						ufo[i].pos.y = rand() % 100 + 50;	//random y-spawn 
+						ufo[i].colour = rand() % 2;	//red or blue 
 
-						(level->ufoNumSpawned)++;
+						level->ufoNumSpawned++;
 						break;
 					}
 				}
@@ -109,19 +118,23 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb, Base * ba
 	}
 
 
-	//spawn bomb
-	if (level->spawnBomb) {
-		if (level->bombNumSpawned < level->bombSpawnLimit) {
-			for (i = 0; i < level->maxBombOnScreen; i++) {
+	//spawn smart cruise missile (scm)
+	if (level->spawnScm) {
+		if (level->scmNumSpawned < level->scmSpawnLimit) {
+			if (level->currEnemyCount < level->maxEnemyOnScreen) {
+				for (i = 0; i < level->maxScmOnScreen; i++) {
 
-				if ((rand() % level->bombSpawnRate + 1) == 10) {
-					if (!bomb[i].spawned) {
-						bomb[i].spawned = true;
-						bomb[i].origin.x = level->baseX[pickTarget(base)];	//bomb targets a randomly selected base; since bomb travels in straight line, its origin.x = its target.x
-						bomb[i].pos.x = bomb[i].origin.x;
-						bomb[i].pos.y = bomb[i].origin.y;
-						(level->bombNumSpawned)++;
-						break;
+					if ((rand() % level->scmSpawnRate + 1) == 10) {
+						if (!scm[i].spawned) {
+							scm[i].spawned = true;
+							scm[i].origin.x = level->base_x[pickTarget(base)];	//bomb targets a randomly selected base; since bomb travels in straight line, its origin.x = its target.x
+							scm[i].pos.x = scm[i].origin.x;
+							scm[i].pos.y = scm[i].origin.y;
+							(level->scmNumSpawned)++;
+							printf("scm[%d] spawned (%f, %f)\n", i, scm[i].pos.x, scm[i].pos.y);
+							printf("width: %f, height: %f\n", level->baseSize.x, level->baseSize.y);
+							break;
+						}
 					}
 				}
 			}
@@ -137,7 +150,7 @@ int pickTarget(Base * base) {
 	if (base[target].destroyed)
 		pickTarget(base);	//recursion
 
-	else
+	else 
 		return target;
 }
 
@@ -160,44 +173,44 @@ void calcEnemyInc(Enemy * enemy) {
 
 
 //update position of bomb
-void updateBomb(Level * level, Bomb * bomb, Explosion * explosion) {
+void updateScm(Level * level, Scm * scm, Explosion * explosion) {
 
-	for (int i = 0; i < level->maxBombOnScreen; i++) {
+	for (int i = 0; i < level->maxScmOnScreen; i++) {
 
-		if (bomb[i].spawned) {
-			bomb[i].timerCount++;	//keeps track of how many timer ticks have elapsed (i.e. frames)
+		if (scm[i].spawned) {
+			scm[i].timerCount++;	//keeps track of how many timer ticks have elapsed (i.e. frames)
 
-			if (level->abmLeft == 0)	//if ABMs are out, speed up bomb to finish level quicker 
-				bomb[i].pos.y += 6;
+			if (level->speedUp)	//if ABMs are out, speed up bomb to finish level quicker 
+				scm[i].pos.y += 6;
 			else
-				bomb[i].pos.y += 2;
+				scm[i].pos.y += 2;
 
-			if (bomb[i].timerCount <= 5) {	//bomb moves left or right for 5 frames to create zigzaing effect 
-				if (bomb[i].moveLeft) {
-					bomb[i].pos.x -= 2.5;
+			if (scm[i].timerCount <= 5) {	//bomb moves left or right for 5 frames to create zigzaing effect 
+				if (scm[i].moveLeft) {
+					scm[i].pos.x -= 2.5;
 				}
 				else {
-					bomb[i].pos.x += 2.5;
+					scm[i].pos.x += 2.5;
 
 				}
 
-				if (bomb[i].timerCount == 5) {
-					bomb[i].timerCount = 0;
-					if (bomb[i].moveLeft)
-						bomb[i].moveLeft = false;	//if bomb moved left previously, it will now move right 
+				if (scm[i].timerCount == 5) {
+					scm[i].timerCount = 0;
+					if (scm[i].moveLeft)
+						scm[i].moveLeft = false;	//if bomb moved left previously, it will now move right 
 					else
-						bomb[i].moveLeft = true;	//if bomb moved right previously, it will now move left
+						scm[i].moveLeft = true;	//if bomb moved right previously, it will now move left
 				}
 			}
 
 
 			//calculate bounds 
-			bomb[i].topLeft.x = bomb[i].pos.x;
-			bomb[i].topLeft.y = bomb[i].pos.y;
-			bomb[i].topRight.x = bomb[i].pos.x + level->bombSize.x;
-			bomb[i].topRight.y = bomb[i].pos.y;
-			bomb[i].bottomLeft.x = bomb[i].pos.x;
-			bomb[i].bottomLeft.y = bomb[i].pos.y + level->bombSize.y;
+			scm[i].topLeft.x = scm[i].pos.x;
+			scm[i].topLeft.y = scm[i].pos.y;
+			scm[i].topRight.x = scm[i].pos.x + level->scmSize.x;
+			scm[i].topRight.y = scm[i].pos.y;
+			scm[i].bottomLeft.x = scm[i].pos.x;
+			scm[i].bottomLeft.y = scm[i].pos.y + level->scmSize.y;
 
 			for (int j = 0; j < ABM_COUNT; j++) {
 				if (explosion[j].ongoing) {
@@ -205,47 +218,46 @@ void updateBomb(Level * level, Bomb * bomb, Explosion * explosion) {
 					//calculate which direction bomb should move to dodge nearby explosion
 
 					//CASE 1: explosion diameter < bomb (evade horizontally)
-					if (explosion[j].radius * 2 < level->bombSize.y) {
+					if (explosion[j].radius * 2 < level->scmSize.y) {
 						//check if on bomb and explosion are on same y plane
-						if ((explosion[j].center.y + explosion[j].radius >= bomb[i].pos.y && explosion[j].center.y + explosion[j].radius <= bomb[i].pos.y + level->bombSize.y) ||
-							explosion[j].center.y - explosion[j].radius >= bomb[i].pos.y && explosion[j].center.y - explosion[j].radius <= bomb[i].pos.y + level->bombSize.y) {
+						if ((explosion[j].center.y + explosion[j].radius >= scm[i].pos.y && explosion[j].center.y + explosion[j].radius <= scm[i].pos.y + level->scmSize.y) ||
+							explosion[j].center.y - explosion[j].radius >= scm[i].pos.y && explosion[j].center.y - explosion[j].radius <= scm[i].pos.y + level->scmSize.y) {
 
-							horizontalEvasion(&(bomb[i]), &(explosion[j]), level);
+							horizontalEvasion(&(scm[i]), &(explosion[j]), level);
 						}
 					}
 
 
-					//CASE 2: explosion diameter > bomb (evade horizontally) 
-					else if (explosion[j].radius * 2 > level->bombSize.y) {
+					//CASE 2: explosion diameter > smart cruise missile (evade horizontally) 
+					else if (explosion[j].radius * 2 > level->scmSize.y) {
 
-						//check if bomb and explosion are on same y plane
-						if ((bomb[i].pos.y + level->bombSize.y >= explosion[j].center.y - explosion[j].radius && bomb[i].pos.y <= explosion[j].center.y + explosion[j].radius) ||
-							(bomb[i].pos.y >= explosion[j].center.y - explosion[j].radius && bomb[i].pos.y <= explosion[j].center.y + explosion[j].radius)) {
+						//check if smart cruise and explosion are on same y plane
+						if ((scm[i].pos.y + level->scmSize.y >= explosion[j].center.y - explosion[j].radius && scm[i].pos.y <= explosion[j].center.y + explosion[j].radius) ||
+							(scm[i].pos.y >= explosion[j].center.y - explosion[j].radius && scm[i].pos.y <= explosion[j].center.y + explosion[j].radius)) {
 
-							horizontalEvasion(&(bomb[i]), &(explosion[j]), level);
+							horizontalEvasion(&(scm[i]), &(explosion[j]), level);
 						}
 					}
 
 
-					//CASE 3: explosion diameter > bomb (evade vertically)
-					if (explosion[j].radius * 2 < level->bombSize.x) {
+					//CASE 3: explosion diameter > smart cruise missile (evade vertically)
+					if (explosion[j].radius * 2 < level->scmSize.x) {
 						//check if bomb and explosion are on same x plane
-						if ((explosion[j].center.x + explosion[j].radius >= bomb[i].pos.x && explosion[j].center.x + explosion[j].radius <= bomb[i].pos.x + level->bombSize.x) ||
-							(explosion[j].center.x - explosion[j].radius >= bomb[i].pos.x && explosion[j].center.x + explosion[j].radius <= bomb[i].pos.x + level->bombSize.x)) {
-							//if(bomb[i].bottomLeft.y > explosion[i].center.y)	//if bomb is above an explosion
-							verticalEvasion(&(bomb[i]), &(explosion[j]), level);
+						if ((explosion[j].center.x + explosion[j].radius >= scm[i].pos.x && explosion[j].center.x + explosion[j].radius <= scm[i].pos.x + level->scmSize.x) ||
+							(explosion[j].center.x - explosion[j].radius >= scm[i].pos.x && explosion[j].center.x + explosion[j].radius <= scm[i].pos.x + level->scmSize.x)) {
+							
+							verticalEvasion(&(scm[i]), &(explosion[j]), level);
 						}
 					}
 
 
 					//CASE 4: explosion diameter < bomb (evade vertically)
-					else if (explosion[j].radius * 2 > level->bombSize.x) {
+					else if (explosion[j].radius * 2 > level->scmSize.x) {
 						//check if bomb and explosion are on same x plane
-						if ((bomb[i].pos.x >= explosion[j].center.x - explosion[j].radius && bomb[i].pos.x <= explosion[j].center.x + explosion[j].radius) ||
-							(bomb[i].pos.x + level->bombSize.x >= explosion[j].center.x - explosion[j].radius && bomb[i].pos.x <= explosion[j].center.x + explosion[j].radius)) {
-							//if (bomb[i].bottomLeft.y > explosion[i].center.y)	//if bomb is above an explosion
-							verticalEvasion(&(bomb[i]), &(explosion[j]), level);
-
+						if ((scm[i].pos.x >= explosion[j].center.x - explosion[j].radius && scm[i].pos.x <= explosion[j].center.x + explosion[j].radius) ||
+							(scm[i].pos.x + level->scmSize.x >= explosion[j].center.x - explosion[j].radius && scm[i].pos.x <= explosion[j].center.x + explosion[j].radius)) {
+							
+							verticalEvasion(&(scm[i]), &(explosion[j]), level);
 						}
 					}
 				}
@@ -256,33 +268,37 @@ void updateBomb(Level * level, Bomb * bomb, Explosion * explosion) {
 
 
 //calculate if bomb should move horizontally to to evade nearby explosion 
-void horizontalEvasion(Bomb * bomb, Explosion * explosion, Level * level) {
+void horizontalEvasion(Scm * scm, Explosion * explosion, Level * level) {
+
 	//if bomb is to left of an explosion (and on same y plane)
-	if ((bomb->pos.x + 0.5*level->bombSize.x) < explosion->center.x) {
+	if ((scm->pos.x + 0.5*level->scmSize.x) < explosion->center.x) {
 		//bomb dodge left if an explosion is within 50 pixels right of bomb
-		if (fabs((explosion->center.x - explosion->radius) - (bomb->pos.x + level->bombSize.x)) < 50) {   //move bomb if too close
-			bomb->pos.x -= 3;
+		if (fabs((explosion->center.x - explosion->radius) - (scm->pos.x + level->scmSize.x)) < 50) {   //move bomb if too close
+			if(scm->pos.x > 0 && scm->pos.x < 900 - level->scmSize.x)
+				scm->pos.x -= 3;
 		}
 	}
 
 	//if bomb is to right of explosion (and on same y plane)
 	else /*if ((bomb[i].pos.x + 0.5*level->bombSize.x) > explosion[j].center.x)*/ {
 		//bomb dodge right if an explosion is within 50 pixels left of bomb 
-		if (fabs((explosion->center.x + explosion->radius) - (bomb->pos.x)) < 50) {   //move bomb if too close
-			bomb->pos.x += 3;
+		if (fabs((explosion->center.x + explosion->radius) - (scm->pos.x)) < 50) {   //move bomb if too close
+			if (scm->pos.x > 0 && scm->pos.x < 900 - level->scmSize.x)
+				scm->pos.x += 3;
 		}
 	}
 }
 
 
 //calculate if bomb should move upward to evade an explosion below bomb
-void verticalEvasion(Bomb * bomb, Explosion * explosion, Level * level) {
+void verticalEvasion(Scm * scm, Explosion * explosion, Level * level) {
 
-	if (bomb->bottomLeft.y < explosion->center.y) {
+	//scm->bottomLeft.y
+	if ((scm->topLeft.y + 0.5*level->scmSize.y) < explosion->center.y) {
 
 		//bomb move upward if an explosion is within 100 pixels below the bomb (and on the same x range) 
-		if (fabs((explosion->center.y + explosion->radius) - (bomb->pos.y + level->bombSize.y)) < 100) {
-			bomb->pos.y -= 3;
+		if (fabs((explosion->center.y + explosion->radius) - (scm->pos.y + level->scmSize.y)) < 100) {
+			scm->pos.y -= 3;
 		}
 	}
 }
@@ -295,20 +311,20 @@ void updateEnemy(Enemy ** enemy, Level * level) {
 
 			if (enemy[i][j].launched) {
 				if (enemy[i][j].dest.x > enemy[i][j].launch.x) {	//enemy missile move left by predetermined increment if its destination.x is greater than its launch.x
-					if (level->abmLeft == 0)	//speed up missile if player ran out of ABMs to finish level quicker
+					if (level->speedUp)	//speed up missile if player ran out of ABMs to finish level quicker
 						enemy[i][j].pos.x += 6 * enemy[i][j].inc.x;
 					else
 						enemy[i][j].pos.x += (level->enemySpeed) * enemy[i][j].inc.x;
 				}
 				else if (enemy[i][j].dest.x < enemy[i][j].launch.x) {	//enemy missile move right by predetermined increment if its destination.x is smaller than its launch.x
-					if (level->abmLeft == 0)
+					if (level->speedUp)
 						enemy[i][j].pos.x -= 6 * enemy[i][j].inc.x;
 					else
 						enemy[i][j].pos.x -= (level->enemySpeed) * enemy[i][j].inc.x;
 				}
 
 
-				if (level->abmLeft == 0)	//speed up missile if player ran out of ABMs
+				if (level->speedUp)	//speed up missile if player ran out of ABMs
 					enemy[i][j].pos.y += 6 * enemy[i][j].inc.y;	//increase y-coordinate by pre-determined increment 
 				else
 					enemy[i][j].pos.y += (level->enemySpeed) * enemy[i][j].inc.y;
@@ -333,14 +349,14 @@ void updateUfo(Ufo * ufo, Level * level) {
 
 		if (ufo[i].spawned) {
 			if (ufo[i].origin == 900) {		//if ufo spawned on right, move left
-				if (level->abmLeft == 0)	//speed up if out of ABMs
+				if (level->speedUp)	//speed up if out of ABMs
 					ufo[i].pos.x -= 6;
 				else
 					ufo[i].pos.x -= 2;
 			}
 
 			else if (ufo[i].origin == 0 - level->ufoSize.x) {	//if ufo spawned on left, move right
-				if (level->abmLeft == 0)	//speed up if out of ABMs
+				if (level->speedUp)	//speed up if out of ABMs
 					ufo[i].pos.x += 6;
 				else
 					ufo[i].pos.x += 2;
@@ -367,45 +383,48 @@ void spawnUfoMissile(Ufo * ufo, Level * level) {
 	for (int i = 0; i < level->maxUfoOnScreen; i++) {
 		if (ufo[i].spawned) {	//cruise missile fired from ufo, so can't spawn it if ufo hasn't spawned 
 
-			spawnTiming = rand() % level->ufoMissileSpawnRate + 1;
+			if (level->num_spawned < level->spawnLimit) {
+				if (level->currEnemyCount < level->maxEnemyOnScreen) {
 
-			//fire cruise missile if random number falls within certain range 
-			if (spawnTiming > 50 && spawnTiming < 70) {
+					spawnTiming = rand() % level->ufoMissileSpawnRate + 1;
 
-				for (int j = 0; j < 2; j++) {
-					if (!ufo[i].missile[j].launched) {
+					//fire cruise missile if random number falls within certain range 
+					if (spawnTiming > 50 && spawnTiming < 70) {
 
-						//ufo can only fire cruise missile if the level's missile spawn limit hasn't been exceeded 
-						if (level->num_spawned < level->spawnLimit) {
+						for (int j = 0; j < 2; j++) {
+							if (!ufo[i].missile[j].launched) 
 
-							//ufo can only fire cruise missile if it's in middile of screen 
-							if (ufo[i].pos.x > 100 && ufo[i].pos.x < 800) {
-								ufo[i].missile[j].launched = true;
+								//ufo cannot fire from corner of screen
+								if (ufo[i].pos.x > 100 && ufo[i].pos.x < 800) {
+									ufo[i].missile[j].launched = true;
 
-								//for asthetics 
-								if (ufo[i].origin == level->ufoSpawnSide[LEFT])
-									ufo[i].missile[j].launch.x = ufo[i].pos.x + 0.6 * level->ufoSize.x;
-								else
-									ufo[i].missile[j].launch.x = 1.1 * ufo[i].pos.x;
+									ufo[i].missile[j].launch.x = ufo[i].pos.x + 0.5 * level->ufoSize.x; 
+									/*//for asthetics 
+									if (ufo[i].origin == level->ufoSpawnSide[LEFT])
+										ufo[i].missile[j].launch.x = ufo[i].pos.x + 0.6 * level->ufoSize.x;
+									else
+										ufo[i].missile[j].launch.x = 1.1 * ufo[i].pos.x;*/
 
-								//ufo[i].missile[j].launch.x = ufo[i].pos.x + 0.5 * level->ufoSize.x;
-								ufo[i].missile[j].launch.y = ufo[i].pos.y + level->ufoSize.y;
-								ufo[i].missile[j].dest.x = baseX[(rand() % 6)];	//select a base for cruise missile to target
-								ufo[i].missile[j].pos.x = ufo[i].missile[j].launch.x;
-								ufo[i].missile[j].pos.y = ufo[i].missile[j].launch.y;
+									//ufo[i].missile[j].launch.x = ufo[i].pos.x + 0.5 * level->ufoSize.x;
+									ufo[i].missile[j].launch.y = ufo[i].pos.y + 0.9 * level->ufoSize.y;
+									ufo[i].missile[j].dest.x = baseX[(rand() % 6)];	//select a base for cruise missile to target
+									ufo[i].missile[j].pos.x = ufo[i].missile[j].launch.x;
+									ufo[i].missile[j].pos.y = ufo[i].missile[j].launch.y;
 
-								level->num_spawned++;
+									level->num_spawned++;
+									level->currEnemyCount++; 
 
-								calcUfoMissileInc(&(ufo[i].missile[j]));	//calculate cruise missile's trajectory 
+									calcUfoMissileInc(&(ufo[i].missile[j]));	//calculate cruise missile's trajectory 
+									break; 
+								}
 							}
 						}
 					}
 				}
-				//break;
 			}
 		}
 	}
-}
+
 
 
 //calculate trajectory of cruise missile (fired by ufo) 
@@ -435,19 +454,19 @@ void updateUfoMissile(Ufo * ufo, Level * level) {
 			if (ufo[i].missile[j].launched) {
 
 				if (ufo[i].missile[j].dest.x > ufo[i].missile[j].launch.x) {
-					if (level->abmLeft == 0)	//speed up if out of ABMs
+					if (level->speedUp)	//speed up if out of ABMs
 						ufo[i].missile[j].pos.x += 6 * ufo[i].missile[j].inc.x;
 					else
 						ufo[i].missile[j].pos.x += (level->enemySpeed) * ufo[i].missile[j].inc.x;
 				}
 				else if (ufo[i].missile[j].dest.x < ufo[i].missile[j].launch.x) {
-					if (level->abmLeft == 0)
+					if (level->speedUp)
 						ufo[i].missile[j].pos.x -= 6 * ufo[i].missile[j].inc.x;
 					else
 						ufo[i].missile[j].pos.x -= (level->enemySpeed) * ufo[i].missile[j].inc.x;
 				}
 
-				if (level->abmLeft == 0)	//speed up if out of ABMs
+				if (level->speedUp)	//speed up if out of ABMs
 					ufo[i].missile[j].pos.y += 6 * ufo[i].missile[j].inc.y;
 				else
 					ufo[i].missile[j].pos.y += (level->enemySpeed) * ufo[i].missile[j].inc.y;
@@ -466,7 +485,7 @@ void updateUfoMissile(Ufo * ufo, Level * level) {
 
 
 //draw enemy missiles & flying saucer
-void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Ufo * ufo, ALLEGRO_BITMAP * imageUfo, ALLEGRO_BITMAP ** imageBomb, Bomb * bomb) {
+void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Ufo * ufo, ALLEGRO_BITMAP ** imageUfo, ALLEGRO_BITMAP ** imageBomb, Scm * scm) {
 	int enemyColour = theme[1];			//colour of regular enemym missile
 	int ufoMissileColour = theme[2];	//colour of cruise missile
 
@@ -485,7 +504,7 @@ void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Uf
 	//draw flying saucers
 	for (i = 0; i < level->maxUfoOnScreen; i++) {
 		if (ufo[i].spawned) {
-			al_draw_bitmap(imageUfo, ufo[i].pos.x, ufo[i].pos.y, 0);
+			al_draw_bitmap(imageUfo[ufo[i].colour], ufo[i].pos.x, ufo[i].pos.y, 0);
 		}
 
 		//draw cruise missiles fired by flying saucers
@@ -498,16 +517,16 @@ void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Uf
 	}
 
 	//draw smart cruise missile
-	for (i = 0; i < level->maxBombOnScreen; i++) {
-		if (bomb[i].spawned) {
-			al_draw_bitmap(imageBomb[rand() % 5], bomb[i].pos.x, bomb[i].pos.y, 0);
+	for (i = 0; i < level->maxScmOnScreen; i++) {
+		if (scm[i].spawned) {
+			al_draw_bitmap(imageBomb[rand() % 5], scm[i].pos.x, scm[i].pos.y, 0);
 		}
 	}
 }
 
 
 //calculate if enemy has arrived 
-void enemyArrival(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
+void enemyArrival(Enemy ** enemy, Level * level, Ufo * ufo, Scm * scm) {
 	int i, j;
 
 	//regular missiles 
@@ -516,6 +535,7 @@ void enemyArrival(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 			if (enemy[i][j].launched) {
 				if (enemy[i][j].pos.y >= enemy[i][j].dest.y) {	//missile disappears when it reaches bottom of screen 
 					enemy[i][j].launched = false;
+					level->currEnemyCount--;
 				}
 			}
 		}
@@ -541,15 +561,16 @@ void enemyArrival(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb) {
 		for (j = 0; j < 2; j++) {
 			if (ufo[i].missile[j].pos.y >= 900) {	//cruise missile disappears when it reaches bottom of screen
 				ufo[i].missile[j].launched = false;
+				level->currEnemyCount--;
 			}
 		}
 	}
 
 	//smart cruise missile 
-	for (i = 0; i < level->maxBombOnScreen; i++) {
-		if (bomb[i].spawned) {
-			if (bomb[i].pos.y >= 900) {		//smart cruise missile disappears when it reaches bottom of screen
-				bomb[i].spawned = false;
+	for (i = 0; i < level->maxScmOnScreen; i++) {
+		if (scm[i].spawned) {
+			if (scm[i].pos.y >= 900) {		//smart cruise missile disappears when it reaches bottom of screen
+				scm[i].spawned = false;
 			}
 		}
 	}

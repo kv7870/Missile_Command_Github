@@ -33,7 +33,6 @@ void fire(Abm * abm, Crosshair crosshair, Level * level, Audio * audio) {
 				abm[i].launched = true;
 				closestLaunchSuccess = true;
 				(level->abmLeft)--;
-				(level->batteryAbmLeft[0])--;
 				calcAbmInc(&(abm[i]));
 				al_play_sample(audio->missileLaunch, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 				break;
@@ -53,7 +52,6 @@ void fire(Abm * abm, Crosshair crosshair, Level * level, Audio * audio) {
 				abm[i].launched = true;
 				closestLaunchSuccess = true;
 				(level->abmLeft)--;
-				(level->batteryAbmLeft[1])--;
 				calcAbmInc(&(abm[i]));
 				al_play_sample(audio->missileLaunch, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 				break;
@@ -72,7 +70,6 @@ void fire(Abm * abm, Crosshair crosshair, Level * level, Audio * audio) {
 				abm[i].launched = true;
 				closestLaunchSuccess = true;
 				(level->abmLeft)--;
-				(level->batteryAbmLeft[2])--;
 				calcAbmInc(&(abm[i]));
 				al_play_sample(audio->missileLaunch, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 				break;
@@ -91,16 +88,6 @@ void fire(Abm * abm, Crosshair crosshair, Level * level, Audio * audio) {
 				abm[i].dest.y = crosshair.target.y;
 				abm[i].launched = true;
 				(level->abmLeft)--;
-
-				if (i < 10)
-					(level->batteryAbmLeft[0])--;
-
-				else if (i >= 10 && i < 20)
-					(level->batteryAbmLeft[1])--;
-
-				else if (i >= 20)
-					(level->batteryAbmLeft[2])--;
-
 				calcAbmInc(&(abm[i]));
 				al_play_sample(audio->missileLaunch, 0.5, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 				break;
@@ -131,7 +118,7 @@ void calcAbmInc(Abm * abm) {
 
 
 //draw abm and trailing smoke 
-void drawAbm(struct abmData * abm, int abmColour, int colorMap[][3]) {
+void drawAbm(Abm * abm, int abmColour, int colorMap[][3]) {
 	int r, g, b;
 
 	r = rand() % 255 + 1;
@@ -155,7 +142,7 @@ void drawAbm(struct abmData * abm, int abmColour, int colorMap[][3]) {
 
 
 //update in buffer 
-void updateAbm(struct abmData * abm) {
+void updateAbm(Abm * abm) {
 	int i;
 
 	for (i = 0; i < ABM_COUNT; i++) {
@@ -197,7 +184,9 @@ void abmArrival(Abm * abm, Explosion * explosion) {
 
 
 //draw explosion when an ABM arrives at target 
-void drawExplosion(Abm * abm, Explosion * explosion, int colorMap[][3]) {
+void drawExplosion(Abm * abm, Explosion * explosion, int colorMap[][3], Level * level) {
+	if (level->abmLeft == 0)
+		level->speedUp = true; 
 
 	//flashing colours for explosion 
 	int palette[7][3] = { { 255, 0, 0 },{ 0, 255, 0 },{ 0, 0, 255 },{ 128, 128, 128 },{ 248, 6, 248 },{ 0, 255, 255 } };
@@ -206,6 +195,7 @@ void drawExplosion(Abm * abm, Explosion * explosion, int colorMap[][3]) {
 
 	for (int i = 0; i < ABM_COUNT; i++) {
 		if (explosion[i].ongoing) {
+			level->speedUp = false; 
 
 			//explosion expands & contracts 
 			if (explosion[i].radius >= 40 && !explosion[i].expandedRadius) {

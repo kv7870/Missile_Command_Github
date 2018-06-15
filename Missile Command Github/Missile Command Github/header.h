@@ -52,6 +52,10 @@ enum DIRECTION {
 	LEFT, RIGHT
 };
 
+enum FONTS {
+	TEXT, TITLE, HEADING, BOLD
+};
+
 typedef struct vector {
 	float x;
 	float y;
@@ -69,17 +73,10 @@ typedef struct crosshairData {
 typedef struct abmData {
 	Vector dest; //destination 
 	Vector launch; //launch coordinate 
-	float dx;
-	float dy;
-
 	Vector inc;
 	Vector pos;
-
-	/*float x_inc;
-	float y_inc;
-	float x_pos;
-	float y_pos;*/
-
+	float dx;
+	float dy;
 	float step;
 	int speed;
 	bool launched;
@@ -92,9 +89,6 @@ typedef struct explosionData {
 	int radius;
 	bool increaseRadius;
 	bool expandedRadius;
-
-	double xNew;
-	double yNew;
 
 	Vector center;
 	Vector topRight;
@@ -121,6 +115,7 @@ typedef struct ufoData {
 
 	//launch x
 	int origin;
+	int colour; //red or blue 
 
 	Enemy missile[2];
 
@@ -130,7 +125,8 @@ typedef struct ufoData {
 	Vector bottomLeft;
 } Ufo;
 
-typedef struct bombData {
+//scm = smart cruise missile
+typedef struct smartCruiseData {
 	bool spawned;
 	bool moveLeft;
 	int timerCount;
@@ -140,7 +136,7 @@ typedef struct bombData {
 	Vector topRight;
 	Vector topLeft;
 	Vector bottomLeft;
-} Bomb;
+} Scm; 
 
 typedef struct baseData {
 	bool destroyed;
@@ -155,11 +151,12 @@ typedef struct levelData {
 	int lives;
 	int score;
 	int abmLeft;
-	int batteryAbmLeft[3];
 	int highScores[5];
 	int highScoreCount;
 	bool newHighScore;
 	bool initialSort;
+	bool speedUp; 
+	int multiplier; 
 
 	int spawnRangeMin;
 	int spawnRangeMax;
@@ -173,7 +170,7 @@ typedef struct levelData {
 
 	int maxEnemyOnScreen;
 	int maxUfoOnScreen;
-	int maxBombOnScreen;
+	int maxScmOnScreen;
 
 	int spawnRate;
 	int splitRate;
@@ -181,6 +178,7 @@ typedef struct levelData {
 	float enemySpeed;
 	int num_spawned;
 	int spawnLimit;
+	int currEnemyCount; 
 
 	//ufo
 	int ufoSpawnLimit;
@@ -192,17 +190,17 @@ typedef struct levelData {
 	int ufoSpeed;
 	Vector ufoSize;
 
-	//bomb
-	bool spawnBomb;
-	int bombSpawnLimit;
-	int bombNumSpawned;
-	int bombSpeed;
-	int bombSpawnRate;
-	Vector bombSize;
+	//smart cruise missile
+	bool spawnScm;
+	int scmSpawnLimit;
+	int scmNumSpawned;
+	int scmSpeed;
+	int scmSpawnRate;
+	Vector scmSize;
 
 	//base
 	Vector baseSize;
-	int baseX[6];
+	float base_x[6];	//x-coordinate of bases
 } Level;
 
 typedef struct audio {
@@ -213,43 +211,43 @@ typedef struct audio {
 
 //prototypes
 void initAllegro(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer, ALLEGRO_BITMAP **imageCrosshair, ALLEGRO_EVENT_QUEUE **event_queue, ALLEGRO_FONT ** font,
-	ALLEGRO_BITMAP ** background, ALLEGRO_BITMAP ** imageUfo, Level * level, ALLEGRO_BITMAP ** imageBomb, ALLEGRO_BITMAP ** imageMissile, ALLEGRO_BITMAP ** ground,
-	ALLEGRO_BITMAP ** imageBase, ALLEGRO_FONT ** titleFont, Audio * audio);
+	ALLEGRO_BITMAP ** background, ALLEGRO_BITMAP ** imageUfo, Level * level, ALLEGRO_BITMAP ** imageScm, ALLEGRO_BITMAP ** imageMissile, ALLEGRO_BITMAP ** ground,
+	ALLEGRO_BITMAP ** imageBase, Audio * audio);
 
 void initCrosshair(Crosshair * crosshair, ALLEGRO_BITMAP * imageCrosshair);
-void initAbm(struct abmData * abm, Explosion * explosion);
+void initAbm(Abm * abm, Explosion * explosion);
 
-void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair,
-	struct abmData * abm, Enemy ** enemy, ALLEGRO_FONT * font, Base * base, Explosion * explosion, int * theme, int colorMap[][3], Level * level, ALLEGRO_BITMAP * background,
-	ALLEGRO_BITMAP * imageUfo, Ufo * ufo, ALLEGRO_BITMAP ** imageBomb, Bomb * bomb, ALLEGRO_BITMAP * imageMissile, ALLEGRO_BITMAP * ground, ALLEGRO_BITMAP * imageBase,
-	ALLEGRO_FONT * titleFont, FILE * fptr, Audio * audio);
+void gameLoop(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue,
+	Crosshair crosshair, Abm * abm, Enemy ** enemy, ALLEGRO_FONT ** font, Base * base, Explosion * explosion, int * theme, int colorMap[][3],
+	Level * level, ALLEGRO_BITMAP * background, ALLEGRO_BITMAP ** imageUfo, Ufo * ufo, ALLEGRO_BITMAP ** imageScm, Scm * scm,
+	ALLEGRO_BITMAP * imageMissile, ALLEGRO_BITMAP * ground, ALLEGRO_BITMAP * imageBase,	FILE * fptr, Audio * audio);
 
 void drawCrosshair(ALLEGRO_BITMAP *imageCrosshair, Crosshair * crosshair);
 
 void fire(Abm * abm, Crosshair crosshair, Level * level, Audio * audio);
 void calcAbmInc(Abm * abm);
-void updateAbm(struct abmData * abm);
-void drawAbm(struct abmData * abm, int abmColour, int colorMap[][3]);
+void updateAbm(Abm * abm);
+void drawAbm(Abm * abm, int abmColour, int colorMap[][3]);
 void abmArrival(Abm * abm, Explosion * explosion);  //check if abm arrived
-void drawExplosion(Abm * abm, Explosion * explosion, int colorMap[][3]);
+void drawExplosion(Abm * abm, Explosion * explosion, int colorMap[][3], Level * level);
 
-void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb);
-void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb, Base * base);
+void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Scm * scm);
+void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Scm * scm, Base * base);
 void calcEnemyInc(Enemy * enemy);
-void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Ufo * ufo, ALLEGRO_BITMAP * imageUfo, ALLEGRO_BITMAP ** imageBomb, Bomb * bomb);
+void drawEnemy(Enemy ** enemy, int * theme, int colorMap[][3], Level * level, Ufo * ufo, ALLEGRO_BITMAP ** imageUfo, ALLEGRO_BITMAP ** imageScm, Scm * scm);
 void updateEnemy(Enemy ** enemy, Level * level);
-void enemyArrival(Enemy ** enemy, Level * level, Ufo * ufo, Bomb * bomb);
+void enemyArrival(Enemy ** enemy, Level * level, Ufo * ufo, Scm * scm);
 
-void hitDetection(struct abmData * abm, Enemy ** enemy, Explosion * explosion, Level * level, Ufo * ufo, Audio * audio);
+void collision(Abm * abm, Enemy ** enemy, Explosion * explosion, Level * level, Ufo * ufo, Audio * audio);
 
-void drawInfo(ALLEGRO_FONT * font, Abm * abm, Level * level);
-void transition(ALLEGRO_FONT * font, ALLEGRO_TIMER * timer, Abm * abm, Level * level);
+void drawInfo(ALLEGRO_FONT ** font, Abm * abm, Level * level);
+void transition(ALLEGRO_FONT ** font, ALLEGRO_TIMER * timer, Abm * abm, Level * level, int numUnusedAbm);
 
 void drawObjects(Base * base, int baseCount, ALLEGRO_BITMAP * imageMissile, Abm * abm, ALLEGRO_BITMAP * imageBase, ALLEGRO_BITMAP * background,
 	ALLEGRO_BITMAP * ground);
 
 void initBase(Base * base, int baseCount, Level level);
-void baseCollision(Base * base, Enemy ** enemy, int baseCount, Level * level, Ufo * ufo, Bomb * bomb);
+void baseCollision(Base * base, Enemy ** enemy, int baseCount, Level * level, Ufo * ufo, Scm * scm);
 
 void initColorMap(int colorMap[][3]);
 void generateTheme(int * theme);
@@ -258,24 +256,24 @@ bool calcDistance(Vector distance, Explosion explosion, Vector clamp);
 
 void initLevel(Level * level);
 
-void updateBomb(Level * level, Bomb * bomb, Explosion * explosion);
+void updateScm(Level * level, Scm * scm, Explosion * explosion);
 
 void oneTimeInit(Level * level);
 
-void horizontalEvasion(Bomb * bomb, Explosion * explosion, Level * level);
-void verticalEvasion(Bomb * bomb, Explosion * explosion, Level * level);
+void horizontalEvasion(Scm * scm, Explosion * explosion, Level * level);
+void verticalEvasion(Scm * scm, Explosion * explosion, Level * level);
 
-void bombHitDetection(Bomb * bomb, Explosion * explosion, Level * level, Audio * audio);
+void scmCollision(Scm * scm, Explosion * explosion, Level * level, Audio * audio);
 
-void clampBomb(Explosion * explosion, Bomb * bomb, Vector * clamp);
+void clampScm(Explosion * explosion, Scm * scm, Vector * clamp);
 
 void updateUfo(Ufo * ufo, Level * level);
 void spawnUfoMissile(Ufo * ufo, Level * level);
 void updateUfoMissile(Ufo * ufo, Level * level);
 void calcUfoMissileInc(Enemy * missile);
 
-void titleScreen(ALLEGRO_BITMAP * imageBase, ALLEGRO_BITMAP * background, ALLEGRO_BITMAP * imageMissile, ALLEGRO_BITMAP * ground, ALLEGRO_EVENT_QUEUE * event_queue,
-	ALLEGRO_FONT * titleFont, ALLEGRO_FONT * font, Audio audio, Level level);
+void titleScreen(ALLEGRO_BITMAP * imageBase, ALLEGRO_BITMAP * background, ALLEGRO_BITMAP * imageMissile, ALLEGRO_BITMAP * ground, 
+	ALLEGRO_EVENT_QUEUE * event_queue, ALLEGRO_FONT ** font, Audio audio, Level level);
 
 bool calcBoundingBox(Base base, Enemy enemy);
 
@@ -285,5 +283,5 @@ void sortScore(FILE * fptr, Level * level);
 
 int pickTarget(Base * base);
 
-bool levelProceed(Level * level, Explosion * explosion, Enemy ** enemy, Ufo * ufo, Bomb * bomb);
+bool levelProceed(Level * level, Explosion * explosion, Enemy ** enemy, Ufo * ufo, Scm * scm);
 void loadNextLevel(Level * level, Abm * abm, Base * base);

@@ -14,16 +14,17 @@
 
 
 //actual game loop 
-void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, Crosshair crosshair,
-	struct abmData * abm, Enemy ** enemy, ALLEGRO_FONT * font, Base * base, Explosion * explosion, int * theme, int colorMap[][3], Level * level, ALLEGRO_BITMAP * background,
-	ALLEGRO_BITMAP * imageUfo, Ufo * ufo, ALLEGRO_BITMAP ** imageBomb, Bomb * bomb, ALLEGRO_BITMAP * imageLauncher, ALLEGRO_BITMAP * ground, ALLEGRO_BITMAP * imageBase,
-	ALLEGRO_FONT * titleFont, FILE * fptr, Audio * audio) {
+void gameLoop(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *imageCrosshair, ALLEGRO_EVENT_QUEUE *event_queue, 
+	Crosshair crosshair, Abm * abm, Enemy ** enemy, ALLEGRO_FONT ** font, Base * base, Explosion * explosion, int * theme, int colorMap[][3], 
+	Level * level, ALLEGRO_BITMAP * background, ALLEGRO_BITMAP ** imageUfo, Ufo * ufo, ALLEGRO_BITMAP ** imageBomb, Scm * scm, 
+	ALLEGRO_BITMAP * imageLauncher, ALLEGRO_BITMAP * ground, ALLEGRO_BITMAP * imageBase, FILE * fptr, Audio * audio) {
 
 	bool done = false;	//exit game if true
 	bool draw = true;	
 	int count = 0;
 	int i;
 	int round = 1;
+	int numUnusedAbm = 0; 
 	bool paused = false;
 
 	al_hide_mouse_cursor(display);
@@ -35,7 +36,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 		if (ev.type == ALLEGRO_EVENT_TIMER) {  //update every 1/60 of a second 
 			draw = true;
 
-			spawnEnemy(enemy, level, ufo, bomb, base);
+			spawnEnemy(enemy, level, ufo, scm, base);
 
 			updateAbm(abm);
 
@@ -43,7 +44,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			abmArrival(abm, explosion);
 
-			updateBomb(level, bomb, explosion);
+			updateScm(level, scm, explosion);
 
 			updateUfo(ufo, level);
 
@@ -51,15 +52,13 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			spawnUfoMissile(ufo, level);
 
-			enemyArrival(enemy, level, ufo, bomb);
+			enemyArrival(enemy, level, ufo, scm);
 
-			baseCollision(base, enemy, 6, level, ufo, bomb);
+			baseCollision(base, enemy, 6, level, ufo, scm);
 
-			hitDetection(abm, enemy, explosion, level, ufo, audio);
+			collision(abm, enemy, explosion, level, ufo, audio);
 
-			bombHitDetection(bomb, explosion, level, audio);
-
-
+			scmCollision(scm, explosion, level, audio);
 		}
 
 		else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
@@ -89,7 +88,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 				if (!paused) {
 					paused = true;
 					al_stop_timer(timer);
-					al_draw_text(font, al_map_rgb(255, 0, 0), 450, 400, ALLEGRO_ALIGN_CENTER, "PAUSED");
+					al_draw_text(font[TEXT], al_map_rgb(255, 0, 0), 450, 400, ALLEGRO_ALIGN_CENTER, "PAUSED");
 					al_flip_display();
 				}
 				else if (paused) {
@@ -101,50 +100,6 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 		}
 
-		/*else if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
-		switch (ev.keyboard.keycode) {
-
-		case ALLEGRO_KEY_SPACE:
-		key[KEY_SPACE] = true;
-		crosshair.target.x = ev.mouse.x;
-		crosshair.target.y = ev.mouse.y;
-		printf("(%d, %d) ", ev.mouse.x, ev.mouse.y);
-		//fire(abm, crosshair);
-		break;
-		}
-		}*/
-
-
-		//if key is released 
-		/*else if (ev.type == ALLEGRO_EVENT_KEY_UP) {
-		switch (ev.keyboard.keycode) {
-		case ALLEGRO_KEY_UP:
-		key[KEY_UP] = false;
-		break;
-
-		case ALLEGRO_KEY_DOWN:
-		key[KEY_DOWN] = false;
-		break;
-
-		case ALLEGRO_KEY_LEFT:
-		key[KEY_LEFT] = false;
-		break;
-
-		case ALLEGRO_KEY_RIGHT:
-		key[KEY_RIGHT] = false;
-		break;
-
-		case ALLEGRO_KEY_SPACE:
-		key[KEY_SPACE] = false;
-		break;
-
-		case ALLEGRO_KEY_ESCAPE:
-		done = true;
-		break;
-		}
-		}*/
-
-	    
 		if (draw && al_is_event_queue_empty(event_queue)) {
 			draw = false;
 			round++;
@@ -153,11 +108,11 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 			drawObjects(base, 6, imageLauncher, abm, imageBase, background, ground);
 
-			drawExplosion(abm, explosion, colorMap);
+			drawExplosion(abm, explosion, colorMap, level);
 
 			drawAbm(abm, theme[0], colorMap);
 
-			drawEnemy(enemy, theme, colorMap, level, ufo, imageUfo, imageBomb, bomb);
+			drawEnemy(enemy, theme, colorMap, level, ufo, imageUfo, imageBomb, scm);
 
 			drawInfo(font, abm, level);
 
@@ -171,10 +126,11 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 				break; 
 			}
 
-			//next level 
+			//check if ready to go to next level once all enemy missiles have spawned 
 			if (level->num_spawned >= level->spawnLimit) {
 
-				if (levelProceed(level, explosion, enemy, ufo, bomb)) {
+				//check if anything is still on screen 
+				if (levelProceed(level, explosion, enemy, ufo, scm)) {	
 
 					al_stop_timer(timer);
 
@@ -184,7 +140,9 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 					free(enemy);
 					free(ufo);
-					free(bomb);
+					free(scm);
+
+					numUnusedAbm = level->abmLeft; 
 
 					loadNextLevel(level, abm, base);
 
@@ -195,15 +153,17 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 					ufo = (Ufo *)malloc((level->maxUfoOnScreen) * sizeof(Ufo));
 
-					bomb = (Bomb *)malloc((level->maxBombOnScreen) * sizeof(Bomb));
+					scm = (Scm *)malloc((level->maxScmOnScreen) * sizeof(Scm));
 
 					initLevel(level);
 					initAbm(abm, explosion);
-					initEnemy(enemy, level, ufo, bomb);
+					initEnemy(enemy, level, ufo, scm);
 					generateTheme(theme);
-					transition(font, timer, abm, level);
 
-					al_start_timer(timer);
+
+					transition(font, timer, abm, level, numUnusedAbm);
+					
+					//al_start_timer(timer);
 				}
 			}
 		}
@@ -218,11 +178,11 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 	free(enemy);
 	free(ufo);
-	free(bomb);
+	free(scm);
 
 	al_clear_to_color(al_map_rgb(0, 0, 0));
-	al_draw_text(titleFont, al_map_rgb(255, 0, 0), 300, 400, 0, "THE END");
-	al_draw_textf(font, al_map_rgb(255, 0, 0), 300, 500, ALLEGRO_ALIGN_CENTRE, "%d", level->score);
+	al_draw_text(font[TITLE], al_map_rgb(255, 0, 0), 300, 400, 0, "THE END");
+	al_draw_textf(font[TEXT], al_map_rgb(255, 0, 0), 300, 500, ALLEGRO_ALIGN_CENTRE, "%d", level->score);
 	al_flip_display();
 	al_rest(5);
 
@@ -237,7 +197,7 @@ void playerMovement(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITM
 
 
 //return whether ready to proceed to next level 
-bool levelProceed(Level * level, Explosion * explosion, Enemy ** enemy, Ufo * ufo, Bomb * bomb) {
+bool levelProceed(Level * level, Explosion * explosion, Enemy ** enemy, Ufo * ufo, Scm * scm) {
 	bool proceed = true;
 
 	//cannot go to next level if a missile is still on screen
@@ -267,8 +227,8 @@ bool levelProceed(Level * level, Explosion * explosion, Enemy ** enemy, Ufo * uf
 	}
 
 	//cannot go to next level if a smart cruise missile is still on screen 
-	for (int i = 0; i < level->maxBombOnScreen; i++) {
-		if (bomb[i].spawned)
+	for (int i = 0; i < level->maxScmOnScreen; i++) {
+		if (scm[i].spawned)
 			proceed = false;
 	}
 
@@ -282,17 +242,17 @@ void loadNextLevel(Level * level, Abm * abm, Base * base) {
 
 	//enemy missiles
 	level->enemySpeed += 0.1;
-	level->spawnLimit += 3;
+	level->spawnLimit += 5;
 	level->round++;
 
-	if ((level->round % 5) == 0)
-		level->maxEnemyOnScreen += 5;
+	if (level->round % 3 == 0)
+		level->maxEnemyOnScreen += 2;
 
-	if ((level->round % 3) == 0) {
+	if ((level->round % 2) == 0) {
 		if (level->spawnRangeMin > 0)
-			level->spawnRangeMin -= 10;
+			level->spawnRangeMin -= 5;
 		if (level->spawnRangeMax < 2000)
-			level->spawnRangeMax += 10;
+			level->spawnRangeMax += 5;
 	}
 
 	if (level->splitRangeMin > 0)
@@ -313,7 +273,13 @@ void loadNextLevel(Level * level, Abm * abm, Base * base) {
 	level->spawnUfo = true;
 	level->ufoSpeed += 0.5;
 	level->ufoSpawnLimit += 1;
-	(level->maxUfoOnScreen)++;
+
+	if (level->round % 2 == 0) {
+		if (level->maxUfoOnScreen <= 3) {
+			level->maxUfoOnScreen++;
+		}
+	}
+
 	(level->ufoSpawnLimit)++;
 	if (level->ufoSpawnRangeMin > 0)
 		level->ufoSpawnRangeMin -= 10;
@@ -323,13 +289,11 @@ void loadNextLevel(Level * level, Abm * abm, Base * base) {
 
 	//smart cruise missile
 	if ((level->round % 2) == 0) {
-		(level->bombSpawnLimit)++;
-		(level->bombSpeed) += 0.5;
+		(level->scmSpawnLimit)++;
+		(level->scmSpeed) += 0.5;
 	}
 	if ((level->round % 3) == 0)
-		(level->maxBombOnScreen)++;
-
-
+		(level->maxScmOnScreen)++;
 
 	//100 points for any remaining bases
 	for (i = 0; i < 6; i++) {
@@ -343,6 +307,35 @@ void loadNextLevel(Level * level, Abm * abm, Base * base) {
 			(level->score) += 5;
 	}
 
+	switch (level->round) {
+	case 1:
+	case 2:	
+		level->multiplier = 1; 
+		break;
+	case 3:
+	case 4:
+		level->multiplier = 2; 
+		break; 
+	case 5:
+	case 6:
+		level->multiplier = 3;
+		break; 
+	case 7: 
+	case 8:
+		level->multiplier = 4;
+		break;
+	case 9:
+	case 10:
+		level->multiplier = 5;
+		break; 
+	case 11:
+		level->multiplier = 6;
+	}
+
+	if (level->round > 11)
+		level->multiplier = 6; 
+
+	level->score *= level->multiplier; 
 }
 
 //read top 5 highscores from text file
@@ -413,6 +406,4 @@ void sortScore(FILE * fptr, Level * level) {
 	}
 
 	level->initialSort = false;
-
-	fclose(fptr); 
 }
