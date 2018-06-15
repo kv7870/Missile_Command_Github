@@ -104,11 +104,12 @@ void oneTimeInit(Level * level) {
 	level->splitRate = 1000;
 	level->splitAngle = 100;
 
-	level->spawnRangeMin = 499;
-	level->spawnRangeMax = 501;
+	level->spawnRangeMin = 400;
+	level->spawnRangeMax = 600;
 	level->splitRangeMin = 498;
 	level->splitRangeMax = 502;
-	level->maxEnemyOnScreen = 5;
+	level->maxEnemyOnScreen = 4;
+
 
 	//ufo (flying saucer)
 	level->spawnUfo = true;
@@ -154,7 +155,6 @@ void initLevel(Level * level) {
 
 	//enemy missile
 	level->num_spawned = 0;
-	level->currEnemyCount = 0; 
 
 	//ufo
 	level->ufoNumSpawned = 0;
@@ -226,7 +226,7 @@ void initAbm(Abm * abm, Explosion * explosion) {
 
 //reset enemies each level
 void initEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Scm * scm) {
-	for (int i = 0; i < level->maxEnemyOnScreen; i++) {
+	for (int i = 0; i < level->maxEnemyOnScreen/4; i++) {
 		for (int j = 0; j < SPLIT_COUNT; j++) {
 
 			//initialize regular enemy missiles

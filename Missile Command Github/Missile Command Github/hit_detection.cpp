@@ -35,7 +35,7 @@ void collision(Abm * abm, Enemy ** enemy, Explosion * explosion, Level * level, 
 		if (explosion[i].ongoing) {
 
 			//check for collision between explosion and regular enemy missile
-			for (int j = 0; j < level->maxEnemyOnScreen; j++) {
+			for (int j = 0; j < level->maxEnemyOnScreen/4; j++) {
 				for (int k = 0; k < SPLIT_COUNT; k++) {
 					if (enemy[j][k].launched) {
 
@@ -62,7 +62,6 @@ void collision(Abm * abm, Enemy ** enemy, Explosion * explosion, Level * level, 
 							al_play_sample(audio->explosion[audioSelection], 2.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 
 							enemy[j][k].launched = false;
-							level->currEnemyCount--;
 							level->score += 25;
 						}
 					}
@@ -104,7 +103,6 @@ void collision(Abm * abm, Enemy ** enemy, Explosion * explosion, Level * level, 
 							al_play_sample(audio->explosion[audioSelection], 2.0, 0.0, 1.0, ALLEGRO_PLAYMODE_ONCE, NULL);
 
 							ufo[j].missile[k].launched = false;
-							level->currEnemyCount--;
 							level->score += 25;
 						}
 					}
@@ -220,7 +218,7 @@ void baseCollision(Base * base, Enemy ** enemy, int baseCount, Level * level, Uf
 	for (i = 0; i < baseCount; i++) {
 		if (!base[i].destroyed) {
 
-			for (j = 0; j < level->maxEnemyOnScreen; j++)
+			for (j = 0; j < level->maxEnemyOnScreen/4; j++)
 				for (k = 0; k < SPLIT_COUNT; k++) {
 
 					if (enemy[j][k].launched) {

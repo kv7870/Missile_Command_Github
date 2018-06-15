@@ -179,7 +179,6 @@ typedef struct levelData {
 	int num_spawned;
 	int spawnLimit;
 
-	int currEnemyCount; 
 	int currUfoCount;
 	int currScmCount; 
 

@@ -134,7 +134,7 @@ void gameLoop(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *im
 
 					al_stop_timer(timer);
 
-					for (i = 0; i < level->maxEnemyOnScreen; i++) {
+					for (i = 0; i < level->maxEnemyOnScreen/4; i++) {
 						free(enemy[i]);
 					}
 
@@ -146,8 +146,8 @@ void gameLoop(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *im
 
 					loadNextLevel(level, abm, base);
 
-					enemy = (Enemy **)malloc((level->maxEnemyOnScreen) * sizeof(Enemy *));
-					for (i = 0; i < level->maxEnemyOnScreen; i++) {
+					enemy = (Enemy **)malloc((level->maxEnemyOnScreen/4) * sizeof(Enemy *));
+					for (i = 0; i < level->maxEnemyOnScreen/4; i++) {
 						enemy[i] = (Enemy *)malloc(SPLIT_COUNT * sizeof(Enemy));
 					}
 
@@ -172,7 +172,7 @@ void gameLoop(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *im
 	calcScore(level);
 	sortScore(fptr, level);
 
-	for (i = 0; i < level->maxEnemyOnScreen; i++) {
+	for (i = 0; i < level->maxEnemyOnScreen/4; i++) {
 		free(enemy[i]);
 	}
 
@@ -201,7 +201,7 @@ bool levelProceed(Level * level, Explosion * explosion, Enemy ** enemy, Ufo * uf
 	bool proceed = true;
 
 	//cannot go to next level if a missile is still on screen
-	for (int i = 0; i < level->maxEnemyOnScreen; i++) {
+	for (int i = 0; i < level->maxEnemyOnScreen/4; i++) {
 		for (int j = 0; j < SPLIT_COUNT; j++) {
 			if (enemy[i][j].launched)
 				proceed = false;
@@ -240,33 +240,24 @@ bool levelProceed(Level * level, Explosion * explosion, Enemy ** enemy, Ufo * uf
 void loadNextLevel(Level * level, Abm * abm, Base * base) {
 	int i;
 
-	//enemy missiles
+	//regular enemy missile
 	level->enemySpeed += 0.1;
 	level->spawnLimit += 5;
-	level->round++;
-
-	if (level->round % 3 == 0)
-		level->maxEnemyOnScreen += 2;
-
-	if ((level->round % 2) == 0) {
-		if (level->spawnRangeMin > 0)
-			level->spawnRangeMin -= 5;
-		if (level->spawnRangeMax < 2000)
-			level->spawnRangeMax += 5;
-	}
-
-	if (level->splitRangeMin > 0)
-		level->splitRangeMin -= 1;
-	if (level->splitRangeMax < 2000)
-		level->splitRangeMax += 1;
-
-
-
-	/*if (level->splitRate > 100)
-	level->splitRate -= 100;*/
 
 	if (level->splitAngle <= 600)
 		level->splitAngle += 50;
+	
+	if (level->round % 2 == 0) {
+		level->maxEnemyOnScreen += 4;
+		if (level->spawnRangeMin > 0)
+			level->spawnRangeMin -= 5;
+		if (level->spawnRangeMax < 1000)
+			level->spawnRangeMax += 5;
+		if (level->splitRangeMin > 0)
+			level->splitRangeMin -= 2;
+		if (level->splitRangeMax < 1000)
+			level->splitRangeMax += 2;
+	}
 
 
 	//ufo 
@@ -280,12 +271,10 @@ void loadNextLevel(Level * level, Abm * abm, Base * base) {
 		}
 	}
 
-	(level->ufoSpawnLimit)++;
 	if (level->ufoSpawnRangeMin > 0)
 		level->ufoSpawnRangeMin -= 10;
 	if (level->ufoSpawnRangeMax < 1000)
 		level->ufoSpawnRangeMax += 10;
-
 
 	//smart cruise missile
 	if ((level->round % 2) == 0) {
@@ -306,6 +295,8 @@ void loadNextLevel(Level * level, Abm * abm, Base * base) {
 		if (!abm[i].launched && !abm[i].arrived)
 			(level->score) += 5;
 	}
+
+	level->round++;
 
 	switch (level->round) {
 	case 1:
