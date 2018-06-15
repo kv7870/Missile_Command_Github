@@ -1,5 +1,3 @@
-//hit.cpp
-#include "stdafx.h"
 #include <stdio.h>
 #include <math.h>
 #include <allegro5/allegro.h> // Include the allegro header file.
@@ -30,10 +28,10 @@ void collision(Abm * abm, Enemy ** enemy, Explosion * explosion, Level * level, 
 				for (int k = 0; k < SPLIT_COUNT; k++) {
 					if (enemy[j][k].launched) {
 
-						//reduce enemy missile to a single pixel closest to the nearest explosion center
+						//calculate pixel of enemy missile closest to the nearest explosion center
 						clampSquare(&(explosion[i]), enemy[j][k], &clamp);
 
-						//enemy missile is hit if its closest pixel lies within radius of nearby explosion 
+						//enemy missile is hit if its closest pixel is touching explosion
 						if ((calcDistance(distance, explosion[i], clamp)) == true) {
 
 							explosion[i].expandedRadius = true;	//explosion grows bigger
@@ -74,8 +72,10 @@ void collision(Abm * abm, Enemy ** enemy, Explosion * explosion, Level * level, 
 				for (int k = 0; k < 2; k++) {
 					if (ufo[j].missile[k].launched) {
 
+						//calculate pixel of cruise missile closest to the nearest explosion center
 						clampSquare(&(explosion[i]), ufo[j].missile[k], &clamp);
 
+						//cruise missile is hit if its closest pixel is touching explosion
 						if ((calcDistance(distance, explosion[i], clamp)) == true) {
 
 							explosion[i].expandedRadius = true;
@@ -156,12 +156,11 @@ void scmCollision(Scm * scm, Explosion * explosion, Level * level, Audio * audio
 			for (j = 0; j < ABM_COUNT; j++) {
 				if (explosion[j].ongoing) {
 
+					//calculate pixel of smart cruise missile closest to the nearest explosion center
 					clampScm(&explosion[j], &scm[i], &clamp);
 
-					distance.x = fabs(explosion[j].center.x - clamp.x);
-					distance.y = fabs(explosion[j].center.y - clamp.y);
-
-					if (pow(distance.x, 2) + pow(distance.y, 2) <= pow(explosion[j].radius, 2)) {
+					//scm is hit if its closest pixel is touching an explosion
+					if((calcDistance(distance, explosion[i], clamp)) == true) {
 
 						explosion[j].expandedRadius = true;
 						explosion[j].increaseRadius = true;
@@ -179,9 +178,10 @@ void scmCollision(Scm * scm, Explosion * explosion, Level * level, Audio * audio
 }
 
 
+//calculate pixel of scm closest to an explosion center
 void clampScm(Explosion * explosion, Scm * scm, Vector * clamp) {
 
-	//clamp x (xNew = new rotated center.x)
+	//clamp x 
 	if (explosion->center.x < scm->topLeft.x)
 		clamp->x = scm->topLeft.x;
 
@@ -190,6 +190,7 @@ void clampScm(Explosion * explosion, Scm * scm, Vector * clamp) {
 
 	else
 		clamp->x = explosion->center.x;
+
 
 	//clamp y
 	if (explosion->center.y < scm->topLeft.y)

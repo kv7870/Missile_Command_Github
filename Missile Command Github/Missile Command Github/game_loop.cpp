@@ -1,4 +1,8 @@
-#include "stdafx.h"
+/*
+MISSILE COMMAND SUMMATIVE BY KEVIN YANG & EDWARD LI
+FINAL VERSION
+*/
+
 #include <stdio.h>
 #include <allegro5/allegro.h> // Include the allegro header file.
 #include <allegro5/allegro_font.h>
@@ -268,7 +272,7 @@ void loadNextLevel(Level * level, Abm * abm, Base * base) {
 		
 		//smart cruise missile
 		(level->scmSpawnLimit)++;
-		(level->scmSpeed) += 0.5;
+		(level->scmSpeed) += 0.25;
 	}
 
 	level->ufoSpawnLimit += 1;
@@ -276,7 +280,7 @@ void loadNextLevel(Level * level, Abm * abm, Base * base) {
 		level->maxEnemyOnScreen += 4;
 
 	if (level->scmSpawnRate > 100)
-		level->scmSpawnRate -= 100;
+		level->scmSpawnRate -= 50;
 
 
 	//ufo 
@@ -346,7 +350,6 @@ void readScore(FILE * fptr, Level * level) {
 
 	for (int i = 0; i < level->highScoreCount; i++) {
 		fscanf(fptr, "%d", &(level->highScores[i]));
-		printf("%d\n", level->highScores[i]);
 	}
 
 	fclose(fptr);

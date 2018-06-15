@@ -1,4 +1,8 @@
-#include "stdafx.h"
+/*
+MISSILE COMMAND SUMMATIVE BY KEVIN YANG & EDWARD LI
+FINAL VERSION
+*/
+
 #include <stdio.h>
 #include <allegro5/allegro.h> 
 #include <allegro5/allegro_font.h>
@@ -98,7 +102,7 @@ void oneTimeInit(Level * level) {
 
 	//regular enemy missile 
 	level->enemySpeed = 1.25;
-	level->lives = 6;
+	level->lives = 600;
 	level->spawnLimit = 10;
 	level->spawnRate = 1000;
 	level->splitRate = 1000;
@@ -121,11 +125,11 @@ void oneTimeInit(Level * level) {
 	level->ufoSpawnRangeMax = 501;
 	level->maxUfoOnScreen = 1;
 
-	//cruise missile
+	//smart cruise missile
 	level->spawnScm = false; 
 	level->scmSpawnLimit = 1;
 	level->scmSpeed = 2;
-	level->scmSpawnRate = 10;
+	level->scmSpawnRate = 500;
 	level->maxScmOnScreen = 1;
 
 	//base x-coordinates (left)

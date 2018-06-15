@@ -1,4 +1,8 @@
-#include "stdafx.h"
+/*
+MISSILE COMMAND SUMMATIVE BY KEVIN YANG & EDWARD LI
+FINAL VERSION
+*/
+
 #include <stdio.h>
 #include <math.h>
 #include <allegro5/allegro.h> // Include the allegro header file.
@@ -100,7 +104,6 @@ void spawnEnemy(Enemy ** enemy, Level * level, Ufo * ufo, Scm * scm, Base * base
 						ufo[i].colour = rand() % 2;			//red or blue 
 						level->ufoNumSpawned++;
 						level->ufoLastSpawned = al_get_timer_count(timer);
-						printf("spawned ufo[%d]\n", i);
 						break;
 					}
 				}

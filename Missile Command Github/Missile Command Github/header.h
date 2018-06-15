@@ -1,4 +1,8 @@
-//globals 
+/*
+MISSILE COMMAND SUMMATIVE BY KEVIN YANG & EDWARD LI
+FINAL VERSION
+*/
+
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 
