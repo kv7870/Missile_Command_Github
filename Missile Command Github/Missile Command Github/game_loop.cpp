@@ -1,9 +1,8 @@
 /*
-MISSILE COMMAND SUMMATIVE BY KEVIN YANG & EDWARD LI
+MISSILE COMMAND SUMMATIVE BY KEVIN YANG
 FINAL VERSION
 */
 
-#include "stdafx.h"
 #include <stdio.h>
 #include <allegro5/allegro.h> // Include the allegro header file.
 #include <allegro5/allegro_font.h>
@@ -68,6 +67,7 @@ void gameLoop(ALLEGRO_DISPLAY *display, ALLEGRO_TIMER *timer, ALLEGRO_BITMAP *im
 
 		else if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
 			done = true;
+			exit(0); 
 		}
 
 		else if (ev.type == ALLEGRO_EVENT_MOUSE_AXES || ev.type == ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY) {

@@ -1,9 +1,8 @@
 /*
-MISSILE COMMAND SUMMATIVE BY KEVIN YANG & EDWARD LI
+MISSILE COMMAND SUMMATIVE BY KEVIN YANG 
 FINAL VERSION
 */
 
-#include "stdafx.h"
 #include <stdio.h>
 #include <math.h>
 #include <allegro5/allegro.h> // Include the allegro header file.
